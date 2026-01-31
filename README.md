@@ -74,6 +74,7 @@ npm run build
 ```
 
 This will create a `dist/` folder with your bundled static website files. Vite will:
+
 - Bundle and minify JavaScript
 - Process CSS
 - Optimize assets
@@ -86,6 +87,7 @@ The repository includes two GitHub Actions workflows:
 ### 1. PR Checks (`.github/workflows/pr-checks.yml`)
 
 Runs on every Pull Request to `main`:
+
 - Linting (ESLint)
 - Format checking (Prettier)
 - Type checking (TypeScript)
@@ -96,6 +98,7 @@ Runs on every Pull Request to `main`:
 ### 2. CI/CD Pipeline (`.github/workflows/ci.yml`)
 
 Runs on:
+
 - **Pull Requests**: Same checks as PR Checks workflow
 - **Push to main**: All checks + automatic deployment to Cloudflare Pages
 
