@@ -1,0 +1,39 @@
+{
+  "name": "playground",
+  "version": "1.0.0",
+  "description": "AI agent generated code playground",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "type-check": "tsc --noEmit",
+    "security:audit": "npm audit --audit-level=moderate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "22.19.7",
+    "@typescript-eslint/eslint-plugin": "8.54.0",
+    "@typescript-eslint/parser": "8.54.0",
+    "@vitest/coverage-v8": "4.0.18",
+    "eslint": "9.39.2",
+    "eslint-config-prettier": "9.1.2",
+    "eslint-plugin-security": "1.7.1",
+    "prettier": "3.5.0",
+    "typescript": "5.9.3",
+    "vite": "^5.1.0",
+    "vitest": "4.0.18"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
