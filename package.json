@@ -15,7 +15,8 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
-    "security:audit": "npm audit --audit-level=moderate"
+    "security:audit": "npm audit --audit-level=moderate",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +29,8 @@
     "eslint": "9.39.2",
     "eslint-config-prettier": "9.1.2",
     "eslint-plugin-security": "1.7.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "prettier": "3.5.0",
     "typescript": "5.9.3",
     "vite": "^5.1.0",
@@ -35,5 +38,8 @@
   },
   "engines": {
     "node": ">=22.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,md,html}": "prettier --write"
   }
 }
