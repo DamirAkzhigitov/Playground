@@ -1,45 +1,21 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tabs & Tic Tac Toe</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="tabs">
-      <button class="tab-button" data-tab="1">Tab 1</button>
-      <button class="tab-button" data-tab="2">Tab 2</button>
-      <button class="tab-button" data-tab="3">Tab 3</button>
-    </div>
-    <div class="tab-content" data-tab="1">
-      <h2>Content for Tab 1</h2>
-      <div class="tic-tac-toe">
-        <div class="row">
-          <div class="cell" data-index="0"></div>
-          <div class="cell" data-index="1"></div>
-          <div class="cell" data-index="2"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Tic Tac Toe</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game">
+        <h1>Tic Tac Toe</h1>
+        <div id="board">
+            <!-- The game board will be dynamically generated here -->
         </div>
-        <div class="row">
-          <div class="cell" data-index="3"></div>
-          <div class="cell" data-index="4"></div>
-          <div class="cell" data-index="5"></div>
-        </div>
-        <div class="row">
-          <div class="cell" data-index="6"></div>
-          <div class="cell" data-index="7"></div>
-          <div class="cell" data-index="8"></div>
-        </div>
-      </div>
+        <div id="message"></div>
+        <button id="newGame" style="display:none;">Start New Game</button>
     </div>
-    <div class="tab-content" data-tab="2">
-      <h2>Content for Tab 2</h2>
-      <p>More content here...</p>
-    </div>
-    <div class="tab-content" data-tab="3">
-      <h2>Content for Tab 3</h2>
-      <p>Even more content...</p>
-    </div>
-    <script type="module" src="script.js"></script>
-  </body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
 </html>
