@@ -3,32 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Page App</title>
+    <title>Tabs & Tic Tac Toe</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="index.html">Tic-Tac-Toe</a></li>
-            <li><a href="calculator.html">Calculator</a></li>
-            <li><a href="watch.html">Digital Watch</a></li>
-        </ul>
-    </nav>
-    <main id="content">
-        <h1>Tic-Tac-Toe Game</h1>
-        <div id="game">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
+    <div class="tabs">
+        <button class="tab-button" data-tab="1">Tab 1</button>
+        <button class="tab-button" data-tab="2">Tab 2</button>
+        <button class="tab-button" data-tab="3">Tab 3</button>
+    </div>
+    <div class="tab-content" data-tab="1">
+        <h2>Content for Tab 1</h2>
+        <div class="tic-tac-toe">
+            <div class="row">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+            </div>
+            <div class="row">
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+            </div>
+            <div class="row">
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
         </div>
-        <button id="restart">Restart Game</button>
-    </main>
-    <script src="tic-tac-toe.js"></script>
+    </div>
+    <div class="tab-content" data-tab="2">
+        <h2>Content for Tab 2</h2>
+        <p>More content here...</p>
+    </div>
+    <div class="tab-content" data-tab="3">
+        <h2>Content for Tab 3</h2>
+        <p>Even more content...</p>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
