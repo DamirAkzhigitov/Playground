@@ -1,25 +1,28 @@
-// Main JavaScript file
-console.log('Playground app initialized!')
+// Initialize language switcher and author bio visibility
+console.log('Playground: language switcher ready')
 
-// Get DOM elements
-const messageElement = document.getElementById('message')
-const clickButton = document.getElementById('clickButton')
+const ruBtn = document.getElementById('lang-ru')
+const enBtn = document.getElementById('lang-en')
+const ruBio = document.querySelector('.bio-ru')
+const enBio = document.querySelector('.bio-en')
 
-// Update message on page load
-messageElement.textContent = 'Hello from JavaScript!'
-
-// Add click event listener
-let clickCount = 0
-clickButton.addEventListener('click', () => {
-  clickCount += 1
-  messageElement.textContent = `Button clicked ${clickCount} time${clickCount !== 1 ? 's' : ''}!`
-  console.log(`Button clicked ${clickCount} times`)
-})
-
-// Example function
-function greet(name) {
-  return `Hello, ${name}!`
+function applyLang(lang) {
+  const isRu = lang === 'ru'
+  ruBio?.classList.toggle('visible', isRu)
+  enBio?.classList.toggle('visible', !isRu)
+  ruBtn?.setAttribute('aria-pressed', String(isRu))
+  enBtn?.setAttribute('aria-pressed', String(!isRu))
+  localStorage.setItem('lang', lang)
+  // Update <html lang="..">
+  document.documentElement.setAttribute('lang', isRu ? 'ru' : 'en')
 }
 
-// Export for potential use in other modules
-export { greet }
+function init() {
+  const saved = localStorage.getItem('lang') || 'ru'
+  applyLang(saved)
+
+  ruBtn?.addEventListener('click', () => applyLang('ru'))
+  enBtn?.addEventListener('click', () => applyLang('en'))
+}
+
+document.addEventListener('DOMContentLoaded', init)

@@ -3,15 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome Home</title>
+    <title>Playground</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <div id="app">
-      <h1>Welcome to Playground</h1>
-      <p id="message">Loading...</p>
-      <button id="clickButton">Click Me!</button>
+    <header class="site-header">
+      <div class="container">
+        <div class="brand">Playground</div>
+        <nav class="lang-switch" aria-label="Language switcher">
+          <button
+            id="lang-ru"
+            data-lang="ru"
+            class="lang-btn"
+            aria-pressed="false"
+          >
+            RU
+          </button>
+          <button
+            id="lang-en"
+            data-lang="en"
+            class="lang-btn"
+            aria-pressed="false"
+          >
+            EN
+          </button>
+        </nav>
+      </div>
+    </header>
 
+    <main id="app" class="container">
       <section id="author" class="author">
         <figure>
           <img
@@ -22,13 +42,13 @@
             loading="lazy"
           />
           <figcaption>
-            <p>
+            <p class="bio bio-ru">
               <strong>Создатель сайта — Damir Akzhigitov.</strong> Продуктовый
               инженер и дизайнер интерфейсов. Делает простые и быстрые веб‑вещи,
               любит чистую архитектуру и вежливые интерфейсы. Контакт:
               <a href="mailto:hi@da-mr.com">hi@da-mr.com</a>.
             </p>
-            <p>
+            <p class="bio bio-en">
               <strong>Site creator — Damir Akzhigitov.</strong> Product engineer
               and UI designer focused on simple, fast web experiences, clean
               architecture, and thoughtful interfaces. Contact:
@@ -37,7 +57,8 @@
           </figcaption>
         </figure>
       </section>
-    </div>
+    </main>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
