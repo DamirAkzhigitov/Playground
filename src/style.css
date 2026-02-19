@@ -8,6 +8,8 @@
   --bg-grad-start: #0f172a;
   --bg-grad-end: #1e293b;
   --accent: #667eea;
+  --card-bg: #0b1220;
+  --muted: #94a3b8;
 }
 
 body {
@@ -71,7 +73,7 @@ body {
 }
 
 #app {
-  background: #0b1220;
+  background: var(--card-bg);
   margin-top: 2rem;
   padding: 2rem;
   border-radius: 16px;
@@ -79,6 +81,9 @@ body {
   text-align: left;
 }
 
+.author {
+  margin-bottom: 2rem;
+}
 .author figure {
   display: grid;
   grid-template-columns: 160px 1fr;

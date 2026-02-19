@@ -1,0 +1,44 @@
+/* Recipes */
+.recipes {
+  margin-top: 2rem;
+}
+.recipes-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.recipes-title {
+  color: #fff;
+  font-size: 1.25rem;
+}
+.primary-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.recipe-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem;
+}
+.recipe-card h3 {
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+.recipe-card .muted {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.recipe-card ul,
+.recipe-card ol {
+  margin-left: 1.25rem;
+}
+.recipe-card li {
+  margin: 0.25rem 0;
+}

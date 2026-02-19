@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Playground</title>
     <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/recipes.css" />
   </head>
   <body>
     <header class="site-header">
@@ -56,6 +57,14 @@
             </p>
           </figcaption>
         </figure>
+      </section>
+
+      <section id="recipes" class="recipes">
+        <div class="recipes-head">
+          <h2 class="recipes-title">Случайный рецепт</h2>
+          <button id="recipeButton" class="primary-btn">Показать рецепт</button>
+        </div>
+        <article id="recipe" class="recipe-card" aria-live="polite"></article>
       </section>
     </main>
 
