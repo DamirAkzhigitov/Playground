@@ -21,15 +21,36 @@
   border-radius: 8px;
   cursor: pointer;
 }
+.primary-btn[disabled] {
+  opacity: 0.6;
+  cursor: wait;
+}
 .recipe-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 1rem;
 }
+.recipe-hero {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+.recipe-hero img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.recipe-meta {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
 .recipe-card h3 {
   color: #fff;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 .recipe-card .muted {
   color: var(--muted);
