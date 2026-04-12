@@ -142,26 +142,108 @@
             >Ведущий frontend-разработчик</span
           >
         </div>
-        <nav class="lang-switch" aria-label="Language">
-          <button
-            id="lang-ru"
-            type="button"
-            data-lang="ru"
-            class="lang-btn"
-            aria-pressed="false"
+        <div class="header-actions">
+          <a
+            id="header-linkedin"
+            class="header-linkedin"
+            href="https://www.linkedin.com/in/damir-akzhigitov"
+            rel="me noopener noreferrer"
+            ><span class="header-linkedin-label-en">LinkedIn CV</span
+            ><span class="header-linkedin-label-ru" hidden
+              >Резюме в LinkedIn</span
+            ></a
           >
-            RU
-          </button>
-          <button
-            id="lang-en"
-            type="button"
-            data-lang="en"
-            class="lang-btn"
-            aria-pressed="false"
+          <div
+            class="explore-progress mode-explore-only"
+            role="status"
+            aria-live="polite"
           >
-            EN
-          </button>
-        </nav>
+            <svg
+              class="explore-progress-svg"
+              width="44"
+              height="44"
+              viewBox="0 0 44 44"
+              aria-hidden="true"
+            >
+              <circle
+                class="explore-progress-track"
+                cx="22"
+                cy="22"
+                r="18"
+                fill="none"
+                stroke="rgba(255,255,255,0.12)"
+                stroke-width="3"
+              />
+              <circle
+                id="explore-progress-ring"
+                class="explore-progress-ring"
+                cx="22"
+                cy="22"
+                r="18"
+                fill="none"
+                stroke="var(--accent-hot)"
+                stroke-width="3"
+                stroke-linecap="round"
+                transform="rotate(-90 22 22)"
+                stroke-dasharray="113.097 113.097"
+                stroke-dashoffset="113.097"
+              />
+            </svg>
+            <span
+              id="explore-progress-label"
+              class="explore-progress-text title-en"
+              >0/6 unlocked</span
+            >
+            <span
+              id="explore-progress-label-ru"
+              class="explore-progress-text title-ru"
+              hidden
+              >0/6 открыто</span
+            >
+          </div>
+          <div class="mode-toggle" role="group" aria-label="View mode">
+            <button
+              id="mode-explore"
+              type="button"
+              class="mode-btn"
+              aria-pressed="true"
+              aria-label="Explore: open each section"
+            >
+              <span class="mode-btn-label-en">Explore</span>
+              <span class="mode-btn-label-ru" hidden>Обзор</span>
+            </button>
+            <button
+              id="mode-read"
+              type="button"
+              class="mode-btn"
+              aria-pressed="false"
+              aria-label="Read: full page"
+            >
+              <span class="mode-btn-label-en">Read</span>
+              <span class="mode-btn-label-ru" hidden>Читать</span>
+            </button>
+          </div>
+          <nav class="lang-switch" aria-label="Language">
+            <button
+              id="lang-ru"
+              type="button"
+              data-lang="ru"
+              class="lang-btn"
+              aria-pressed="false"
+            >
+              RU
+            </button>
+            <button
+              id="lang-en"
+              type="button"
+              data-lang="en"
+              class="lang-btn"
+              aria-pressed="false"
+            >
+              EN
+            </button>
+          </nav>
+        </div>
       </div>
     </header>
 
@@ -220,476 +302,569 @@
         <meta itemprop="image" content="https://da-mr.com/images/author.webp" />
         <meta itemprop="headline" content="Damir Akzhigitov" />
 
-        <section class="resume-section" aria-labelledby="summary-heading">
-          <h2 id="summary-heading" class="section-title">
-            <span class="title-en">Summary</span>
-            <span class="title-ru" hidden>Кратко</span>
-          </h2>
-          <div class="prose prose-en">
-            <p>
-              <strong>Senior Frontend Engineer</strong> with
-              <strong>6+ years</strong> shipping production applications for
-              <strong>financial services</strong> and
-              <strong>high-traffic</strong> platforms. I specialize in the
-              <strong>Vue.js</strong> and <strong>React</strong> ecosystems,
-              have led technical initiatives across
-              <strong>16+ frontend developers</strong>, and focus on
-              micro-frontend architecture, migrations, and measurable product
-              outcomes. Based in <strong>Limassol, Cyprus</strong>.
-            </p>
-          </div>
-          <div class="prose prose-ru" hidden>
-            <p>
-              <strong>Senior Frontend Engineer</strong>, более
-              <strong>6 лет</strong> в продакшене для
-              <strong>финансовых сервисов</strong> и
-              <strong>высоконагруженных</strong> продуктов. Специализация —
-              экосистемы <strong>Vue.js</strong> и <strong>React</strong>,
-              координация работы <strong>16+ фронтенд-разработчиков</strong>,
-              микрофронтенды, миграции и измеримый эффект для продукта.
-              <strong>Лимасол, Кипр</strong>.
-            </p>
-          </div>
+        <section
+          class="resume-section resume-section-details"
+          aria-labelledby="summary-heading"
+        >
+          <details class="resume-details" open>
+            <summary class="resume-details-summary">
+              <span class="resume-details-title">
+                <h2
+                  id="summary-heading"
+                  class="section-title resume-details-h2"
+                >
+                  <span class="title-en">Summary</span>
+                  <span class="title-ru" hidden>Кратко</span>
+                </h2>
+              </span>
+              <span class="resume-details-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="resume-details-body">
+              <div class="prose prose-en">
+                <p>
+                  <strong>Senior Frontend Engineer</strong> with
+                  <strong>6+ years</strong> shipping production applications for
+                  <strong>financial services</strong> and
+                  <strong>high-traffic</strong> platforms. I specialize in the
+                  <strong>Vue.js</strong> and <strong>React</strong> ecosystems,
+                  have led technical initiatives across
+                  <strong>16+ frontend developers</strong>, and focus on
+                  micro-frontend architecture, migrations, and measurable
+                  product outcomes. Based in <strong>Limassol, Cyprus</strong>.
+                </p>
+              </div>
+              <div class="prose prose-ru" hidden>
+                <p>
+                  <strong>Senior Frontend Engineer</strong>, более
+                  <strong>6 лет</strong> в продакшене для
+                  <strong>финансовых сервисов</strong> и
+                  <strong>высоконагруженных</strong> продуктов. Специализация —
+                  экосистемы <strong>Vue.js</strong> и <strong>React</strong>,
+                  координация работы
+                  <strong>16+ фронтенд-разработчиков</strong>, микрофронтенды,
+                  миграции и измеримый эффект для продукта.
+                  <strong>Лимасол, Кипр</strong>.
+                </p>
+              </div>
+            </div>
+          </details>
         </section>
 
         <section
-          class="resume-section"
+          class="resume-section resume-section-details"
           aria-labelledby="experience-heading"
           itemscope
           itemtype="https://schema.org/ItemList"
         >
           <meta itemprop="name" content="Professional experience" />
-          <h2 id="experience-heading" class="section-title">
-            <span class="title-en">Professional experience</span>
-            <span class="title-ru" hidden>Опыт работы</span>
-          </h2>
-          <div class="prose prose-en experience-list">
-            <article
-              class="job-card"
-              itemprop="itemListElement"
-              itemscope
-              itemtype="https://schema.org/ListItem"
-            >
-              <meta itemprop="position" content="1" />
-              <div
-                itemprop="item"
-                itemscope
-                itemtype="https://schema.org/WorkPosition"
-              >
-                <h3 class="job-title" itemprop="name">
-                  Senior Associate, Frontend Engineer
-                </h3>
-                <p class="job-meta">
-                  <span
-                    itemprop="worksFor"
+          <details class="resume-details" open>
+            <summary class="resume-details-summary">
+              <span class="resume-details-title">
+                <h2
+                  id="experience-heading"
+                  class="section-title resume-details-h2"
+                >
+                  <span class="title-en">Professional experience</span>
+                  <span class="title-ru" hidden>Опыт работы</span>
+                </h2>
+              </span>
+              <span class="resume-details-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="resume-details-body">
+              <div class="prose prose-en experience-list">
+                <article
+                  class="job-card"
+                  itemprop="itemListElement"
+                  itemscope
+                  itemtype="https://schema.org/ListItem"
+                >
+                  <meta itemprop="position" content="1" />
+                  <div
+                    itemprop="item"
                     itemscope
-                    itemtype="https://schema.org/Organization"
-                    ><span itemprop="name"
-                      >MUFG Fund Services Limited</span
-                    ></span
+                    itemtype="https://schema.org/WorkPosition"
                   >
-                  · Cyprus ·
-                  <time datetime="2022-03-01">Mar 2022</time> – Present (3+
-                  years)
-                </p>
-                <ul class="job-duties">
+                    <h3 class="job-title" itemprop="name">
+                      Senior Associate, Frontend Engineer
+                    </h3>
+                    <p class="job-meta">
+                      <span
+                        itemprop="worksFor"
+                        itemscope
+                        itemtype="https://schema.org/Organization"
+                        ><span itemprop="name"
+                          >MUFG Fund Services Limited</span
+                        ></span
+                      >
+                      · Cyprus ·
+                      <time datetime="2022-03-01">Mar 2022</time> – Present (3+
+                      years)
+                    </p>
+                    <ul class="job-duties">
+                      <li>
+                        Led improvements to
+                        <strong>micro-frontend architecture</strong>: spotting
+                        issues early and proposing stronger technical solutions.
+                      </li>
+                      <li>
+                        Coordinated technical delivery for large-scale features
+                        across <strong>16+ frontend developers</strong> — docs,
+                        tracking, alignment.
+                      </li>
+                      <li>
+                        Partnered with <strong>product managers</strong> on
+                        discovery and requirements; refined specs before
+                        development.
+                      </li>
+                      <li>
+                        Migrated multiple repos from
+                        <strong>Vue 2 → Vue 3</strong> with
+                        <strong>TypeScript</strong> and the Composition API.
+                      </li>
+                      <li>
+                        Code review and mentoring; <strong>TDD</strong> and
+                        <strong>Clean Code</strong> practices.
+                      </li>
+                    </ul>
+                  </div>
+                </article>
+                <article
+                  class="job-card"
+                  itemprop="itemListElement"
+                  itemscope
+                  itemtype="https://schema.org/ListItem"
+                >
+                  <meta itemprop="position" content="2" />
+                  <div
+                    itemprop="item"
+                    itemscope
+                    itemtype="https://schema.org/WorkPosition"
+                  >
+                    <h3 class="job-title" itemprop="name">
+                      Banking Application Web Developer
+                    </h3>
+                    <p class="job-meta">
+                      <span
+                        itemprop="worksFor"
+                        itemscope
+                        itemtype="https://schema.org/Organization"
+                        ><span itemprop="name"
+                          >Savings and Loan Services Bank</span
+                        ></span
+                      >
+                      · Russia ·
+                      <time datetime="2021-06-01">Jun 2021</time> –
+                      <time datetime="2022-05-31">May 2022</time> (11 months)
+                    </p>
+                    <ul class="job-duties">
+                      <li>
+                        Rebuilt the bank’s internal sales tool; managers
+                        processed client applications
+                        <strong>25%+ faster</strong> with fewer data-entry
+                        errors.
+                      </li>
+                      <li>
+                        Lead frontend with the department director:
+                        <strong>Vue 3</strong>, <strong>TypeScript</strong>,
+                        Bootstrap-based component libraries.
+                      </li>
+                    </ul>
+                  </div>
+                </article>
+                <article
+                  class="job-card"
+                  itemprop="itemListElement"
+                  itemscope
+                  itemtype="https://schema.org/ListItem"
+                >
+                  <meta itemprop="position" content="3" />
+                  <div
+                    itemprop="item"
+                    itemscope
+                    itemtype="https://schema.org/WorkPosition"
+                  >
+                    <h3 class="job-title" itemprop="name">
+                      Middle Frontend Developer
+                    </h3>
+                    <p class="job-meta">
+                      <span
+                        itemprop="worksFor"
+                        itemscope
+                        itemtype="https://schema.org/Organization"
+                        ><span itemprop="name"
+                          >Payterra Processing Company, LLC</span
+                        ></span
+                      >
+                      · Russia ·
+                      <time datetime="2020-12-01">Dec 2020</time> –
+                      <time datetime="2021-06-30">Jun 2021</time> (6 months)
+                    </p>
+                    <ul class="job-duties">
+                      <li>
+                        Built a new <strong>React</strong> streaming widget
+                        system so streamers could grow earnings and the
+                        platform’s user base.
+                      </li>
+                    </ul>
+                  </div>
+                </article>
+                <article
+                  class="job-card"
+                  itemprop="itemListElement"
+                  itemscope
+                  itemtype="https://schema.org/ListItem"
+                >
+                  <meta itemprop="position" content="4" />
+                  <div
+                    itemprop="item"
+                    itemscope
+                    itemtype="https://schema.org/WorkPosition"
+                  >
+                    <h3 class="job-title" itemprop="name">
+                      Frontend Developer (A/B testing)
+                    </h3>
+                    <p class="job-meta">
+                      <span
+                        itemprop="worksFor"
+                        itemscope
+                        itemtype="https://schema.org/Organization"
+                        ><span itemprop="name">Kameleoon</span></span
+                      >
+                      · Russia ·
+                      <time datetime="2019-10-01">Oct 2019</time> –
+                      <time datetime="2020-12-31">Dec 2020</time> (1 year 3
+                      months)
+                    </p>
+                    <ul class="job-duties">
+                      <li>
+                        Client-side <strong>A/B tests</strong> for high-traffic
+                        e-commerce — better conversion and client retention.
+                      </li>
+                    </ul>
+                  </div>
+                </article>
+              </div>
+              <div class="prose prose-ru experience-list" hidden>
+                <article class="job-card">
+                  <h3 class="job-title">
+                    Ведущий специалист, инженер фронтенда (Senior Associate)
+                  </h3>
+                  <p class="job-meta">
+                    MUFG Fund Services Limited · Кипр · март 2022 — по настоящее
+                    время
+                  </p>
+                  <ul class="job-duties">
+                    <li>
+                      Развитие <strong>микрофронтенд-архитектуры</strong>,
+                      раннее выявление рисков и технические решения.
+                    </li>
+                    <li>
+                      Координация крупных фич для
+                      <strong>16+ фронтенд-разработчиков</strong>: документация,
+                      трекинг, синхронизация.
+                    </li>
+                    <li>
+                      Совместная работа с <strong>продактами</strong> на этапе
+                      постановки и уточнения требований.
+                    </li>
+                    <li>
+                      Миграции <strong>Vue 2 → Vue 3</strong> с
+                      <strong>TypeScript</strong> и Composition API.
+                    </li>
+                    <li>
+                      Ревью кода и менторинг; <strong>TDD</strong> и
+                      <strong>Clean Code</strong>.
+                    </li>
+                  </ul>
+                </article>
+                <article class="job-card">
+                  <h3 class="job-title">
+                    Веб-разработчик банковских приложений
+                  </h3>
+                  <p class="job-meta">
+                    Savings and Loan Services Bank · Россия · июнь 2021 — май
+                    2022
+                  </p>
+                  <ul class="job-duties">
+                    <li>
+                      Перестроил внутренний инструмент продаж: ускорение
+                      обработки заявок <strong>более чем на 25%</strong>, меньше
+                      ошибок ввода.
+                    </li>
+                    <li>
+                      Ведущий фронтенд с руководством:
+                      <strong>Vue 3</strong>, <strong>TypeScript</strong>,
+                      компоненты на базе Bootstrap.
+                    </li>
+                  </ul>
+                </article>
+                <article class="job-card">
+                  <h3 class="job-title">Разработчик фронтенда (middle)</h3>
+                  <p class="job-meta">
+                    Payterra Processing Company · Россия · дек 2020 — июнь 2021
+                  </p>
+                  <ul class="job-duties">
+                    <li>
+                      Новая система виджетов на <strong>React</strong> для
+                      стриминга и роста аудитории.
+                    </li>
+                  </ul>
+                </article>
+                <article class="job-card">
+                  <h3 class="job-title">
+                    Разработчик фронтенда (A/B-тестирование)
+                  </h3>
+                  <p class="job-meta">
+                    Kameleoon · Россия · окт 2019 — дек 2020
+                  </p>
+                  <ul class="job-duties">
+                    <li>
+                      Клиентские A/B-тесты для высоконагруженного e-commerce:
+                      конверсия и удержание.
+                    </li>
+                  </ul>
+                </article>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <section
+          class="resume-section resume-section-details"
+          aria-labelledby="skills-heading"
+        >
+          <details class="resume-details" open>
+            <summary class="resume-details-summary">
+              <span class="resume-details-title">
+                <h2 id="skills-heading" class="section-title resume-details-h2">
+                  <span class="title-en">Skills &amp; stack</span>
+                  <span class="title-ru" hidden>Навыки и стек</span>
+                </h2>
+              </span>
+              <span class="resume-details-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="resume-details-body">
+              <div class="prose prose-en skills-grid">
+                <div class="skill-group">
+                  <h3 class="skill-group-title">Technical</h3>
+                  <p>
+                    <strong>Languages:</strong> JavaScript, TypeScript, C#, SQL.
+                    <strong> Frontend:</strong> React, Vue.js, CSS3, SCSS.
+                    <strong> APIs &amp; data:</strong> GraphQL, REST, database
+                    design.
+                  </p>
+                  <p>
+                    <strong>Libraries &amp; tooling:</strong> Jest, Playwright,
+                    AG-Grid, AG-Charts, i18n, Apollo, Webpack, OpenAI.
+                    <strong> DevOps &amp; quality:</strong> Git, CI/CD, Vite,
+                    AWS, Jira, Babel, ESLint, Prettier, Amplify, Datadog.
+                  </p>
+                  <p>
+                    <strong>Concepts:</strong> Domain-Driven Design (DDD), A/B
+                    testing, micro-frontends.
+                  </p>
+                </div>
+                <div class="skill-group">
+                  <h3 class="skill-group-title">Soft skills</h3>
+                  <ul class="skill-list skill-list-inline">
+                    <li>Mentoring &amp; coaching</li>
+                    <li>Problem-solving</li>
+                    <li>Cross-functional communication</li>
+                    <li>Proactive initiative</li>
+                    <li>Team building &amp; morale</li>
+                  </ul>
+                </div>
+                <div class="skill-group">
+                  <h3 class="skill-group-title">Languages</h3>
+                  <ul class="skill-list lang-list">
+                    <li>Russian — Native</li>
+                    <li>English — B2</li>
+                    <li>Greek — Intermediate (A2)</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="prose prose-ru skills-grid" hidden>
+                <div class="skill-group">
+                  <h3 class="skill-group-title">Технические</h3>
+                  <p>
+                    <strong>Языки:</strong> JavaScript, TypeScript, C#, SQL.
+                    <strong> Frontend:</strong> React, Vue.js, CSS3, SCSS.
+                    <strong> API и данные:</strong> GraphQL, REST,
+                    проектирование БД.
+                  </p>
+                  <p>
+                    <strong>Библиотеки и инструменты:</strong> Jest, Playwright,
+                    AG-Grid, AG-Charts, i18n, Apollo, Webpack, OpenAI.
+                    <strong> Инфра и качество:</strong> Git, CI/CD, Vite, AWS,
+                    Jira, Babel, ESLint, Prettier, Amplify, Datadog.
+                  </p>
+                  <p>
+                    <strong>Подходы:</strong> DDD, A/B-тесты, микрофронтенды.
+                  </p>
+                </div>
+                <div class="skill-group">
+                  <h3 class="skill-group-title">Гибкие навыки</h3>
+                  <ul class="skill-list skill-list-inline">
+                    <li>Менторинг</li>
+                    <li>Решение задач</li>
+                    <li>Кросс-функциональная коммуникация</li>
+                    <li>Инициативность</li>
+                    <li>Командный дух</li>
+                  </ul>
+                </div>
+                <div class="skill-group">
+                  <h3 class="skill-group-title">Языки</h3>
+                  <ul class="skill-list lang-list">
+                    <li>Русский — родной</li>
+                    <li>Английский — B2</li>
+                    <li>Греческий — A2</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <section
+          class="resume-section resume-section-details"
+          aria-labelledby="achievements-heading"
+        >
+          <details class="resume-details" open>
+            <summary class="resume-details-summary">
+              <span class="resume-details-title">
+                <h2
+                  id="achievements-heading"
+                  class="section-title resume-details-h2"
+                >
+                  <span class="title-en">Key achievements &amp; projects</span>
+                  <span class="title-ru" hidden>Достижения и проекты</span>
+                </h2>
+              </span>
+              <span class="resume-details-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="resume-details-body">
+              <div class="prose prose-en">
+                <ul class="achievement-list">
                   <li>
-                    Led improvements to
-                    <strong>micro-frontend architecture</strong>: spotting
-                    issues early and proposing stronger technical solutions.
+                    <strong>Automated release management (MUFG):</strong>
+                    full-stack tool for branches, tagging, changelogs — prep
+                    time from <strong>2+ hours to under 20 minutes</strong>;
+                    adopted company-wide.
                   </li>
                   <li>
-                    Coordinated technical delivery for large-scale features
-                    across <strong>16+ frontend developers</strong> — docs,
-                    tracking, alignment.
+                    <strong>Notifications component (production):</strong> fixed
+                    performance failure with 10k+ notifications; pagination
+                    &amp; lazy loading — stable at scale.
                   </li>
                   <li>
-                    Partnered with <strong>product managers</strong> on
-                    discovery and requirements; refined specs before
-                    development.
-                  </li>
-                  <li>
-                    Migrated multiple repos from
-                    <strong>Vue 2 → Vue 3</strong> with
-                    <strong>TypeScript</strong> and the Composition API.
-                  </li>
-                  <li>
-                    Code review and mentoring; <strong>TDD</strong> and
-                    <strong>Clean Code</strong> practices.
+                    <strong>AI dev assistant for GitLab:</strong> issues →
+                    ready-to-merge MRs; scaffolding, refactors, docs —
+                    productivity for small teams.
                   </li>
                 </ul>
               </div>
-            </article>
-            <article
-              class="job-card"
-              itemprop="itemListElement"
-              itemscope
-              itemtype="https://schema.org/ListItem"
-            >
-              <meta itemprop="position" content="2" />
-              <div
-                itemprop="item"
-                itemscope
-                itemtype="https://schema.org/WorkPosition"
-              >
-                <h3 class="job-title" itemprop="name">
-                  Banking Application Web Developer
-                </h3>
-                <p class="job-meta">
-                  <span
-                    itemprop="worksFor"
-                    itemscope
-                    itemtype="https://schema.org/Organization"
-                    ><span itemprop="name"
-                      >Savings and Loan Services Bank</span
-                    ></span
-                  >
-                  · Russia ·
-                  <time datetime="2021-06-01">Jun 2021</time> –
-                  <time datetime="2022-05-31">May 2022</time> (11 months)
-                </p>
-                <ul class="job-duties">
+              <div class="prose prose-ru" hidden>
+                <ul class="achievement-list">
                   <li>
-                    Rebuilt the bank’s internal sales tool; managers processed
-                    client applications <strong>25%+ faster</strong> with fewer
-                    data-entry errors.
+                    <strong>Автоматизация релизов (MUFG):</strong> полный цикл
+                    веток, тегов, changelog — с
+                    <strong>2+ часов до &lt;20 минут</strong>; стандарт для
+                    компании.
                   </li>
                   <li>
-                    Lead frontend with the department director:
-                    <strong>Vue 3</strong>, <strong>TypeScript</strong>,
-                    Bootstrap-based component libraries.
+                    <strong>Компонент уведомлений:</strong> устранён провал
+                    производительности при 10k+ уведомлений; пагинация и lazy
+                    load.
+                  </li>
+                  <li>
+                    <strong>AI-ассистент для GitLab:</strong> из issues в MR;
+                    генерация кода и документации для небольших команд.
                   </li>
                 </ul>
               </div>
-            </article>
-            <article
-              class="job-card"
-              itemprop="itemListElement"
-              itemscope
-              itemtype="https://schema.org/ListItem"
-            >
-              <meta itemprop="position" content="3" />
-              <div
-                itemprop="item"
-                itemscope
-                itemtype="https://schema.org/WorkPosition"
-              >
-                <h3 class="job-title" itemprop="name">
-                  Middle Frontend Developer
-                </h3>
-                <p class="job-meta">
-                  <span
-                    itemprop="worksFor"
-                    itemscope
-                    itemtype="https://schema.org/Organization"
-                    ><span itemprop="name"
-                      >Payterra Processing Company, LLC</span
-                    ></span
+            </div>
+          </details>
+        </section>
+
+        <section
+          class="resume-section resume-section-details"
+          aria-labelledby="contact-heading"
+        >
+          <details class="resume-details" open>
+            <summary class="resume-details-summary">
+              <span class="resume-details-title">
+                <h2
+                  id="contact-heading"
+                  class="section-title resume-details-h2"
+                >
+                  <span class="title-en">Contact</span>
+                  <span class="title-ru" hidden>Контакты</span>
+                </h2>
+              </span>
+              <span class="resume-details-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="resume-details-body">
+              <div class="prose prose-en contact-block">
+                <p>
+                  <a href="mailto:hire@da-mr.com">hire@da-mr.com</a>
+                  ·
+                  <a
+                    href="https://www.linkedin.com/in/damir-akzhigitov"
+                    rel="me noopener noreferrer"
+                    >LinkedIn profile</a
                   >
-                  · Russia ·
-                  <time datetime="2020-12-01">Dec 2020</time> –
-                  <time datetime="2021-06-30">Jun 2021</time> (6 months)
+                  · Limassol, Cyprus
                 </p>
-                <ul class="job-duties">
-                  <li>
-                    Built a new <strong>React</strong> streaming widget system
-                    so streamers could grow earnings and the platform’s user
-                    base.
-                  </li>
-                </ul>
               </div>
-            </article>
-            <article
-              class="job-card"
-              itemprop="itemListElement"
-              itemscope
-              itemtype="https://schema.org/ListItem"
-            >
-              <meta itemprop="position" content="4" />
-              <div
-                itemprop="item"
-                itemscope
-                itemtype="https://schema.org/WorkPosition"
-              >
-                <h3 class="job-title" itemprop="name">
-                  Frontend Developer (A/B testing)
-                </h3>
-                <p class="job-meta">
-                  <span
-                    itemprop="worksFor"
-                    itemscope
-                    itemtype="https://schema.org/Organization"
-                    ><span itemprop="name">Kameleoon</span></span
+              <div class="prose prose-ru contact-block" hidden>
+                <p>
+                  <a href="mailto:hire@da-mr.com">hire@da-mr.com</a>
+                  ·
+                  <a
+                    href="https://www.linkedin.com/in/damir-akzhigitov"
+                    rel="me noopener noreferrer"
+                    >Профиль LinkedIn</a
                   >
-                  · Russia ·
-                  <time datetime="2019-10-01">Oct 2019</time> –
-                  <time datetime="2020-12-31">Dec 2020</time> (1 year 3 months)
+                  · Лимасол, Кипр
                 </p>
-                <ul class="job-duties">
-                  <li>
-                    Client-side <strong>A/B tests</strong> for high-traffic
-                    e-commerce — better conversion and client retention.
-                  </li>
-                </ul>
               </div>
-            </article>
-          </div>
-          <div class="prose prose-ru experience-list" hidden>
-            <article class="job-card">
-              <h3 class="job-title">
-                Ведущий специалист, инженер фронтенда (Senior Associate)
-              </h3>
-              <p class="job-meta">
-                MUFG Fund Services Limited · Кипр · март 2022 — по настоящее
-                время
-              </p>
-              <ul class="job-duties">
-                <li>
-                  Развитие <strong>микрофронтенд-архитектуры</strong>, раннее
-                  выявление рисков и технические решения.
-                </li>
-                <li>
-                  Координация крупных фич для
-                  <strong>16+ фронтенд-разработчиков</strong>: документация,
-                  трекинг, синхронизация.
-                </li>
-                <li>
-                  Совместная работа с <strong>продактами</strong> на этапе
-                  постановки и уточнения требований.
-                </li>
-                <li>
-                  Миграции <strong>Vue 2 → Vue 3</strong> с
-                  <strong>TypeScript</strong> и Composition API.
-                </li>
-                <li>
-                  Ревью кода и менторинг; <strong>TDD</strong> и
-                  <strong>Clean Code</strong>.
-                </li>
-              </ul>
-            </article>
-            <article class="job-card">
-              <h3 class="job-title">Веб-разработчик банковских приложений</h3>
-              <p class="job-meta">
-                Savings and Loan Services Bank · Россия · июнь 2021 — май 2022
-              </p>
-              <ul class="job-duties">
-                <li>
-                  Перестроил внутренний инструмент продаж: ускорение обработки
-                  заявок <strong>более чем на 25%</strong>, меньше ошибок ввода.
-                </li>
-                <li>
-                  Ведущий фронтенд с руководством:
-                  <strong>Vue 3</strong>, <strong>TypeScript</strong>,
-                  компоненты на базе Bootstrap.
-                </li>
-              </ul>
-            </article>
-            <article class="job-card">
-              <h3 class="job-title">Разработчик фронтенда (middle)</h3>
-              <p class="job-meta">
-                Payterra Processing Company · Россия · дек 2020 — июнь 2021
-              </p>
-              <ul class="job-duties">
-                <li>
-                  Новая система виджетов на <strong>React</strong> для стриминга
-                  и роста аудитории.
-                </li>
-              </ul>
-            </article>
-            <article class="job-card">
-              <h3 class="job-title">
-                Разработчик фронтенда (A/B-тестирование)
-              </h3>
-              <p class="job-meta">Kameleoon · Россия · окт 2019 — дек 2020</p>
-              <ul class="job-duties">
-                <li>
-                  Клиентские A/B-тесты для высоконагруженного e-commerce:
-                  конверсия и удержание.
-                </li>
-              </ul>
-            </article>
-          </div>
+            </div>
+          </details>
         </section>
 
-        <section class="resume-section" aria-labelledby="skills-heading">
-          <h2 id="skills-heading" class="section-title">
-            <span class="title-en">Skills &amp; stack</span>
-            <span class="title-ru" hidden>Навыки и стек</span>
-          </h2>
-          <div class="prose prose-en skills-grid">
-            <div class="skill-group">
-              <h3 class="skill-group-title">Technical</h3>
-              <p>
-                <strong>Languages:</strong> JavaScript, TypeScript, C#, SQL.
-                <strong> Frontend:</strong> React, Vue.js, CSS3, SCSS.
-                <strong> APIs &amp; data:</strong> GraphQL, REST, database
-                design.
+        <section
+          class="resume-section resume-section-details"
+          aria-labelledby="hire-heading"
+        >
+          <details class="resume-details" open>
+            <summary class="resume-details-summary">
+              <span class="resume-details-title">
+                <h2 id="hire-heading" class="section-title resume-details-h2">
+                  <span class="title-en">Open to</span>
+                  <span class="title-ru" hidden>Формат сотрудничества</span>
+                </h2>
+              </span>
+              <span class="resume-details-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="resume-details-body">
+              <p class="hire prose-en">
+                Senior <strong>frontend engineer</strong> roles where I can
+                tackle complex <strong>architecture</strong> and drive
+                <strong>technical excellence</strong>. Open to
+                <strong>on-site office</strong>, <strong>hybrid</strong>, or
+                <strong>remote</strong>. Product teams in fintech and
+                high-traffic platforms are a strong fit.
               </p>
-              <p>
-                <strong>Libraries &amp; tooling:</strong> Jest, Playwright,
-                AG-Grid, AG-Charts, i18n, Apollo, Webpack, OpenAI.
-                <strong> DevOps &amp; quality:</strong> Git, CI/CD, Vite, AWS,
-                Jira, Babel, ESLint, Prettier, Amplify, Datadog.
-              </p>
-              <p>
-                <strong>Concepts:</strong> Domain-Driven Design (DDD), A/B
-                testing, micro-frontends.
+              <p class="hire prose-ru" hidden>
+                Роли <strong>senior frontend engineer</strong>, где можно решать
+                сложные <strong>архитектурные</strong> задачи и поднимать
+                <strong>техническое качество</strong>. Готов к работе
+                <strong>в офисе</strong>, <strong>гибрид</strong> и
+                <strong>удалённо</strong>. Подходят продуктовые команды в
+                финтехе и под нагрузкой.
               </p>
             </div>
-            <div class="skill-group">
-              <h3 class="skill-group-title">Soft skills</h3>
-              <ul class="skill-list skill-list-inline">
-                <li>Mentoring &amp; coaching</li>
-                <li>Problem-solving</li>
-                <li>Cross-functional communication</li>
-                <li>Proactive initiative</li>
-                <li>Team building &amp; morale</li>
-              </ul>
-            </div>
-            <div class="skill-group">
-              <h3 class="skill-group-title">Languages</h3>
-              <ul class="skill-list lang-list">
-                <li>Russian — Native</li>
-                <li>English — B2</li>
-                <li>Greek — Intermediate (A2)</li>
-              </ul>
-            </div>
-          </div>
-          <div class="prose prose-ru skills-grid" hidden>
-            <div class="skill-group">
-              <h3 class="skill-group-title">Технические</h3>
-              <p>
-                <strong>Языки:</strong> JavaScript, TypeScript, C#, SQL.
-                <strong> Frontend:</strong> React, Vue.js, CSS3, SCSS.
-                <strong> API и данные:</strong> GraphQL, REST, проектирование
-                БД.
-              </p>
-              <p>
-                <strong>Библиотеки и инструменты:</strong> Jest, Playwright,
-                AG-Grid, AG-Charts, i18n, Apollo, Webpack, OpenAI.
-                <strong> Инфра и качество:</strong> Git, CI/CD, Vite, AWS, Jira,
-                Babel, ESLint, Prettier, Amplify, Datadog.
-              </p>
-              <p><strong>Подходы:</strong> DDD, A/B-тесты, микрофронтенды.</p>
-            </div>
-            <div class="skill-group">
-              <h3 class="skill-group-title">Гибкие навыки</h3>
-              <ul class="skill-list skill-list-inline">
-                <li>Менторинг</li>
-                <li>Решение задач</li>
-                <li>Кросс-функциональная коммуникация</li>
-                <li>Инициативность</li>
-                <li>Командный дух</li>
-              </ul>
-            </div>
-            <div class="skill-group">
-              <h3 class="skill-group-title">Языки</h3>
-              <ul class="skill-list lang-list">
-                <li>Русский — родной</li>
-                <li>Английский — B2</li>
-                <li>Греческий — A2</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section class="resume-section" aria-labelledby="achievements-heading">
-          <h2 id="achievements-heading" class="section-title">
-            <span class="title-en">Key achievements &amp; projects</span>
-            <span class="title-ru" hidden>Достижения и проекты</span>
-          </h2>
-          <div class="prose prose-en">
-            <ul class="achievement-list">
-              <li>
-                <strong>Automated release management (MUFG):</strong> full-stack
-                tool for branches, tagging, changelogs — prep time from
-                <strong>2+ hours to under 20 minutes</strong>; adopted
-                company-wide.
-              </li>
-              <li>
-                <strong>Notifications component (production):</strong> fixed
-                performance failure with 10k+ notifications; pagination &amp;
-                lazy loading — stable at scale.
-              </li>
-              <li>
-                <strong>AI dev assistant for GitLab:</strong> issues →
-                ready-to-merge MRs; scaffolding, refactors, docs — productivity
-                for small teams.
-              </li>
-            </ul>
-          </div>
-          <div class="prose prose-ru" hidden>
-            <ul class="achievement-list">
-              <li>
-                <strong>Автоматизация релизов (MUFG):</strong> полный цикл
-                веток, тегов, changelog — с
-                <strong>2+ часов до &lt;20 минут</strong>; стандарт для
-                компании.
-              </li>
-              <li>
-                <strong>Компонент уведомлений:</strong> устранён провал
-                производительности при 10k+ уведомлений; пагинация и lazy load.
-              </li>
-              <li>
-                <strong>AI-ассистент для GitLab:</strong> из issues в MR;
-                генерация кода и документации для небольших команд.
-              </li>
-            </ul>
-          </div>
-        </section>
-
-        <section class="resume-section" aria-labelledby="contact-heading">
-          <h2 id="contact-heading" class="section-title">
-            <span class="title-en">Contact</span>
-            <span class="title-ru" hidden>Контакты</span>
-          </h2>
-          <div class="prose prose-en contact-block">
-            <p>
-              <a href="mailto:hire@da-mr.com">hire@da-mr.com</a>
-              ·
-              <a
-                href="https://www.linkedin.com/in/damir-akzhigitov"
-                rel="me noopener noreferrer"
-                >LinkedIn profile</a
-              >
-              · Limassol, Cyprus
-            </p>
-          </div>
-          <div class="prose prose-ru contact-block" hidden>
-            <p>
-              <a href="mailto:hire@da-mr.com">hire@da-mr.com</a>
-              ·
-              <a
-                href="https://www.linkedin.com/in/damir-akzhigitov"
-                rel="me noopener noreferrer"
-                >Профиль LinkedIn</a
-              >
-              · Лимасол, Кипр
-            </p>
-          </div>
-        </section>
-
-        <section class="resume-section" aria-labelledby="hire-heading">
-          <h2 id="hire-heading" class="section-title">
-            <span class="title-en">Open to</span>
-            <span class="title-ru" hidden>Формат сотрудничества</span>
-          </h2>
-          <p class="hire prose-en">
-            Senior <strong>frontend engineer</strong> roles where I can tackle
-            complex <strong>architecture</strong> and drive
-            <strong>technical excellence</strong>. Open to
-            <strong>on-site office</strong>, <strong>hybrid</strong>, or
-            <strong>remote</strong>. Product teams in fintech and high-traffic
-            platforms are a strong fit.
-          </p>
-          <p class="hire prose-ru" hidden>
-            Роли <strong>senior frontend engineer</strong>, где можно решать
-            сложные <strong>архитектурные</strong> задачи и поднимать
-            <strong>техническое качество</strong>. Готов к работе
-            <strong>в офисе</strong>, <strong>гибрид</strong> и
-            <strong>удалённо</strong>. Подходят продуктовые команды в финтехе и
-            под нагрузкой.
-          </p>
+          </details>
         </section>
       </article>
     </main>
@@ -707,6 +882,13 @@
       </div>
     </footer>
 
+    <noscript>
+      <p class="noscript-note">
+        This site works without JavaScript: all sections are expanded below.
+        <a href="https://www.linkedin.com/in/damir-akzhigitov">LinkedIn CV</a>
+        is also available.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
