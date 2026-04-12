@@ -13,7 +13,7 @@
     />
     <meta name="author" content="Damir Akzhigitov" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#030306" />
     <link rel="canonical" href="https://da-mr.com/" />
     <link rel="alternate" hreflang="en" href="https://da-mr.com/" />
     <link rel="alternate" hreflang="ru" href="https://da-mr.com/" />
@@ -50,6 +50,12 @@
     <title>
       Damir Akzhigitov — Senior Frontend Developer | Resume &amp; Portfolio
     </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/src/style.css" />
 
     <script type="application/ld+json">
@@ -143,44 +149,60 @@
       </div>
     </header>
 
-    <main id="main" class="container">
+    <section class="hero-immersive" aria-labelledby="profile-heading">
+      <div class="hero-media">
+        <img
+          src="/images/author.jpg"
+          alt="Damir Akzhigitov — senior frontend developer, городской пейзаж"
+          width="1080"
+          height="1920"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+      <div class="hero-scrim" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <div class="hero-panel">
+          <div class="hero-panel-accent" aria-hidden="true"></div>
+          <p class="hero-kicker hero-kicker-en">
+            <span class="hero-kicker-dot"></span> Senior frontend · Product UI
+          </p>
+          <p class="hero-kicker hero-kicker-ru" hidden>
+            <span class="hero-kicker-dot"></span> Senior frontend · Продуктовый
+            UI
+          </p>
+          <h1 id="profile-heading" class="hero-title">Damir Akzhigitov</h1>
+          <p class="hero-tagline tagline-en">
+            Interfaces that stay fast under load — TypeScript, React,
+            performance, a11y, design systems.
+          </p>
+          <p class="hero-tagline tagline-ru" hidden>
+            Интерфейсы, которые не ломаются под нагрузкой — TypeScript, React,
+            перфоманс, a11y, дизайн-системы.
+          </p>
+          <p class="hero-contact">
+            <a class="hero-mail" href="mailto:hi@da-mr.com">hi@da-mr.com</a>
+          </p>
+        </div>
+      </div>
+      <a class="hero-scroll" href="#resume-content">
+        <span class="hero-scroll-label hero-scroll-en">Resume</span>
+        <span class="hero-scroll-label hero-scroll-ru" hidden>Резюме</span>
+        <span class="hero-scroll-icon" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <main id="main">
       <article
+        id="resume-content"
         itemscope
         itemtype="https://schema.org/ProfilePage"
-        class="resume"
+        class="resume container resume-panel"
       >
         <meta itemprop="name" content="Damir Akzhigitov" />
-        <section class="hero" aria-labelledby="profile-heading">
-          <div class="hero-layout">
-            <figure class="portrait">
-              <img
-                src="/images/author.jpg"
-                alt="Damir Akzhigitov, senior frontend developer"
-                width="320"
-                height="320"
-                loading="eager"
-                decoding="async"
-                itemprop="image"
-              />
-            </figure>
-            <div class="hero-text">
-              <h1 id="profile-heading" itemprop="headline">
-                <span itemprop="name">Damir Akzhigitov</span>
-              </h1>
-              <p class="tagline tagline-en">
-                Senior frontend developer — product UI, performance,
-                accessibility, and clear front-end architecture.
-              </p>
-              <p class="tagline tagline-ru" hidden>
-                Senior frontend developer — продуктовые интерфейсы,
-                производительность, доступность и понятная фронтенд-архитектура.
-              </p>
-              <p class="contact-line">
-                <a href="mailto:hi@da-mr.com" itemprop="email">hi@da-mr.com</a>
-              </p>
-            </div>
-          </div>
-        </section>
+        <meta itemprop="image" content="https://da-mr.com/images/author.jpg" />
+        <meta itemprop="headline" content="Damir Akzhigitov" />
 
         <section class="resume-section" aria-labelledby="summary-heading">
           <h2 id="summary-heading" class="section-title">

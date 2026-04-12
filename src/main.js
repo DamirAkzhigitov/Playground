@@ -8,12 +8,12 @@ function setVisibleLang(lang) {
   document.documentElement.lang = isRu ? 'ru' : 'en'
 
   for (const el of document.querySelectorAll(
-    '.prose-en, .tagline-en, .hl-en'
+    '.prose-en, .tagline-en, .hl-en, .hero-kicker-en, .hero-scroll-en'
   )) {
     el.hidden = isRu
   }
   for (const el of document.querySelectorAll(
-    '.prose-ru, .tagline-ru, .hl-ru'
+    '.prose-ru, .tagline-ru, .hl-ru, .hero-kicker-ru, .hero-scroll-ru'
   )) {
     el.hidden = !isRu
   }
