@@ -1,6 +1,6 @@
 ﻿Damir Akzhigitov
 	Limassol, Cyprus
-damir.cy@gmail.com
+hire@da-mr.com
 linkedin.com/in/damir-akzhigitov
 	Senior Frontend Engineer with 6+ years building production applications for financial services and high-traffic platforms. I specialize in Vue.js/React ecosystems and have led technical initiatives across 16+ developer teams. Currently seeking a role where I can tackle complex architectural challenges and drive technical excellence.
 
