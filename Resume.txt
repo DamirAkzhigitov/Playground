@@ -1,0 +1,69 @@
+﻿Damir Akzhigitov
+	Limassol, Cyprus
+damir.cy@gmail.com
+linkedin.com/in/damir-akzhigitov
+	Senior Frontend Engineer with 6+ years building production applications for financial services and high-traffic platforms. I specialize in Vue.js/React ecosystems and have led technical initiatives across 16+ developer teams. Currently seeking a role where I can tackle complex architectural challenges and drive technical excellence.
+
+
+EXPERIENCE
+MUFG Fund Services Limited, Cyprus — 
+Senior Associate, Frontend Engineer
+Mar 2022 - Present (3 years 6 months +)
+Took the lead on improving our micro-frontend architecture by identifying potential problems early and proposing better technical solutions.
+Coordinated technical tasks for large-scale features across 16+ frontend developers, creating documentation and tracking progress to keep everyone aligned.
+Worked directly with product managers to plan and shape new features, often suggesting better technical approaches and refining requirements before development.
+Migrated multiple repositories from Vue 2 to Vue 3 with TypeScript and the Composition API, which made development faster and improved performance.
+Reviewed code and mentored developers, pushing for best practices like TDD and Clean Code principles to improve code quality.
+Savings and Loan Services Bank, Russia — Banking Application Web Developer
+Jun 2021 – May 2022 (11 months) 
+Rebuilt the bank's internal sales tool, helping managers process client applications over 25% faster and with fewer data entry errors.
+As the lead frontend developer, I worked directly with the department director to design and build new features using Vue 3, TypeScript and component libraries based on Bootstrap.
+Payterra Processing Company, LLC, Russia — Middle Frontend Developer
+Dec 2020 – Jun 2021 (6 months)
+Helped grow the platform's user base by building a new streaming widget system in React that allowed streamers to increase their earnings.
+Kameleoon, Russia — Frontend Developer (A/B Testing)
+Oct 2019 – Dec 2020 (1 year 3 months)
+Developed client-side A/B tests for high-traffic e-commerce sites, 
+improving conversion rates & client retention.
+	SOFT SKILLS
+
+
+Mentoring & Coaching
+Problem-Solving
+Cross-Functional Communication
+Proactive Initiative
+Team Building & Morale
+TECHNICAL SKILLS
+Full-Stack: JavaScript/TypeScript, C#, SQL
+Frontend: React, Vue.js, CSS3, SCSS
+Backend & Data: GraphQL, REST APIs, Database Design
+Frameworks & Libraries: Jest, Playwright, AG-Grid,  AG-Charts,  i18n, Apollo, Webpack, OpenAI
+Tools & Platforms: Git, CI/CD, Vite, AWS, Jira, Babel, ESLint, Prettier, Amplify, Datadog
+Concepts: Domain-Driven Design (DDD), A/B Testing
+LANGUAGES
+Russian: Native
+English: B2
+Greek: Intermediate (A2 Level)
+	KEY ACHIEVEMENTS & PROJECTS
+Automated Release Management Tool (MUFG)
+* Built a full-stack tool to automate release processes (branch creation, tagging, changelog generation).
+* Reduced release prep time from 2+ hours to under 20 minutes and eliminated common human errors.
+* Adopted company-wide, becoming the standard for releases.
+Critical Production Fix – Notifications Component
+* Resolved performance failure that froze app with 10k+ notifications.
+* Introduced pagination & lazy loading → now handles unlimited notifications without downtime.
+AI Dev Assistant for GitLab
+* Created an AI-powered tool to convert GitLab issues directly into ready-to-merge requests.
+* Automated component creation, refactoring, and documentation generation → boosted productivity for small dev teams.
+CERTIFICATIONS
+Udemy, Remote — AWS Certified Cloud Practitioner
+2024
+EDUCATION & PROFESSIONAL DEVELOPMENT
+Udemy, Remote — Vue JS 3: Composition API (with Pinia, Firebase 9 & Vite)
+2023
+HarvardX, Remote — CS50’s Introduction to Computer Science
+2019
+Hexlet, Russia — Frontend Developer Program
+2019
+Finance University, Russia — Professional Diploma, Design Program
+2011 – 2015
