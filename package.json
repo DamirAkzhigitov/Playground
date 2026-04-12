@@ -1,7 +1,7 @@
 {
   "name": "playground",
   "version": "1.0.0",
-  "description": "AI agent generated code playground",
+  "description": "Damir Akzhigitov — senior frontend developer resume and portfolio (static site)",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -10,20 +10,42 @@
   --accent: #667eea;
   --card-bg: #0b1220;
   --muted: #94a3b8;
+  --text: #e5e7eb;
 }
 
 body {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
     Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  line-height: 1.6;
-  color: #e5e7eb;
+  line-height: 1.65;
+  color: var(--text);
   background: linear-gradient(
     135deg,
     var(--bg-grad-start) 0%,
     var(--bg-grad-end) 100%
   );
   min-height: 100vh;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  color: #0f172a;
+  z-index: 100;
+  border-radius: 8px;
 }
 
 .container {
@@ -35,25 +57,41 @@ body {
 .site-header {
   position: sticky;
   top: 0;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(8px);
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.site-header .container {
+.header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 .brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.brand-name {
   font-weight: 700;
   color: #fff;
+  font-size: 1.05rem;
+}
+
+.brand-role {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
 }
 
 .lang-switch {
   display: flex;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .lang-btn {
@@ -64,6 +102,7 @@ body {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  font: inherit;
 }
 
 .lang-btn[aria-pressed='true'],
@@ -72,46 +111,133 @@ body {
   background: #cbd5e1;
 }
 
-#app {
+#main.container {
   background: var(--card-bg);
-  margin-top: 2rem;
-  padding: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 2rem 1.5rem;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.resume {
   text-align: left;
 }
 
-.author {
+.hero {
   margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.author figure {
+
+.hero-layout {
   display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 1.25rem;
+  grid-template-columns: min(160px, 40vw) 1fr;
+  gap: 1.5rem;
   align-items: start;
 }
 
-.author img {
-  width: 160px;
-  height: 160px;
+.portrait img {
+  width: 100%;
+  max-width: 160px;
+  aspect-ratio: 1;
+  height: auto;
   object-fit: cover;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.author figcaption {
+.hero-text h1 {
+  font-size: clamp(1.5rem, 4vw, 1.85rem);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  line-height: 1.25;
+}
+
+.tagline {
+  color: #cbd5e1;
+  font-size: 1.05rem;
+  margin-bottom: 0.75rem;
+}
+
+.contact-line a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.contact-line a:hover {
+  text-decoration: underline;
+}
+
+.resume-section {
+  margin-bottom: 1.75rem;
+}
+
+.resume-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.65rem;
+}
+
+.prose p,
+.hire {
   color: #cbd5e1;
 }
 
-.bio {
-  margin-bottom: 0.75rem;
-}
-.bio-en,
-.bio-ru {
-  display: none;
+.prose strong,
+.hire strong {
+  color: #e2e8f0;
 }
 
-/* Visible class is toggled by JS */
-.bio.visible {
-  display: block;
+.skill-list,
+.highlight-list {
+  color: #cbd5e1;
+  margin-left: 1.25rem;
+}
+
+.skill-list li,
+.highlight-list li {
+  margin: 0.35rem 0;
+}
+
+.site-footer {
+  padding: 1rem 0 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.footer-inner {
+  text-align: center;
+}
+
+.footer-copy {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+@media (max-width: 560px) {
+  .hero-layout {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .portrait img {
+    margin: 0 auto;
+    max-width: 200px;
+  }
+
+  .hero-text h1 {
+    text-align: center;
+  }
+
+  .tagline,
+  .contact-line {
+    text-align: center;
+  }
 }

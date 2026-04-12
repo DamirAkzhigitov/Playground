@@ -3,17 +3,127 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Playground</title>
+    <meta
+      name="description"
+      content="Damir Akzhigitov — senior frontend developer. Portfolio and resume: TypeScript, React, performance, accessibility, and design systems for product teams."
+    />
+    <meta
+      name="keywords"
+      content="Damir Akzhigitov, senior frontend developer, frontend engineer, React, TypeScript, JavaScript, web performance, accessibility, UI engineering, hire frontend developer"
+    />
+    <meta name="author" content="Damir Akzhigitov" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#0f172a" />
+    <link rel="canonical" href="https://da-mr.com/" />
+    <link rel="alternate" hreflang="en" href="https://da-mr.com/" />
+    <link rel="alternate" hreflang="ru" href="https://da-mr.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://da-mr.com/" />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="Damir Akzhigitov" />
+    <meta
+      property="og:title"
+      content="Damir Akzhigitov — Senior Frontend Developer"
+    />
+    <meta
+      property="og:description"
+      content="Senior frontend developer building fast, accessible product interfaces. Open to senior IC and lead frontend roles."
+    />
+    <meta property="og:url" content="https://da-mr.com/" />
+    <meta property="og:image" content="https://da-mr.com/images/author.jpg" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="ru_RU" />
+    <meta property="profile:first_name" content="Damir" />
+    <meta property="profile:last_name" content="Akzhigitov" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Damir Akzhigitov — Senior Frontend Developer"
+    />
+    <meta
+      name="twitter:description"
+      content="Senior frontend developer — TypeScript, React, performance, a11y, design systems."
+    />
+    <meta name="twitter:image" content="https://da-mr.com/images/author.jpg" />
+
+    <title>
+      Damir Akzhigitov — Senior Frontend Developer | Resume &amp; Portfolio
+    </title>
     <link rel="stylesheet" href="/src/style.css" />
-    <link rel="stylesheet" href="/src/recipes.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebPage",
+            "@id": "https://da-mr.com/#webpage",
+            "url": "https://da-mr.com/",
+            "name": "Damir Akzhigitov — Senior Frontend Developer",
+            "description": "Resume and portfolio of Damir Akzhigitov, senior frontend developer specializing in TypeScript, React, performance, and accessibility.",
+            "inLanguage": ["en", "ru"],
+            "isPartOf": { "@id": "https://da-mr.com/#website" },
+            "about": { "@id": "https://da-mr.com/#person" },
+            "primaryImageOfPage": {
+              "@type": "ImageObject",
+              "url": "https://da-mr.com/images/author.jpg"
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://da-mr.com/#website",
+            "url": "https://da-mr.com/",
+            "name": "Damir Akzhigitov",
+            "description": "Personal site and professional profile of Damir Akzhigitov.",
+            "inLanguage": ["en", "ru"],
+            "publisher": { "@id": "https://da-mr.com/#person" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://da-mr.com/#person",
+            "name": "Damir Akzhigitov",
+            "givenName": "Damir",
+            "familyName": "Akzhigitov",
+            "jobTitle": "Senior Frontend Developer",
+            "description": "Senior frontend developer focused on product UI, performance, accessibility, and maintainable front-end architecture.",
+            "email": "hi@da-mr.com",
+            "image": "https://da-mr.com/images/author.jpg",
+            "url": "https://da-mr.com/",
+            "knowsAbout": [
+              "TypeScript",
+              "JavaScript",
+              "React",
+              "Web performance",
+              "Accessibility",
+              "Design systems",
+              "Frontend architecture",
+              "CSS",
+              "UI engineering"
+            ],
+            "sameAs": []
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
-      <div class="container">
-        <div class="brand">Playground</div>
-        <nav class="lang-switch" aria-label="Language switcher">
+      <div class="container header-inner">
+        <div class="brand">
+          <span class="brand-name">Damir Akzhigitov</span>
+          <span class="brand-role brand-role-en"
+            >Senior Frontend Developer</span
+          >
+          <span class="brand-role brand-role-ru" hidden
+            >Ведущий frontend-разработчик</span
+          >
+        </div>
+        <nav class="lang-switch" aria-label="Language">
           <button
             id="lang-ru"
+            type="button"
             data-lang="ru"
             class="lang-btn"
             aria-pressed="false"
@@ -22,6 +132,7 @@
           </button>
           <button
             id="lang-en"
+            type="button"
             data-lang="en"
             class="lang-btn"
             aria-pressed="false"
@@ -32,41 +143,160 @@
       </div>
     </header>
 
-    <main id="app" class="container">
-      <section id="author" class="author">
-        <figure>
-          <img
-            src="/images/author.jpg"
-            alt="Portrait of the site creator, Damir Akzhigitov"
-            width="320"
-            height="320"
-            loading="lazy"
-          />
-          <figcaption>
-            <p class="bio bio-ru">
-              <strong>Создатель сайта — Damir Akzhigitov.</strong> Продуктовый
-              инженер и дизайнер интерфейсов. Делает простые и быстрые веб‑вещи,
-              любит чистую архитектуру и вежливые интерфейсы. Контакт:
-              <a href="mailto:hi@da-mr.com">hi@da-mr.com</a>.
-            </p>
-            <p class="bio bio-en">
-              <strong>Site creator — Damir Akzhigitov.</strong> Product engineer
-              and UI designer focused on simple, fast web experiences, clean
-              architecture, and thoughtful interfaces. Contact:
-              <a href="mailto:hi@da-mr.com">hi@da-mr.com</a>.
-            </p>
-          </figcaption>
-        </figure>
-      </section>
+    <main id="main" class="container">
+      <article
+        itemscope
+        itemtype="https://schema.org/ProfilePage"
+        class="resume"
+      >
+        <meta itemprop="name" content="Damir Akzhigitov" />
+        <section class="hero" aria-labelledby="profile-heading">
+          <div class="hero-layout">
+            <figure class="portrait">
+              <img
+                src="/images/author.jpg"
+                alt="Damir Akzhigitov, senior frontend developer"
+                width="320"
+                height="320"
+                loading="eager"
+                decoding="async"
+                itemprop="image"
+              />
+            </figure>
+            <div class="hero-text">
+              <h1 id="profile-heading" itemprop="headline">
+                <span itemprop="name">Damir Akzhigitov</span>
+              </h1>
+              <p class="tagline tagline-en">
+                Senior frontend developer — product UI, performance,
+                accessibility, and clear front-end architecture.
+              </p>
+              <p class="tagline tagline-ru" hidden>
+                Senior frontend developer — продуктовые интерфейсы,
+                производительность, доступность и понятная фронтенд-архитектура.
+              </p>
+              <p class="contact-line">
+                <a href="mailto:hi@da-mr.com" itemprop="email">hi@da-mr.com</a>
+              </p>
+            </div>
+          </div>
+        </section>
 
-      <section id="recipes" class="recipes">
-        <div class="recipes-head">
-          <h2 class="recipes-title" id="recipesTitle">Случайный рецепт</h2>
-          <button id="recipeButton" class="primary-btn">Показать рецепт</button>
-        </div>
-        <article id="recipe" class="recipe-card" aria-live="polite"></article>
-      </section>
+        <section class="resume-section" aria-labelledby="summary-heading">
+          <h2 id="summary-heading" class="section-title">
+            <span class="title-en">Summary</span>
+            <span class="title-ru" hidden>Кратко</span>
+          </h2>
+          <div class="prose prose-en">
+            <p>
+              I am a <strong>senior frontend developer</strong> who ships
+              reliable interfaces for real users: strong in
+              <strong>TypeScript</strong> and modern <strong>React</strong>,
+              obsessed with <strong>performance</strong> and
+              <strong>accessibility</strong>, and comfortable owning
+              <strong>design systems</strong> and cross-team delivery. I work
+              well with design and backend partners, document decisions, and
+              leave codebases easier to change than I found them.
+            </p>
+          </div>
+          <div class="prose prose-ru" hidden>
+            <p>
+              Я <strong>senior frontend developer</strong>: делаю стабильные
+              интерфейсы для пользователей, силён в
+              <strong>TypeScript</strong> и современном <strong>React</strong>,
+              уделяю внимание <strong>производительности</strong> и
+              <strong>доступности</strong>, веду
+              <strong>дизайн-системы</strong> и совместную поставку с дизайном и
+              бэкендом. Документирую решения и упрощаю поддержку кода.
+            </p>
+          </div>
+        </section>
+
+        <section class="resume-section" aria-labelledby="skills-heading">
+          <h2 id="skills-heading" class="section-title">
+            <span class="title-en">Core skills</span>
+            <span class="title-ru" hidden>Ключевые навыки</span>
+          </h2>
+          <ul class="skill-list" aria-label="Technical skills">
+            <li>TypeScript &amp; JavaScript (ESNext)</li>
+            <li>React &amp; ecosystem (state, routing, testing)</li>
+            <li>Web performance (Core Web Vitals, bundling, lazy loading)</li>
+            <li>
+              Accessibility (WCAG-minded UI, semantic HTML, keyboard flows)
+            </li>
+            <li>CSS &amp; layout (responsive, maintainable styling)</li>
+            <li>Design systems &amp; component libraries</li>
+            <li>API integration, real-world edge cases, error states</li>
+            <li>Code review, mentoring, technical communication</li>
+          </ul>
+        </section>
+
+        <section class="resume-section" aria-labelledby="highlights-heading">
+          <h2 id="highlights-heading" class="section-title">
+            <span class="title-en">What I bring to a team</span>
+            <span class="title-ru" hidden>Что даю команде</span>
+          </h2>
+          <ul class="highlight-list">
+            <li class="hl-en">
+              Turns Figma (or verbal intent) into fast, accessible UI without
+              surprises in production.
+            </li>
+            <li class="hl-ru" hidden>
+              Превращаю дизайн или устную постановку в быстрый, доступный UI без
+              сюрпризов в проде.
+            </li>
+            <li class="hl-en">
+              Reduces bundle size and render cost where it matters; measures
+              before and after.
+            </li>
+            <li class="hl-ru" hidden>
+              Снижаю вес бандла и стоимость рендера там, где это важно; меряю до
+              и после.
+            </li>
+            <li class="hl-en">
+              Aligns stakeholders on trade-offs (time, scope, quality) with
+              clarity.
+            </li>
+            <li class="hl-ru" hidden>
+              Согласую компромиссы (сроки, объём, качество) понятно для всех
+              сторон.
+            </li>
+          </ul>
+        </section>
+
+        <section class="resume-section" aria-labelledby="hire-heading">
+          <h2 id="hire-heading" class="section-title">
+            <span class="title-en">Open to</span>
+            <span class="title-ru" hidden>Формат сотрудничества</span>
+          </h2>
+          <p class="hire prose-en">
+            Senior <strong>frontend</strong> /
+            <strong>UI engineer</strong> roles (remote-friendly or hybrid where
+            it makes sense). Interested in product companies that care about
+            craft, velocity, and user trust.
+          </p>
+          <p class="hire prose-ru" hidden>
+            Роли <strong>senior frontend</strong> /
+            <strong>UI engineer</strong> (удалённо или гибрид). Интересны
+            продуктовые команды, где важны качество, скорость и доверие
+            пользователей.
+          </p>
+        </section>
+      </article>
     </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="footer-copy footer-en">
+          &copy; <span id="year"></span> Damir Akzhigitov. Senior frontend
+          developer.
+        </p>
+        <p class="footer-copy footer-ru" hidden>
+          &copy; <span id="year"></span> Damir Akzhigitov. Ведущий
+          frontend-разработчик.
+        </p>
+      </div>
+    </footer>
 
     <script type="module" src="/src/main.js"></script>
   </body>
