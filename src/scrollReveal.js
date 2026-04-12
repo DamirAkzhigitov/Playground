@@ -21,6 +21,13 @@ export function initScrollReveal() {
   const els = document.querySelectorAll('[data-reveal]')
   if (!els.length) return
 
+  const narrow =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(max-width: 767px)').matches
+  const rootMargin = narrow ? '0px 0px -2% 0px' : '0px 0px -8% 0px'
+  const threshold = narrow ? 0.04 : 0.08
+
   const io = new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
@@ -29,7 +36,7 @@ export function initScrollReveal() {
         io.unobserve(e.target)
       }
     },
-    { threshold: 0.08, rootMargin: '0px 0px -8% 0px' }
+    { threshold, rootMargin }
   )
 
   for (const el of els) {

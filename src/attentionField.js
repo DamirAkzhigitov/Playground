@@ -1,6 +1,6 @@
 /**
  * Interactive particle constellation for the hero: soft physics + pointer attraction.
- * Pointer is tracked on the hero region so the panel stays clickable (canvas is pointer-events: none).
+ * Canvas is pointer-events: none; pointer/touch is tracked on the hero for reliable hit-testing.
  */
 
 const ACCENT = { r: 165, g: 180, b: 252 }
@@ -15,6 +15,36 @@ function prefersReducedMotion() {
     window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
   )
+}
+
+/** Narrow viewports and coarse pointers get a lighter field (battery + FPS). */
+function isLowPowerCanvasMode() {
+  if (typeof window === 'undefined') return true
+  if (window.matchMedia('(pointer: coarse)').matches) return true
+  if (window.matchMedia('(max-width: 767px)').matches) return true
+  const conn =
+    typeof navigator !== 'undefined' && navigator.connection
+      ? navigator.connection
+      : undefined
+  if (conn && (conn.saveData === true || /2g/.test(conn.effectiveType || ''))) {
+    return true
+  }
+  return false
+}
+
+function maxCanvasDpr() {
+  return isLowPowerCanvasMode() ? 1.25 : 2
+}
+
+/**
+ * @param {number} area
+ * @param {boolean} lowPower
+ */
+function particleCountForArea(area, lowPower) {
+  const divisor = lowPower ? 17500 : 11000
+  const min = lowPower ? 26 : 48
+  const max = lowPower ? 56 : 132
+  return clamp(Math.floor(area / divisor), min, max)
 }
 
 class Particle {
@@ -93,7 +123,6 @@ class Particle {
       this.vy *= -0.35
     }
 
-    // Gentle drift back toward layout center so the swarm stays balanced
     const dxC = cx - this.x
     const dyC = cy - this.y
     this.vx += dxC * 0.000012 * dt
@@ -108,17 +137,19 @@ class Particle {
 export function initAttentionField(canvas, hero) {
   if (!canvas || !hero || prefersReducedMotion()) return () => {}
 
-  const ctx = canvas.getContext('2d')
+  const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true })
   if (!ctx) return () => {}
 
   let particles = []
   let width = 0
   let height = 0
   let dpr = 1
+  let lowPower = isLowPowerCanvasMode()
   let raf = 0
   let last = 0
   let intro = 0
   const introDuration = 1.35
+  let paused = false
 
   const pointer = {
     x: 0,
@@ -131,8 +162,9 @@ export function initAttentionField(canvas, hero) {
   const burst = { t: 0, active: true }
 
   function syncSize() {
+    lowPower = isLowPowerCanvasMode()
     const rect = hero.getBoundingClientRect()
-    dpr = Math.min(window.devicePixelRatio || 1, 2)
+    dpr = Math.min(window.devicePixelRatio || 1, maxCanvasDpr())
     width = Math.max(1, Math.floor(rect.width))
     height = Math.max(1, Math.floor(rect.height))
     canvas.width = Math.floor(width * dpr)
@@ -142,7 +174,7 @@ export function initAttentionField(canvas, hero) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
     const area = width * height
-    const count = clamp(Math.floor(area / 11000), 48, 132)
+    const count = particleCountForArea(area, lowPower)
     particles = []
     for (let i = 0; i < count; i++) {
       particles.push(new Particle(width, height, i, count))
@@ -161,7 +193,8 @@ export function initAttentionField(canvas, hero) {
     }
   }
 
-  function onPointerMove(e) {
+  /** @param {PointerEvent} e */
+  function onHeroPointer(e) {
     const p = heroPoint(e.clientX, e.clientY)
     if (p.x < 0 || p.y < 0 || p.x > width || p.y > height) {
       pointer.active = false
@@ -171,15 +204,48 @@ export function initAttentionField(canvas, hero) {
     pointer.active = true
     pointer.x = clamp(p.x, 0, width)
     pointer.y = clamp(p.y, 0, height)
-    pointer.strength = clamp(pointer.strength + 2.4, 0, 120)
+    const boost = e.pointerType === 'touch' ? 3.8 : 2.4
+    pointer.strength = clamp(pointer.strength + boost, 0, 120)
   }
 
-  function onPointerLeave() {
+  function onHeroPointerDown(e) {
+    onHeroPointer(e)
+    if (e.pointerType === 'touch') {
+      pointer.strength = clamp(pointer.strength + 28, 0, 120)
+    }
+  }
+
+  function onHeroPointerLeave() {
     pointer.active = false
+  }
+
+  /** @param {PointerEvent} e */
+  function onPointerUp(e) {
+    if (e.pointerType === 'touch') {
+      pointer.active = false
+    }
+  }
+
+  function onVisibilityChange() {
+    const hide = document.visibilityState === 'hidden'
+    if (hide && raf) {
+      window.cancelAnimationFrame(raf)
+      raf = 0
+    }
+    paused = hide
+    if (!paused && raf === 0) {
+      last = 0
+      raf = window.requestAnimationFrame(frame)
+    }
   }
 
   /** @param {number} time */
   function frame(time) {
+    if (paused) {
+      raf = 0
+      return
+    }
+
     if (!last) last = time
     const dt = clamp(time - last, 8, 40)
     last = time
@@ -215,6 +281,7 @@ export function initAttentionField(canvas, hero) {
 
     const linkDist = clamp(Math.min(width, height) * 0.065, 52, 118)
     const linkDistSq = linkDist * linkDist
+    const linkAlphaMul = lowPower ? 0.18 : 0.22
 
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
@@ -224,7 +291,7 @@ export function initAttentionField(canvas, hero) {
         const dy = a.y - b.y
         const d2 = dx * dx + dy * dy
         if (d2 > linkDistSq) continue
-        const alpha = (1 - d2 / linkDistSq) * 0.22 * introEased
+        const alpha = (1 - d2 / linkDistSq) * linkAlphaMul * introEased
         ctx.strokeStyle = `rgba(${ACCENT.r},${ACCENT.g},${ACCENT.b},${alpha})`
         ctx.lineWidth = 0.9
         ctx.beginPath()
@@ -253,15 +320,25 @@ export function initAttentionField(canvas, hero) {
 
   syncSize()
   window.addEventListener('resize', syncSize)
-  window.addEventListener('pointermove', onPointerMove, { passive: true })
-  hero.addEventListener('pointerleave', onPointerLeave)
+  document.addEventListener('visibilitychange', onVisibilityChange)
+  document.addEventListener('pointerup', onPointerUp, { passive: true })
+  document.addEventListener('pointercancel', onPointerUp, { passive: true })
+
+  hero.addEventListener('pointerdown', onHeroPointerDown, { passive: true })
+  hero.addEventListener('pointermove', onHeroPointer, { passive: true })
+  hero.addEventListener('pointerleave', onHeroPointerLeave)
 
   raf = window.requestAnimationFrame(frame)
 
   return () => {
-    window.cancelAnimationFrame(raf)
+    if (raf) window.cancelAnimationFrame(raf)
+    raf = 0
     window.removeEventListener('resize', syncSize)
-    window.removeEventListener('pointermove', onPointerMove)
-    hero.removeEventListener('pointerleave', onPointerLeave)
+    document.removeEventListener('visibilitychange', onVisibilityChange)
+    document.removeEventListener('pointerup', onPointerUp)
+    document.removeEventListener('pointercancel', onPointerUp)
+    hero.removeEventListener('pointerdown', onHeroPointerDown)
+    hero.removeEventListener('pointermove', onHeroPointer)
+    hero.removeEventListener('pointerleave', onHeroPointerLeave)
   }
 }
