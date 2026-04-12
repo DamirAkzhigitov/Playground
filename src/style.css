@@ -581,12 +581,6 @@ body {
   color: var(--accent-hot);
 }
 
-.cred-list p {
-  margin-bottom: 0.5rem;
-  padding-left: 0.5rem;
-  border-left: 3px solid rgba(129, 140, 248, 0.45);
-}
-
 .contact-block a {
   color: var(--accent);
   font-weight: 600;
