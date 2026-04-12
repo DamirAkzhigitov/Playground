@@ -152,6 +152,7 @@ body {
   isolation: isolate;
   margin-top: 0;
   background: var(--bg-deep);
+  overflow: hidden;
 }
 
 .hero-media {
@@ -189,6 +190,17 @@ body {
     );
 }
 
+.attention-field {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
 @media (min-width: 768px) {
   .hero-media img {
     object-fit: contain;
@@ -213,6 +225,12 @@ body {
         rgba(3, 3, 6, 0.05) 78%,
         rgba(3, 3, 6, 0.88) 100%
       );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attention-field {
+    display: none;
   }
 }
 
@@ -254,6 +272,26 @@ body {
     0 4px 0 rgba(165, 180, 252, 0.35),
     0 32px 64px rgba(0, 0, 0, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  animation: hero-panel-in 1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-panel {
+    animation: none;
+  }
+}
+
+@keyframes hero-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.985);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
 }
 
 .hero-panel-accent {
@@ -284,6 +322,13 @@ body {
   letter-spacing: 0.2em;
   color: var(--accent);
   margin-bottom: 0.85rem;
+  animation: hero-text-rise 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-kicker {
+    animation: none;
+  }
 }
 
 .hero-kicker-dot {
@@ -304,6 +349,13 @@ body {
   color: #fff;
   margin-bottom: 0.85rem;
   text-wrap: balance;
+  animation: hero-text-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-title {
+    animation: none;
+  }
 }
 
 .hero-tagline {
@@ -311,10 +363,35 @@ body {
   color: rgba(226, 232, 240, 0.92);
   margin-bottom: 1.15rem;
   max-width: 38ch;
+  animation: hero-text-rise 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.34s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-tagline {
+    animation: none;
+  }
+}
+
+@keyframes hero-text-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-contact {
   padding-top: 0.25rem;
+  animation: hero-text-rise 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.46s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-contact {
+    animation: none;
+  }
 }
 
 .hero-mail {
@@ -354,6 +431,24 @@ body {
   color: rgba(255, 255, 255, 0.45);
   text-decoration: none;
   transition: color 0.2s ease;
+  animation: hero-scroll-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll {
+    animation: none;
+  }
+}
+
+@keyframes hero-scroll-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 .hero-scroll:hover {
@@ -426,6 +521,27 @@ body {
 
 .resume-section:last-child {
   margin-bottom: 0;
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-reveal].reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 .section-title {

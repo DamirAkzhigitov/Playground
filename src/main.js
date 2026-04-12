@@ -1,3 +1,6 @@
+import { initAttentionField } from './attentionField.js'
+import { initScrollReveal } from './scrollReveal.js'
+
 const STORAGE_KEY = 'lang'
 
 const ruBtn = document.getElementById('lang-ru')
@@ -54,4 +57,11 @@ function initYear() {
 document.addEventListener('DOMContentLoaded', () => {
   initLang()
   initYear()
+  initScrollReveal()
+
+  const hero = document.querySelector('.hero-immersive')
+  const canvas = document.getElementById('attention-field')
+  if (hero instanceof HTMLElement && canvas instanceof HTMLCanvasElement) {
+    initAttentionField(canvas, hero)
+  }
 })
