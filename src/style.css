@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+/* Flex/grid children override the UA [hidden] rule — force display:none */
+[hidden] {
+  display: none !important;
+}
+
 :root {
   --bg-deep: #030306;
   --accent: #a5b4fc;
