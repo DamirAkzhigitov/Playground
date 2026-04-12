@@ -1,3 +1,5 @@
+import { initExploreMode, updateProgress } from './exploreMode.js'
+
 const STORAGE_KEY = 'lang'
 
 const ruBtn = document.getElementById('lang-ru')
@@ -8,12 +10,12 @@ function setVisibleLang(lang) {
   document.documentElement.lang = isRu ? 'ru' : 'en'
 
   for (const el of document.querySelectorAll(
-    '.prose-en, .tagline-en, .hl-en, .hero-kicker-en, .hero-scroll-en'
+    '.prose-en, .tagline-en, .hl-en, .hero-kicker-en, .hero-scroll-en, .mode-btn-label-en, .header-linkedin-label-en, #explore-progress-label'
   )) {
     el.hidden = isRu
   }
   for (const el of document.querySelectorAll(
-    '.prose-ru, .tagline-ru, .hl-ru, .hero-kicker-ru, .hero-scroll-ru'
+    '.prose-ru, .tagline-ru, .hl-ru, .hero-kicker-ru, .hero-scroll-ru, .mode-btn-label-ru, .header-linkedin-label-ru, #explore-progress-label-ru'
   )) {
     el.hidden = !isRu
   }
@@ -34,6 +36,7 @@ function setVisibleLang(lang) {
   enBtn?.setAttribute('aria-pressed', String(!isRu))
 
   localStorage.setItem(STORAGE_KEY, lang)
+  updateProgress()
 }
 
 function initLang() {
@@ -52,6 +55,8 @@ function initYear() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  document.documentElement.classList.add('js')
+  initExploreMode()
   initLang()
   initYear()
 })
