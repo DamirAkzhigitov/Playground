@@ -508,8 +508,27 @@ body {
   order: 6;
 }
 
+.resume-bottom-row {
+  order: 6;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+.resume-bottom-row .resume-section--projects,
+.resume-bottom-row .resume-section--hire {
+  flex: 1 1 50%;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
 @media (max-width: 640px) {
   .resume-band-contact-lang {
+    flex-direction: column;
+  }
+
+  .resume-bottom-row {
     flex-direction: column;
   }
 }
@@ -867,18 +886,29 @@ body {
     page-break-inside: auto;
   }
 
-  .resume-section--projects {
+  .resume-bottom-row {
     order: 5;
-    flex: 0 0 calc(50% - 0.5rem);
-    max-width: calc(50% - 0.5rem);
+    flex: 1 1 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
     min-width: 0;
   }
 
-  .resume-section--hire {
-    order: 6;
+  .resume-section--projects {
     flex: 0 0 calc(50% - 0.5rem);
     max-width: calc(50% - 0.5rem);
     min-width: 0;
+    margin-bottom: 0;
+  }
+
+  .resume-section--hire {
+    flex: 0 0 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+    min-width: 0;
+    margin-bottom: 0;
   }
 
   .section-title {
