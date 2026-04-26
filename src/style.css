@@ -450,6 +450,11 @@ body {
   text-align: left;
 }
 
+/* Print/PDF only — hidden on screen (name lives in hero + header) */
+.resume-print-lead {
+  display: none !important;
+}
+
 .resume-section {
   margin-bottom: 1.75rem;
 }
@@ -692,6 +697,62 @@ body {
     border: none;
     box-shadow: none;
     background: #fff;
+  }
+
+  #resume-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .resume-print-lead {
+    display: block !important;
+    order: 1;
+    margin-bottom: 0.35rem;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .resume-print-name {
+    font-family: var(--font-display);
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #0f172a;
+    margin: 0 0 0.2rem;
+    line-height: 1.08;
+  }
+
+  .resume-print-role {
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: #4338ca;
+    letter-spacing: 0.01em;
+  }
+
+  .resume-section--contact {
+    order: 2;
+  }
+
+  .resume-section--summary {
+    order: 3;
+  }
+
+  .resume-section--experience {
+    order: 4;
+  }
+
+  .resume-section--skills {
+    order: 5;
+  }
+
+  .resume-section--projects {
+    order: 6;
+  }
+
+  .resume-section--hire {
+    order: 7;
   }
 
   .job-card,
