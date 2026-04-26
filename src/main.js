@@ -51,7 +51,17 @@ function initYear() {
   }
 }
 
+function initPrintPdf() {
+  const btn = document.getElementById('print-pdf-btn')
+  btn?.addEventListener('click', () => {
+    requestAnimationFrame(() => {
+      window.print()
+    })
+  })
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initLang()
   initYear()
+  initPrintPdf()
 })

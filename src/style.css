@@ -110,6 +110,13 @@ body {
   letter-spacing: 0.12em;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
 .lang-switch {
   display: flex;
   gap: 0.4rem;
@@ -135,6 +142,29 @@ body {
 
 .lang-btn[aria-pressed='true'],
 .lang-btn:hover {
+  color: #0a0a0f;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.print-pdf-btn {
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.print-pdf-btn:hover {
   color: #0a0a0f;
   background: var(--accent);
   border-color: var(--accent);
@@ -616,5 +646,137 @@ body {
 
   .hero-panel {
     max-width: none;
+  }
+}
+
+/* ----- Print / PDF (A4, resume-focused, HR-friendly light theme) ----- */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  .skip-link,
+  .site-header,
+  .hero-immersive,
+  .site-footer {
+    display: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background: #fff;
+    color: #0f172a;
+    min-height: 0;
+    print-color-adjust: economy;
+    -webkit-print-color-adjust: economy;
+  }
+
+  #main {
+    z-index: auto;
+  }
+
+  .container {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .resume-panel {
+    margin-top: 0;
+    padding: 0;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  .job-card,
+  .skill-group {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .section-title {
+    color: #0f172a;
+  }
+
+  .prose p,
+  .hire {
+    color: #334155;
+  }
+
+  .prose strong,
+  .hire strong {
+    color: #0f172a;
+  }
+
+  .skill-list,
+  .highlight-list {
+    color: #334155;
+  }
+
+  .skill-list li::marker,
+  .job-duties li::marker,
+  .achievement-list li::marker {
+    color: #4338ca;
+  }
+
+  .highlight-list li::marker {
+    color: #64748b;
+  }
+
+  .job-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  .job-title {
+    color: #0f172a;
+  }
+
+  .job-meta {
+    color: #475569;
+  }
+
+  .job-duties {
+    color: #334155;
+  }
+
+  .skill-group {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  .skill-group-title {
+    color: #4338ca;
+  }
+
+  .lang-list li {
+    border-bottom-color: #e2e8f0;
+  }
+
+  .achievement-list {
+    color: #334155;
+  }
+
+  .contact-block a {
+    color: #3730a3;
+    border-bottom-color: rgba(55, 48, 163, 0.35);
+  }
+
+  .contact-block a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.82em;
+    font-weight: 500;
+    word-break: break-all;
+  }
+
+  a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 }

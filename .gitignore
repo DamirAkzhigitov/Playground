@@ -11,6 +11,9 @@ coverage/
 dist/
 build/
 
+# Local PDF export (`npm run pdf`)
+resume-a4.pdf
+
 # Environment variables
 .env
 .env.local

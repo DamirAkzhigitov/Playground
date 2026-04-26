@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Damir Akzhigitov — Senior Frontend Engineer in Limassol, Cyprus. 6+ years in fintech and high-traffic products: Vue.js, React, TypeScript, micro-frontends, GraphQL. MUFG, banking, A/B testing."
+      content="Damir Akzhigitov — Senior Frontend Engineer in Limassol, Cyprus. 6+ years in financial services and high-traffic platforms: Vue.js, React, TypeScript, GraphQL. MUFG, banking, A/B testing."
     />
     <meta
       name="keywords"
@@ -23,11 +23,11 @@
     <meta property="og:site_name" content="Damir Akzhigitov" />
     <meta
       property="og:title"
-      content="Damir Akzhigitov — Senior Frontend Developer"
+      content="Damir Akzhigitov — Senior Frontend Engineer"
     />
     <meta
       property="og:description"
-      content="Senior Frontend Engineer — 6+ years, Vue/React/TypeScript, micro-frontends, 16+ team coordination. MUFG, banking, e-commerce A/B testing. Limassol, Cyprus."
+      content="Senior Frontend Engineer — 6+ years, Vue.js and React, technical leadership across 16+ developers. Financial services, high-traffic platforms. Limassol, Cyprus."
     />
     <meta property="og:url" content="https://da-mr.com/" />
     <meta property="og:image" content="https://da-mr.com/images/author.webp" />
@@ -39,16 +39,16 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="Damir Akzhigitov — Senior Frontend Developer"
+      content="Damir Akzhigitov — Senior Frontend Engineer"
     />
     <meta
       name="twitter:description"
-      content="Senior Frontend Engineer — Vue.js, React, TypeScript, micro-frontends, fintech. Based in Limassol, Cyprus."
+      content="Senior Frontend Engineer — Vue.js, React, TypeScript, architecture and code quality. Limassol, Cyprus."
     />
     <meta name="twitter:image" content="https://da-mr.com/images/author.webp" />
 
     <title>
-      Damir Akzhigitov — Senior Frontend Developer | Resume &amp; Portfolio
+      Damir Akzhigitov — Senior Frontend Engineer | Resume &amp; Portfolio
     </title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -67,7 +67,7 @@
             "@id": "https://da-mr.com/#webpage",
             "url": "https://da-mr.com/",
             "name": "Damir Akzhigitov — Senior Frontend Engineer | Resume",
-            "description": "Senior Frontend Engineer with 6+ years in fintech and high-traffic platforms: Vue.js, React, TypeScript, micro-frontends, GraphQL. MUFG, banking, A/B testing. Limassol, Cyprus.",
+            "description": "Senior Frontend Engineer with 6+ years building applications for financial services and high-traffic platforms. Vue.js, React, technical leadership across 16+ developers. Limassol, Cyprus.",
             "inLanguage": ["en", "ru"],
             "isPartOf": { "@id": "https://da-mr.com/#website" },
             "about": { "@id": "https://da-mr.com/#person" },
@@ -92,7 +92,7 @@
             "givenName": "Damir",
             "familyName": "Akzhigitov",
             "jobTitle": "Senior Frontend Engineer",
-            "description": "Senior Frontend Engineer with 6+ years building production apps for financial services and high-traffic platforms; Vue.js and React, micro-frontends, technical leadership across 16+ developers.",
+            "description": "Senior Frontend Engineer with 6+ years building applications for financial services and high-traffic platforms. Vue.js, React, technical leadership across 16+ developer teams.",
             "email": "hire@da-mr.com",
             "image": "https://da-mr.com/images/author.webp",
             "url": "https://da-mr.com/",
@@ -107,9 +107,11 @@
               "React",
               "TypeScript",
               "JavaScript",
-              "Micro-frontends",
               "GraphQL",
               "REST APIs",
+              "Node.js",
+              "Python",
+              "PostgreSQL",
               "Jest",
               "Playwright",
               "Webpack",
@@ -117,7 +119,8 @@
               "AWS",
               "A/B testing",
               "Domain-Driven Design",
-              "Financial services software"
+              "Financial services software",
+              "Large language models"
             ],
             "worksFor": {
               "@type": "Organization",
@@ -135,33 +138,42 @@
       <div class="container header-inner">
         <div class="brand">
           <span class="brand-name">Damir Akzhigitov</span>
-          <span class="brand-role brand-role-en"
-            >Senior Frontend Developer</span
-          >
+          <span class="brand-role brand-role-en">Senior Frontend Engineer</span>
           <span class="brand-role brand-role-ru" hidden
-            >Ведущий frontend-разработчик</span
+            >Senior frontend-инженер</span
           >
         </div>
-        <nav class="lang-switch" aria-label="Language">
+        <div class="header-actions">
+          <nav class="lang-switch" aria-label="Language">
+            <button
+              id="lang-ru"
+              type="button"
+              data-lang="ru"
+              class="lang-btn"
+              aria-pressed="false"
+            >
+              RU
+            </button>
+            <button
+              id="lang-en"
+              type="button"
+              data-lang="en"
+              class="lang-btn"
+              aria-pressed="false"
+            >
+              EN
+            </button>
+          </nav>
           <button
-            id="lang-ru"
+            id="print-pdf-btn"
             type="button"
-            data-lang="ru"
-            class="lang-btn"
-            aria-pressed="false"
+            class="print-pdf-btn"
+            title="Open print dialog — choose Save as PDF, A4"
+            aria-label="Print or save resume as PDF (A4)"
           >
-            RU
+            PDF
           </button>
-          <button
-            id="lang-en"
-            type="button"
-            data-lang="en"
-            class="lang-btn"
-            aria-pressed="false"
-          >
-            EN
-          </button>
-        </nav>
+        </div>
       </div>
     </header>
 
@@ -169,7 +181,7 @@
       <div class="hero-media">
         <img
           src="/images/author.webp"
-          alt="Damir Akzhigitov — senior frontend developer, urban portrait"
+          alt="Damir Akzhigitov — senior frontend engineer, urban portrait"
           width="768"
           height="1360"
           loading="eager"
@@ -182,20 +194,21 @@
         <div class="hero-panel">
           <div class="hero-panel-accent" aria-hidden="true"></div>
           <p class="hero-kicker hero-kicker-en">
-            <span class="hero-kicker-dot"></span> Senior frontend · Product UI
+            <span class="hero-kicker-dot"></span> Senior frontend · Vue.js &amp;
+            React
           </p>
           <p class="hero-kicker hero-kicker-ru" hidden>
-            <span class="hero-kicker-dot"></span> Senior frontend · Продуктовый
-            UI
+            <span class="hero-kicker-dot"></span> Senior frontend · Vue.js и
+            React
           </p>
           <h1 id="profile-heading" class="hero-title">Damir Akzhigitov</h1>
           <p class="hero-tagline tagline-en">
-            Interfaces that stay fast under load — TypeScript, React,
-            performance, a11y, design systems.
+            Financial services and high-traffic platforms — Vue.js, React, and
+            technical leadership across 16+ developers.
           </p>
           <p class="hero-tagline tagline-ru" hidden>
-            Интерфейсы, которые не ломаются под нагрузкой — TypeScript, React,
-            перфоманс, a11y, дизайн-системы.
+            Финансовые сервисы и высоконагруженные платформы — Vue.js, React и
+            техническое лидерство для 16+ разработчиков.
           </p>
           <p class="hero-contact">
             <a class="hero-mail" href="mailto:hire@da-mr.com">hire@da-mr.com</a>
@@ -228,26 +241,25 @@
           <div class="prose prose-en">
             <p>
               <strong>Senior Frontend Engineer</strong> with
-              <strong>6+ years</strong> shipping production applications for
+              <strong>6+ years</strong> of experience building applications for
               <strong>financial services</strong> and
-              <strong>high-traffic</strong> platforms. I specialize in the
-              <strong>Vue.js</strong> and <strong>React</strong> ecosystems,
-              have led technical initiatives across
-              <strong>16+ frontend developers</strong>, and focus on
-              micro-frontend architecture, migrations, and measurable product
-              outcomes. Based in <strong>Limassol, Cyprus</strong>.
+              <strong>high-traffic</strong> platforms. I specialize in
+              <strong>Vue.js</strong> and <strong>React</strong>, and have led
+              technical tasks across <strong>16+ developer teams</strong>. I am
+              looking for a role where I can solve complex architectural
+              problems and improve code quality.
             </p>
           </div>
           <div class="prose prose-ru" hidden>
             <p>
-              <strong>Senior Frontend Engineer</strong>, более
-              <strong>6 лет</strong> в продакшене для
+              <strong>Senior Frontend Engineer</strong> с опытом более
+              <strong>6 лет</strong> в разработке приложений для
               <strong>финансовых сервисов</strong> и
-              <strong>высоконагруженных</strong> продуктов. Специализация —
-              экосистемы <strong>Vue.js</strong> и <strong>React</strong>,
-              координация работы <strong>16+ фронтенд-разработчиков</strong>,
-              микрофронтенды, миграции и измеримый эффект для продукта.
-              <strong>Лимасол, Кипр</strong>.
+              <strong>высоконагруженных</strong> платформ. Специализируюсь на
+              <strong>Vue.js</strong> и <strong>React</strong>, вёл технические
+              задачи в командах <strong>16+ разработчиков</strong>. Ищу роль,
+              где можно решать сложные архитектурные задачи и повышать качество
+              кода.
             </p>
           </div>
         </section>
@@ -289,33 +301,37 @@
                     ></span
                   >
                   · Cyprus ·
-                  <time datetime="2022-03-01">Mar 2022</time> – Present (3+
-                  years)
+                  <time datetime="2022-03-01">Mar 2022</time> – Present
                 </p>
                 <ul class="job-duties">
                   <li>
-                    Led improvements to
-                    <strong>micro-frontend architecture</strong>: spotting
-                    issues early and proposing stronger technical solutions.
+                    <strong>Cross-functional collaboration:</strong> bridge
+                    between product owners, designers, and backend — surfaced
+                    conflicting requirements early and proposed stronger
+                    technical or product paths before build-out.
                   </li>
                   <li>
-                    Coordinated technical delivery for large-scale features
-                    across <strong>16+ frontend developers</strong> — docs,
-                    tracking, alignment.
+                    <strong>DX &amp; leadership:</strong> raised productivity
+                    for <strong>16+ frontend developers</strong> with shared
+                    configs, internal tooling, and technical design docs.
                   </li>
                   <li>
-                    Partnered with <strong>product managers</strong> on
-                    discovery and requirements; refined specs before
-                    development.
+                    <strong>Proactive problem solving:</strong> tracked down
+                    bugs across <strong>micro-frontend</strong> modules, wrote
+                    tasks and documentation so every team stayed aligned on
+                    standards.
                   </li>
                   <li>
-                    Migrated multiple repos from
-                    <strong>Vue 2 → Vue 3</strong> with
-                    <strong>TypeScript</strong> and the Composition API.
+                    <strong>AI tooling &amp; automation:</strong> built custom
+                    AI agents, workflows, and plugins on LLM APIs to automate
+                    parts of code review and speed up day-to-day engineering.
                   </li>
                   <li>
-                    Code review and mentoring; <strong>TDD</strong> and
-                    <strong>Clean Code</strong> practices.
+                    <strong>Release automation:</strong> shipped a full-stack
+                    automated release management app (Vue.js, Node.js, Python,
+                    Postgres, Hasura) — release prep from
+                    <strong>2+ hours to under 20 minutes</strong>, adopted
+                    company-wide.
                   </li>
                 </ul>
               </div>
@@ -333,7 +349,7 @@
                 itemtype="https://schema.org/WorkPosition"
               >
                 <h3 class="job-title" itemprop="name">
-                  Banking Application Web Developer
+                  Frontend Web Developer
                 </h3>
                 <p class="job-meta">
                   <span
@@ -346,18 +362,27 @@
                   >
                   · Russia ·
                   <time datetime="2021-06-01">Jun 2021</time> –
-                  <time datetime="2022-05-31">May 2022</time> (11 months)
+                  <time datetime="2022-05-31">May 2022</time>
                 </p>
                 <ul class="job-duties">
                   <li>
-                    Rebuilt the bank’s internal sales tool; managers processed
-                    client applications <strong>25%+ faster</strong> with fewer
-                    data-entry errors.
+                    <strong>Technical ownership:</strong> worked with the
+                    technical director as one of two frontend engineers — chose
+                    the stack, tooling, and architecture for new work.
                   </li>
                   <li>
-                    Lead frontend with the department director:
-                    <strong>Vue 3</strong>, <strong>TypeScript</strong>,
-                    Bootstrap-based component libraries.
+                    <strong>Sales application:</strong> delivered a multi-step
+                    web app for branch managers — auth, complex client forms,
+                    document scan/upload.
+                  </li>
+                  <li>
+                    <strong>Data visualization:</strong> internal dashboard for
+                    live sales metrics, built with the backend team against
+                    their APIs.
+                  </li>
+                  <li>
+                    <strong>Cross-functional delivery:</strong> shipped features
+                    with Android, QA, and backend without a dedicated team lead.
                   </li>
                 </ul>
               </div>
@@ -388,13 +413,22 @@
                   >
                   · Russia ·
                   <time datetime="2020-12-01">Dec 2020</time> –
-                  <time datetime="2021-06-30">Jun 2021</time> (6 months)
+                  <time datetime="2021-06-30">Jun 2021</time>
                 </p>
                 <ul class="job-duties">
                   <li>
-                    Built a new <strong>React</strong> streaming widget system
-                    so streamers could grow earnings and the platform’s user
-                    base.
+                    <strong>Real-time streaming widgets:</strong> highly
+                    configurable <strong>React</strong> widget system from
+                    scratch — WebSocket-driven, animated UI in real time.
+                  </li>
+                  <li>
+                    <strong>OBS integration:</strong> widgets keyed for
+                    <strong>Open Broadcaster Software</strong> so streamers
+                    could drop them into scenes and grow the platform audience.
+                  </li>
+                  <li>
+                    <strong>Mobile prototyping:</strong> ported parts of the web
+                    app to <strong>React Native</strong> as a proof of concept.
                   </li>
                 </ul>
               </div>
@@ -412,7 +446,7 @@
                 itemtype="https://schema.org/WorkPosition"
               >
                 <h3 class="job-title" itemprop="name">
-                  Frontend Developer (A/B testing)
+                  Frontend Developer (A/B Testing)
                 </h3>
                 <p class="job-meta">
                   <span
@@ -423,12 +457,22 @@
                   >
                   · Russia ·
                   <time datetime="2019-10-01">Oct 2019</time> –
-                  <time datetime="2020-12-31">Dec 2020</time> (1 year 3 months)
+                  <time datetime="2020-12-31">Dec 2020</time>
                 </p>
                 <ul class="job-duties">
                   <li>
-                    Client-side <strong>A/B tests</strong> for high-traffic
-                    e-commerce — better conversion and client retention.
+                    Client-side <strong>A/B tests</strong> on high-traffic
+                    e-commerce sites to lift conversion and retention.
+                  </li>
+                  <li>
+                    <strong>Advanced DOM work:</strong> pure JavaScript and CSS
+                    on top of third-party sites — reshaped behavior and UI
+                    without access to original source.
+                  </li>
+                  <li>
+                    <strong>Custom UI:</strong> built interactive components
+                    (galleries, sliders, and similar) straight in the DOM from
+                    client briefs.
                   </li>
                 </ul>
               </div>
@@ -445,42 +489,61 @@
               </p>
               <ul class="job-duties">
                 <li>
-                  Развитие <strong>микрофронтенд-архитектуры</strong>, раннее
-                  выявление рисков и технические решения.
+                  <strong>Кросс-функциональная работа:</strong> связка между
+                  владельцами продукта, дизайном и бэкендом — заранее выявлял
+                  противоречия в требованиях и предлагал лучшие технические или
+                  продуктовые решения до разработки.
                 </li>
                 <li>
-                  Координация крупных фич для
-                  <strong>16+ фронтенд-разработчиков</strong>: документация,
-                  трекинг, синхронизация.
+                  <strong>DX и лидерство:</strong> повысил продуктивность
+                  <strong>16+ фронтенд-разработчиков</strong> за счёт общих
+                  конфигураций, внутренних инструментов и технических ТЗ.
                 </li>
                 <li>
-                  Совместная работа с <strong>продактами</strong> на этапе
-                  постановки и уточнения требований.
+                  <strong>Проактивное решение проблем:</strong> находил и
+                  исправлял баги в нескольких модулях
+                  <strong>микрофронтендов</strong>, оформлял задачи и
+                  документацию, чтобы команды держались единых стандартов.
                 </li>
                 <li>
-                  Миграции <strong>Vue 2 → Vue 3</strong> с
-                  <strong>TypeScript</strong> и Composition API.
+                  <strong>AI и автоматизация:</strong> разрабатывал кастомных
+                  AI-агентов, сценарии и плагины на LLM API для автоматизации
+                  части code review и ускорения работы команды.
                 </li>
                 <li>
-                  Ревью кода и менторинг; <strong>TDD</strong> и
-                  <strong>Clean Code</strong>.
+                  <strong>Автоматизация релизов:</strong> full-stack инструмент
+                  управления релизами (Vue.js, Node.js, Python, Postgres,
+                  Hasura) — подготовка релиза с
+                  <strong>более 2 часов до менее 20 минут</strong>, принят как
+                  стандарт в компании.
                 </li>
               </ul>
             </article>
             <article class="job-card">
-              <h3 class="job-title">Веб-разработчик банковских приложений</h3>
+              <h3 class="job-title">Frontend Web Developer</h3>
               <p class="job-meta">
                 Savings and Loan Services Bank · Россия · июнь 2021 — май 2022
               </p>
               <ul class="job-duties">
                 <li>
-                  Перестроил внутренний инструмент продаж: ускорение обработки
-                  заявок <strong>более чем на 25%</strong>, меньше ошибок ввода.
+                  <strong>Техническая ответственность:</strong> работа с
+                  техническим директором как один из двух фронтенд-разработчиков
+                  — выбор стека, инструментов и архитектуры для новых проектов.
                 </li>
                 <li>
-                  Ведущий фронтенд с руководством:
-                  <strong>Vue 3</strong>, <strong>TypeScript</strong>,
-                  компоненты на базе Bootstrap.
+                  <strong>Приложение для продаж:</strong> многошаговое
+                  веб-приложение для менеджеров в точках продаж —
+                  аутентификация, сложные формы, сканирование и загрузка
+                  документов.
+                </li>
+                <li>
+                  <strong>Визуализация данных:</strong> внутренний дашборд с
+                  оперативной статистикой продаж, интеграция API совместно с
+                  бэкендом.
+                </li>
+                <li>
+                  <strong>Кросс-функциональная поставка:</strong> фичи вместе с
+                  Android, QA и бэкендом без выделенного тимлида.
                 </li>
               </ul>
             </article>
@@ -491,8 +554,18 @@
               </p>
               <ul class="job-duties">
                 <li>
-                  Новая система виджетов на <strong>React</strong> для стриминга
-                  и роста аудитории.
+                  <strong>Виджеты реального времени:</strong> гибкая система
+                  виджетов на <strong>React</strong> с нуля — WebSocket-события
+                  и анимированный UI в реальном времени.
+                </li>
+                <li>
+                  <strong>Интеграция с OBS:</strong> виджеты с уникальными
+                  ключами для <strong>Open Broadcaster Software</strong> — проще
+                  подключать стримерам и расширять аудиторию платформы.
+                </li>
+                <li>
+                  <strong>Мобильный POC:</strong> перенос частей веб-приложения
+                  на <strong>React Native</strong> как proof of concept.
                 </li>
               </ul>
             </article>
@@ -503,8 +576,16 @@
               <p class="job-meta">Kameleoon · Россия · окт 2019 — дек 2020</p>
               <ul class="job-duties">
                 <li>
-                  Клиентские A/B-тесты для высоконагруженного e-commerce:
-                  конверсия и удержание.
+                  Клиентские <strong>A/B-тесты</strong> для высоконагруженного
+                  e-commerce — конверсия и удержание клиентов.
+                </li>
+                <li>
+                  <strong>Сложная работа с DOM:</strong> чистый JavaScript и CSS
+                  поверх чужих сайтов — менял поведение и UI без исходников.
+                </li>
+                <li>
+                  <strong>Кастомный UI:</strong> галереи, слайдеры и др. прямо в
+                  DOM по запросам клиентов.
                 </li>
               </ul>
             </article>
@@ -513,126 +594,97 @@
 
         <section class="resume-section" aria-labelledby="skills-heading">
           <h2 id="skills-heading" class="section-title">
-            <span class="title-en">Skills &amp; stack</span>
-            <span class="title-ru" hidden>Навыки и стек</span>
+            <span class="title-en">Technical skills</span>
+            <span class="title-ru" hidden>Технические навыки</span>
           </h2>
           <div class="prose prose-en skills-grid">
             <div class="skill-group">
-              <h3 class="skill-group-title">Technical</h3>
+              <h3 class="skill-group-title">Stack</h3>
               <p>
-                <strong>Languages:</strong> JavaScript, TypeScript, C#, SQL.
+                <strong>Full-stack:</strong> JavaScript/TypeScript, C#, SQL.
                 <strong> Frontend:</strong> React, Vue.js, CSS3, SCSS.
-                <strong> APIs &amp; data:</strong> GraphQL, REST, database
-                design.
+                <strong> Backend &amp; data:</strong> GraphQL, REST APIs,
+                database design.
               </p>
               <p>
-                <strong>Libraries &amp; tooling:</strong> Jest, Playwright,
+                <strong>Frameworks &amp; libraries:</strong> Jest, Playwright,
                 AG-Grid, AG-Charts, i18n, Apollo, Webpack, OpenAI.
-                <strong> DevOps &amp; quality:</strong> Git, CI/CD, Vite, AWS,
+                <strong> Tools &amp; platforms:</strong> Git, CI/CD, Vite, AWS,
                 Jira, Babel, ESLint, Prettier, Amplify, Datadog.
               </p>
               <p>
                 <strong>Concepts:</strong> Domain-Driven Design (DDD), A/B
-                testing, micro-frontends.
+                testing.
               </p>
-            </div>
-            <div class="skill-group">
-              <h3 class="skill-group-title">Soft skills</h3>
-              <ul class="skill-list skill-list-inline">
-                <li>Mentoring &amp; coaching</li>
-                <li>Problem-solving</li>
-                <li>Cross-functional communication</li>
-                <li>Proactive initiative</li>
-                <li>Team building &amp; morale</li>
-              </ul>
             </div>
             <div class="skill-group">
               <h3 class="skill-group-title">Languages</h3>
               <ul class="skill-list lang-list">
                 <li>Russian — Native</li>
                 <li>English — B2</li>
-                <li>Greek — Intermediate (A2)</li>
+                <li>Greek — Intermediate (A2 Level)</li>
               </ul>
             </div>
           </div>
           <div class="prose prose-ru skills-grid" hidden>
             <div class="skill-group">
-              <h3 class="skill-group-title">Технические</h3>
+              <h3 class="skill-group-title">Стек</h3>
               <p>
-                <strong>Языки:</strong> JavaScript, TypeScript, C#, SQL.
+                <strong>Full-stack:</strong> JavaScript/TypeScript, C#, SQL.
                 <strong> Frontend:</strong> React, Vue.js, CSS3, SCSS.
-                <strong> API и данные:</strong> GraphQL, REST, проектирование
-                БД.
+                <strong> Бэкенд и данные:</strong> GraphQL, REST API,
+                проектирование БД.
               </p>
               <p>
-                <strong>Библиотеки и инструменты:</strong> Jest, Playwright,
+                <strong>Фреймворки и библиотеки:</strong> Jest, Playwright,
                 AG-Grid, AG-Charts, i18n, Apollo, Webpack, OpenAI.
-                <strong> Инфра и качество:</strong> Git, CI/CD, Vite, AWS, Jira,
-                Babel, ESLint, Prettier, Amplify, Datadog.
+                <strong> Инструменты и платформы:</strong> Git, CI/CD, Vite,
+                AWS, Jira, Babel, ESLint, Prettier, Amplify, Datadog.
               </p>
-              <p><strong>Подходы:</strong> DDD, A/B-тесты, микрофронтенды.</p>
-            </div>
-            <div class="skill-group">
-              <h3 class="skill-group-title">Гибкие навыки</h3>
-              <ul class="skill-list skill-list-inline">
-                <li>Менторинг</li>
-                <li>Решение задач</li>
-                <li>Кросс-функциональная коммуникация</li>
-                <li>Инициативность</li>
-                <li>Командный дух</li>
-              </ul>
+              <p>
+                <strong>Концепции:</strong> DDD (Domain-Driven Design),
+                A/B-тестирование.
+              </p>
             </div>
             <div class="skill-group">
               <h3 class="skill-group-title">Языки</h3>
               <ul class="skill-list lang-list">
                 <li>Русский — родной</li>
                 <li>Английский — B2</li>
-                <li>Греческий — A2</li>
+                <li>Греческий — средний (уровень A2)</li>
               </ul>
             </div>
           </div>
         </section>
 
-        <section class="resume-section" aria-labelledby="achievements-heading">
-          <h2 id="achievements-heading" class="section-title">
-            <span class="title-en">Key achievements &amp; projects</span>
-            <span class="title-ru" hidden>Достижения и проекты</span>
+        <section class="resume-section" aria-labelledby="projects-heading">
+          <h2 id="projects-heading" class="section-title">
+            <span class="title-en">Personal projects</span>
+            <span class="title-ru" hidden>Личные проекты</span>
           </h2>
           <div class="prose prose-en">
+            <h3 class="skill-group-title">AI Dev Assistant for GitLab</h3>
             <ul class="achievement-list">
               <li>
-                <strong>Automated release management (MUFG):</strong> full-stack
-                tool for branches, tagging, changelogs — prep time from
-                <strong>2+ hours to under 20 minutes</strong>; adopted
-                company-wide.
+                AI-powered flow that turns GitLab issues into ready-to-merge
+                pull requests.
               </li>
               <li>
-                <strong>Notifications component (production):</strong> fixed
-                performance failure with 10k+ notifications; pagination &amp;
-                lazy loading — stable at scale.
-              </li>
-              <li>
-                <strong>AI dev assistant for GitLab:</strong> issues →
-                ready-to-merge MRs; scaffolding, refactors, docs — productivity
-                for small teams.
+                Automates component creation, refactors, and documentation to
+                help small teams ship faster.
               </li>
             </ul>
           </div>
           <div class="prose prose-ru" hidden>
+            <h3 class="skill-group-title">AI Dev Assistant для GitLab</h3>
             <ul class="achievement-list">
               <li>
-                <strong>Автоматизация релизов (MUFG):</strong> полный цикл
-                веток, тегов, changelog — с
-                <strong>2+ часов до &lt;20 минут</strong>; стандарт для
-                компании.
+                AI-инструмент: из issues GitLab — в готовые к мержу pull
+                request’ы.
               </li>
               <li>
-                <strong>Компонент уведомлений:</strong> устранён провал
-                производительности при 10k+ уведомлений; пагинация и lazy load.
-              </li>
-              <li>
-                <strong>AI-ассистент для GitLab:</strong> из issues в MR;
-                генерация кода и документации для небольших команд.
+                Автоматизация создания компонентов, рефакторинга и документации
+                для небольших команд.
               </li>
             </ul>
           </div>
@@ -650,7 +702,7 @@
               <a
                 href="https://www.linkedin.com/in/damir-akzhigitov"
                 rel="me noopener noreferrer"
-                >LinkedIn profile</a
+                >LinkedIn</a
               >
               · Limassol, Cyprus
             </p>
@@ -662,7 +714,7 @@
               <a
                 href="https://www.linkedin.com/in/damir-akzhigitov"
                 rel="me noopener noreferrer"
-                >Профиль LinkedIn</a
+                >LinkedIn</a
               >
               · Лимасол, Кипр
             </p>
@@ -701,8 +753,8 @@
           engineer.
         </p>
         <p class="footer-copy footer-ru" hidden>
-          &copy; <span id="year"></span> Damir Akzhigitov. Ведущий
-          frontend-разработчик.
+          &copy; <span id="year"></span> Damir Akzhigitov. Senior
+          frontend-инженер.
         </p>
       </div>
     </footer>
