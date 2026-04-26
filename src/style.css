@@ -450,6 +450,70 @@ body {
   text-align: left;
 }
 
+#resume-content {
+  display: flex;
+  flex-direction: column;
+}
+
+#resume-content > meta {
+  display: none;
+}
+
+/* DOM: band sits after print-lead; flex order keeps reading flow natural */
+.resume-section--summary {
+  order: 1;
+}
+
+.resume-section--experience {
+  order: 2;
+}
+
+.resume-section--skills {
+  order: 3;
+}
+
+.resume-section--projects {
+  order: 4;
+}
+
+.resume-band-contact-lang {
+  order: 5;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.resume-band-contact-lang .resume-section--contact {
+  flex: 1 1 50%;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.resume-lang-column {
+  flex: 1 1 50%;
+  min-width: 0;
+  padding: 1rem 1rem 1.05rem;
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.resume-lang-column .lang-list {
+  margin-left: 0;
+}
+
+.resume-section--hire {
+  order: 6;
+}
+
+@media (max-width: 640px) {
+  .resume-band-contact-lang {
+    flex-direction: column;
+  }
+}
+
 /* Print/PDF only — hidden on screen (name lives in hero + header) */
 .resume-print-lead {
   display: none !important;
@@ -592,15 +656,23 @@ body {
 .lang-list {
   list-style: none;
   margin-left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.4rem;
+  align-items: center;
 }
 
 .lang-list li {
-  padding: 0.25rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.lang-list li:last-child {
-  border-bottom: none;
+  margin: 0;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  border-radius: 999px;
+  background: rgba(129, 140, 248, 0.14);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #e2e8f0;
+  line-height: 1.25;
 }
 
 .achievement-list {
@@ -657,7 +729,7 @@ body {
 /* ----- Print / PDF (A4, resume-focused, HR-friendly light theme) ----- */
 @page {
   size: A4;
-  margin: 12mm;
+  margin: 10mm;
 }
 
 @media print {
@@ -676,6 +748,8 @@ body {
     background: #fff;
     color: #0f172a;
     min-height: 0;
+    font-size: 11pt;
+    line-height: 1.42;
     print-color-adjust: economy;
     -webkit-print-color-adjust: economy;
   }
@@ -699,70 +773,204 @@ body {
     background: #fff;
   }
 
+  /* Flex + wrap fragments reliably in print; CSS Grid often defers full-width
+     rows to the next page and leaves the prior page mostly blank (Chrome). */
   #resume-content {
     display: flex;
-    flex-direction: column;
-    gap: 0;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.55rem 1rem;
   }
 
   .resume-print-lead {
     display: block !important;
     order: 1;
-    margin-bottom: 0.35rem;
-    break-after: avoid;
-    page-break-after: avoid;
+    flex: 0 0 100%;
+    width: 100%;
+    margin-bottom: 0.25rem;
   }
 
   .resume-print-name {
     font-family: var(--font-display);
-    font-size: 1.85rem;
+    font-size: 1.55rem;
     font-weight: 800;
     letter-spacing: -0.03em;
     color: #0f172a;
-    margin: 0 0 0.2rem;
+    margin: 0 0 0.15rem;
     line-height: 1.08;
   }
 
   .resume-print-role {
     margin: 0;
-    font-size: 0.98rem;
+    font-size: 0.92rem;
     font-weight: 600;
     color: #4338ca;
     letter-spacing: 0.01em;
   }
 
-  .resume-section--contact {
-    order: 2;
+  .resume-section {
+    margin-bottom: 0.95rem;
+  }
+
+  .resume-section:last-child {
+    margin-bottom: 0;
   }
 
   .resume-section--summary {
+    display: none !important;
+  }
+
+  .resume-band-contact-lang {
+    order: 2;
+    flex: 1 1 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.95rem;
+    min-width: 0;
+  }
+
+  .resume-band-contact-lang .resume-section--contact {
+    flex: 0 0 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+    min-width: 0;
+    margin-bottom: 0;
+  }
+
+  .resume-lang-column {
+    flex: 0 0 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+    min-width: 0;
+    padding: 0.35rem 0.5rem 0.45rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0;
+  }
+
+  .resume-lang-column .skill-group-title {
+    margin-bottom: 0.3rem;
+  }
+
+  .resume-section--skills {
     order: 3;
+    flex: 1 1 100%;
+    min-width: 0;
   }
 
   .resume-section--experience {
     order: 4;
-  }
-
-  .resume-section--skills {
-    order: 5;
+    flex: 1 1 100%;
+    min-width: 0;
+    break-inside: auto;
+    page-break-inside: auto;
   }
 
   .resume-section--projects {
-    order: 6;
+    order: 5;
+    flex: 0 0 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+    min-width: 0;
   }
 
   .resume-section--hire {
-    order: 7;
-  }
-
-  .job-card,
-  .skill-group {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    order: 6;
+    flex: 0 0 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+    min-width: 0;
   }
 
   .section-title {
     color: #0f172a;
+    font-size: 1.05rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .experience-list {
+    gap: 0.7rem;
+  }
+
+  .job-card {
+    padding: 0.55rem 0.65rem 0.6rem;
+    border-radius: 0;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  .job-title {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+    color: #0f172a;
+  }
+
+  .job-meta {
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+    color: #475569;
+  }
+
+  .job-duties {
+    margin-left: 1rem;
+    color: #334155;
+  }
+
+  .job-duties li {
+    margin: 0.22rem 0;
+    orphans: 2;
+    widows: 2;
+  }
+
+  .skill-group {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding: 0.55rem 0.65rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* Stack only — full width (languages live in contact band). */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    align-items: start;
+  }
+
+  .skill-group-title {
+    margin-bottom: 0.35rem;
+    color: #4338ca;
+  }
+
+  .skill-group p {
+    margin-bottom: 0.35rem;
+  }
+
+  .achievement-list li {
+    margin: 0.3rem 0;
+  }
+
+  .skill-list li {
+    margin: 0.22rem 0;
+  }
+
+  .lang-list {
+    gap: 0.22rem 0.32rem;
+  }
+
+  .lang-list li {
+    margin: 0;
+    padding: 0.1rem 0.42rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #334155;
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 999px;
+    line-height: 1.2;
   }
 
   .prose p,
@@ -790,36 +998,6 @@ body {
     color: #64748b;
   }
 
-  .job-card {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-  }
-
-  .job-title {
-    color: #0f172a;
-  }
-
-  .job-meta {
-    color: #475569;
-  }
-
-  .job-duties {
-    color: #334155;
-  }
-
-  .skill-group {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-  }
-
-  .skill-group-title {
-    color: #4338ca;
-  }
-
-  .lang-list li {
-    border-bottom-color: #e2e8f0;
-  }
-
   .achievement-list {
     color: #334155;
   }
@@ -830,10 +1008,9 @@ body {
   }
 
   .contact-block a[href^='http']::after {
-    content: ' (' attr(href) ')';
+    content: ' (linkedin.com/in/damir-akzhigitov)';
     font-size: 0.82em;
     font-weight: 500;
-    word-break: break-all;
   }
 
   a {
