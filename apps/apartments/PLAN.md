@@ -248,12 +248,12 @@ correct question and apartment, stored in R2.
 
 ### 5B — Comparison Table (`/compare`)
 
-- [ ] **5B.1** Select apartments to compare (checkbox list).
-- [ ] **5B.2** Comparison table: rows = questions, columns = apartments.
-- [ ] **5B.3** Color coding: green/red for boolean, gradient for ratings.
-- [ ] **5B.4** Filter by category.
-- [ ] **5B.5** Highlight differences — cells where values diverge.
-- [ ] **5B.6** Responsive: horizontal scroll on mobile, sticky first column.
+- [x] **5B.1** Select apartments to compare (checkbox list).
+- [x] **5B.2** Comparison table: rows = questions, columns = apartments.
+- [x] **5B.3** Color coding: green/red for boolean, gradient for ratings.
+- [x] **5B.4** Filter by category.
+- [x] **5B.5** Highlight differences — cells where values diverge.
+- [x] **5B.6** Responsive: horizontal scroll on mobile, sticky first column.
 
 **Exit criteria:** export downloads correct files; comparison of 3+ apartments
 renders correctly on mobile and desktop.
@@ -262,15 +262,15 @@ renders correctly on mobile and desktop.
 
 ## Phase 6 — Deployment & CI/CD
 
-- [ ] **6.1** Create Cloudflare Pages project `apartments` (disable Git
+- [x] **6.1** Create Cloudflare Pages project `apartments` (disable Git
       auto-build).
-- [ ] **6.2** Add deploy job to `.github/workflows/deploy.yml`:
+- [x] **6.2** Add deploy job to `.github/workflows/deploy.yml`:
   - Build frontend → deploy to Pages.
   - Deploy Worker → `wrangler deploy`.
   - Run D1 migrations.
-- [ ] **6.3** Add custom domains: `apartments.da-mr.com` (Pages),
+- [x] **6.3** Add custom domains: `apartments.da-mr.com` (Pages),
       `apartments-api.da-mr.com` (Worker).
-- [ ] **6.4** Link from `apps/main/index.html` dashboard.
+- [x] **6.4** Link from `apps/main/index.html` dashboard.
 
 **Exit criteria:** push to `main` deploys both frontend and Worker API
 automatically.
