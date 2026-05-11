@@ -1,5 +1,9 @@
+import { RouterProvider } from 'react-router-dom'
+
+import { AppRouter } from './router'
+
 function App() {
-  return <main className="min-h-screen bg-white" />
+  return <RouterProvider router={AppRouter} />
 }
 
 export default App

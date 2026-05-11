@@ -1,0 +1,133 @@
+export type QuestionType =
+  | 'text'
+  | 'number'
+  | 'boolean'
+  | 'select'
+  | 'multi-select'
+  | 'rating'
+
+export type Category = {
+  id: string
+  name: string
+  order: number
+}
+
+export type QuestionOption = {
+  id: string
+  questionId: string
+  label: string
+  value: string
+  order: number
+}
+
+export type Question = {
+  id: string
+  label: string
+  type: QuestionType
+  categoryId: string
+  required: boolean
+  isArchived: boolean
+  order: number
+  options: QuestionOption[]
+}
+
+export type Apartment = {
+  id: string
+  title: string
+  address: string | null
+  price: number | null
+  notes: string | null
+  createdAt: string
+  updatedAt: string
+  completion?: {
+    answeredQuestions: number
+    totalQuestions: number
+    percent: number
+  }
+}
+
+export type Answer = {
+  id: string
+  apartmentId: string
+  questionId: string
+  value: string | null
+  note: string | null
+  updatedAt: string
+}
+
+export type Photo = {
+  id: string
+  apartmentId: string
+  questionId: string | null
+  r2Key: string
+  createdAt: string
+}
+
+export type ApartmentDetail = Apartment & {
+  answers: Answer[]
+  photos: Photo[]
+}
+
+export type CreateCategoryInput = {
+  name: string
+  order?: number
+}
+
+export type UpdateCategoryInput = Partial<Pick<Category, 'name' | 'order'>>
+
+export type CreateQuestionInput = {
+  label: string
+  type: QuestionType
+  categoryId: string
+  required: boolean
+  order?: number
+  options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>
+}
+
+export type UpdateQuestionInput = Partial<
+  Pick<
+    Question,
+    'label' | 'type' | 'categoryId' | 'required' | 'isArchived' | 'order'
+  >
+> & {
+  options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>
+}
+
+export type ReorderQuestionInput = {
+  id: string
+  order: number
+}
+
+export type CreateApartmentInput = {
+  title: string
+  address?: string | null
+  price?: number | null
+  notes?: string | null
+}
+
+export type UpdateApartmentInput = Partial<CreateApartmentInput>
+
+export type UpsertAnswerInput = {
+  apartmentId: string
+  questionId: string
+  value: string | null
+  note?: string | null
+}
+
+export type UpsertAnswerPayload =
+  | {
+      answer: UpsertAnswerInput
+    }
+  | {
+      answers: UpsertAnswerInput[]
+    }
+
+export type UploadPhotoInput = {
+  apartmentId: string
+  questionId?: string
+  file: File
+}
+
+export type DeletePhotoInput = {
+  id: string
+}

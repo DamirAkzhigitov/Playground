@@ -11,7 +11,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "hono": "^4.7.11"
+    "hono": "^4.7.11",
+    "xlsx": "0.18.5",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250508.0",
