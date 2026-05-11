@@ -1,43 +1,36 @@
 {
   "name": "playground",
   "version": "1.0.0",
-  "description": "Damir Akzhigitov — senior frontend developer resume and portfolio (static site)",
+  "description": "Damir Akzhigitov — monorepo for da-mr.com and subdomain tools",
+  "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.28.2",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
-    "type-check": "tsc --noEmit",
-    "security:audit": "npm audit --audit-level=moderate",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "preview": "turbo run preview",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,html}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,html}\"",
+    "security:audit": "pnpm audit --audit-level=moderate",
     "prepare": "husky"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "22.19.7",
-    "@typescript-eslint/eslint-plugin": "8.54.0",
-    "@typescript-eslint/parser": "8.54.0",
-    "@vitest/coverage-v8": "4.1.5",
-    "eslint": "9.39.2",
-    "eslint-config-prettier": "9.1.2",
-    "eslint-plugin-security": "1.7.1",
     "husky": "9.1.7",
     "lint-staged": "16.2.7",
     "prettier": "3.5.0",
-    "typescript": "5.9.3",
-    "vite": "8.0.10",
-    "vitest": "4.1.5"
+    "turbo": "2.9.12"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,md,html}": "prettier --write"
