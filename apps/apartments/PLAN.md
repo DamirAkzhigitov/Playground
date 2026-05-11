@@ -5,8 +5,13 @@ questions on-site, compare apartments, export data.
 
 **Subdomain:** `apartments.da-mr.com`
 **API:** `apartments-api.da-mr.com`
-**Stack:** React 19 · TypeScript · Vite 8 · Tailwind 4 · TanStack Query · React Hook Form
+**Stack:** React 19 · TypeScript · Vite 8 · Tailwind 4 · shadcn/ui · TanStack Query · React Hook Form
 **Backend:** Hono on Cloudflare Workers · D1 · R2
+
+> **UI conventions:** every screen built in this app must follow
+> [`DESIGN.md`](./DESIGN.md) — component map, breakpoints, forms recipe,
+> accessibility rules, and anti-patterns. Don't invent primitives when
+> shadcn/ui ships them.
 
 ---
 
@@ -163,17 +168,17 @@ loading/error states.
 
 ### 3A — Question Management (`/questions`)
 
-- [ ] **3A.1** Question list page — grouped by category, shows type badge.
-- [ ] **3A.2** Create/edit question form (React Hook Form):
+- [x] **3A.1** Question list page — grouped by category, shows type badge.
+- [x] **3A.2** Create/edit question form (React Hook Form):
   - Fields: label, type, category, required, order.
   - Conditional fields: options list for `select`/`multi-select`, min/max
     for `rating`.
-- [ ] **3A.3** Archive toggle (soft delete) — archived questions greyed out,
+- [x] **3A.3** Archive toggle (soft delete) — archived questions greyed out,
       hidden by default with "Show archived" toggle.
-- [ ] **3A.4** Reorder questions within category (up/down buttons).
-- [ ] **3A.5** Category management — create, rename, reorder, delete (only
+- [x] **3A.4** Reorder questions within category (up/down buttons).
+- [x] **3A.5** Category management — create, rename, reorder, delete (only
       if no questions attached).
-- [ ] **3A.6** Select option management — add/remove/reorder options inline
+- [x] **3A.6** Select option management — add/remove/reorder options inline
       on the question form.
 
 ### 3B — Apartment Management (`/apartments`)

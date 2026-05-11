@@ -1,15 +1,22 @@
 import { useParams } from 'react-router-dom'
 
+import { PageHeader } from '@/components/PageHeader'
+import { Card, CardContent } from '@/components/ui/card'
+
 export function InspectionPage() {
   const { id } = useParams<{ id: string }>()
 
   return (
-    <section className="space-y-3">
-      <h1 className="text-xl font-semibold text-gray-900">Inspection</h1>
-      <p className="text-sm text-gray-600">Apartment id: {id}</p>
-      <p className="text-sm text-gray-600">
-        Guided one-question flow lands in Phase 3.
-      </p>
+    <section className="space-y-4">
+      <PageHeader
+        title="Inspection"
+        description={`Apartment id: ${id ?? '—'}`}
+      />
+      <Card>
+        <CardContent className="py-4 text-sm text-muted-foreground">
+          Guided one-question flow lands in Phase 3.
+        </CardContent>
+      </Card>
     </section>
   )
 }

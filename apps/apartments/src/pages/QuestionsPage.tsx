@@ -1,8 +1,69 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  ArchiveRestore,
+  ArchiveX,
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  MoreVertical,
+  Pencil,
+  Plus,
+  Trash2
+} from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 
-import { ErrorState } from '../components/ErrorState'
-import { LoadingState } from '../components/LoadingState'
+import { ErrorState } from '@/components/ErrorState'
+import { LoadingState } from '@/components/LoadingState'
+import { PageHeader } from '@/components/PageHeader'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle
+} from '@/components/ui/sheet'
 import {
   useCategories,
   useCreateCategory,
@@ -12,8 +73,8 @@ import {
   useReorderQuestions,
   useUpdateCategory,
   useUpdateQuestion
-} from '../hooks'
-import type { Question, QuestionType } from '../types'
+} from '@/hooks'
+import type { Question, QuestionType } from '@/types'
 
 const QUESTION_TYPES: QuestionType[] = [
   'text',
@@ -24,16 +85,35 @@ const QUESTION_TYPES: QuestionType[] = [
   'rating'
 ]
 
-type QuestionFormValues = {
-  label: string
-  type: QuestionType
-  categoryId: string
-  required: boolean
-  order: number
-  ratingMin: number
-  ratingMax: number
-  options: Array<{ label: string; value: string }>
-}
+const questionFormSchema = z
+  .object({
+    label: z.string().trim().min(1, 'Label is required.'),
+    type: z.enum([
+      'text',
+      'number',
+      'boolean',
+      'select',
+      'multi-select',
+      'rating'
+    ]),
+    categoryId: z.string().min(1, 'Pick a category.'),
+    required: z.boolean(),
+    order: z.coerce.number().int().nonnegative(),
+    ratingMin: z.coerce.number().int().min(1),
+    ratingMax: z.coerce.number().int().min(1),
+    options: z.array(
+      z.object({
+        label: z.string(),
+        value: z.string()
+      })
+    )
+  })
+  .refine(
+    (data) => data.type !== 'rating' || data.ratingMax >= data.ratingMin,
+    { message: 'Rating max must be ≥ min.', path: ['ratingMax'] }
+  )
+
+type QuestionFormValues = z.input<typeof questionFormSchema>
 
 const buildDefaults = (
   categoryId: string,
@@ -61,6 +141,7 @@ export function QuestionsPage() {
   const [categoryRenames, setCategoryRenames] = useState<
     Record<string, string>
   >({})
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null)
 
   const questionsQuery = useQuestions(true)
   const categoriesQuery = useCategories()
@@ -101,12 +182,13 @@ export function QuestionsPage() {
   )
 
   const editingQuestion =
-    editingQuestionId === 'new'
+    editingQuestionId === 'new' || editingQuestionId === null
       ? undefined
       : allQuestions.find((question) => question.id === editingQuestionId)
   const defaultCategoryId = categories[0]?.id ?? ''
 
   const form = useForm<QuestionFormValues>({
+    resolver: zodResolver(questionFormSchema),
     defaultValues: buildDefaults(defaultCategoryId, editingQuestion)
   })
   const selectedType = useWatch({
@@ -172,12 +254,16 @@ export function QuestionsPage() {
     }
     reordered.splice(nextIndex, 0, item)
 
-    await reorderQuestions.mutateAsync(
-      reordered.map((question, index) => ({
-        id: question.id,
-        order: index + 1
-      }))
-    )
+    try {
+      await reorderQuestions.mutateAsync(
+        reordered.map((question, index) => ({
+          id: question.id,
+          order: index + 1
+        }))
+      )
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not reorder.')
+    }
   }
 
   const moveCategory = async (categoryId: string, direction: -1 | 1) => {
@@ -194,14 +280,18 @@ export function QuestionsPage() {
     if (!current || !next) {
       return
     }
-    await updateCategory.mutateAsync({
-      id: current.id,
-      payload: { order: next.order }
-    })
-    await updateCategory.mutateAsync({
-      id: next.id,
-      payload: { order: current.order }
-    })
+    try {
+      await updateCategory.mutateAsync({
+        id: current.id,
+        payload: { order: next.order }
+      })
+      await updateCategory.mutateAsync({
+        id: next.id,
+        payload: { order: current.order }
+      })
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not reorder.')
+    }
   }
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -229,439 +319,724 @@ export function QuestionsPage() {
           : []
     }
 
-    if (editingQuestionId === 'new') {
-      await createQuestion.mutateAsync(payload)
-    } else if (editingQuestionId) {
-      await updateQuestion.mutateAsync({
-        id: editingQuestionId,
-        payload
-      })
+    try {
+      if (editingQuestionId === 'new') {
+        await createQuestion.mutateAsync(payload)
+        toast.success('Question created.')
+      } else if (editingQuestionId) {
+        await updateQuestion.mutateAsync({
+          id: editingQuestionId,
+          payload
+        })
+        toast.success('Question saved.')
+      }
+      stopEdit()
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Could not save question.'
+      )
     }
-
-    stopEdit()
   })
 
+  const handleRenameCategory = async (categoryId: string) => {
+    const name = (
+      categoryRenames[categoryId] ??
+      categories.find((c) => c.id === categoryId)?.name ??
+      ''
+    ).trim()
+    if (!name) {
+      return
+    }
+    try {
+      await updateCategory.mutateAsync({
+        id: categoryId,
+        payload: { name }
+      })
+      toast.success('Category renamed.')
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Could not rename category.'
+      )
+    }
+  }
+
+  const handleAddCategory = async () => {
+    const name = newCategoryName.trim()
+    if (!name) {
+      return
+    }
+    try {
+      await createCategory.mutateAsync({ name })
+      setNewCategoryName('')
+      toast.success('Category added.')
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Could not add category.'
+      )
+    }
+  }
+
+  const handleDeleteCategory = async () => {
+    if (!categoryToDelete) {
+      return
+    }
+    try {
+      await deleteCategory.mutateAsync(categoryToDelete)
+      toast.success('Category deleted.')
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Could not delete category.'
+      )
+    } finally {
+      setCategoryToDelete(null)
+    }
+  }
+
+  const handleToggleArchive = async (question: Question) => {
+    try {
+      await updateQuestion.mutateAsync({
+        id: question.id,
+        payload: { isArchived: !question.isArchived }
+      })
+      toast.success(
+        question.isArchived ? 'Question restored.' : 'Question archived.'
+      )
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Could not update question.'
+      )
+    }
+  }
+
+  const isEditorOpen = editingQuestionId !== null
+  const editorTitle =
+    editingQuestionId === 'new' ? 'Create question' : 'Edit question'
+
   return (
-    <section className="space-y-4">
-      <header className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-gray-900">
-            Question Management
-          </h1>
-          <button
-            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white"
-            onClick={startCreate}
-            type="button"
-          >
-            New question
-          </button>
-        </div>
-      </header>
+    <section className="space-y-6">
+      <PageHeader
+        title="Question Management"
+        description="The catalog of questions used during every apartment inspection."
+        actions={
+          <Button onClick={startCreate} size="sm">
+            <Plus aria-hidden="true" />
+            <span className="hidden sm:inline">New question</span>
+            <span className="sr-only sm:hidden">New question</span>
+          </Button>
+        }
+      />
 
       {isLoading ? <LoadingState label="Loading questions..." /> : null}
       {hasError && errorMessage ? <ErrorState message={errorMessage} /> : null}
 
       {!isLoading && !hasError ? (
         <>
-          {editingQuestionId ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Categories</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Input
+                  aria-label="New category name"
+                  className="sm:flex-1"
+                  onChange={(event) => setNewCategoryName(event.target.value)}
+                  placeholder="New category name"
+                  value={newCategoryName}
+                />
+                <Button
+                  disabled={!newCategoryName.trim() || createCategory.isPending}
+                  onClick={handleAddCategory}
+                  type="button"
+                  variant="outline"
+                >
+                  Add
+                </Button>
+              </div>
+
+              <ul className="space-y-2">
+                {activeCategories.map((category, index) => (
+                  <li
+                    key={category.id}
+                    className="rounded-md border border-border bg-background p-3"
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <Input
+                        aria-label={`Rename ${category.name}`}
+                        className="sm:flex-1"
+                        onChange={(event) =>
+                          setCategoryRenames((prev) => ({
+                            ...prev,
+                            [category.id]: event.target.value
+                          }))
+                        }
+                        value={categoryRenames[category.id] ?? category.name}
+                      />
+                      <div className="flex items-center gap-2">
+                        <Button
+                          disabled={updateCategory.isPending}
+                          onClick={() => handleRenameCategory(category.id)}
+                          size="sm"
+                          type="button"
+                          variant="outline"
+                        >
+                          <Pencil aria-hidden="true" />
+                          <span className="hidden sm:inline">Rename</span>
+                          <span className="sr-only sm:hidden">Rename</span>
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              aria-label={`More actions for ${category.name}`}
+                              size="icon-lg"
+                              type="button"
+                              variant="ghost"
+                            >
+                              <MoreVertical aria-hidden="true" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              disabled={index === 0}
+                              onSelect={() => moveCategory(category.id, -1)}
+                            >
+                              <ChevronUp aria-hidden="true" />
+                              Move up
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={index === activeCategories.length - 1}
+                              onSelect={() => moveCategory(category.id, 1)}
+                            >
+                              <ChevronDown aria-hidden="true" />
+                              Move down
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onSelect={() => setCategoryToDelete(category.id)}
+                              variant="destructive"
+                            >
+                              <Trash2 aria-hidden="true" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+                {activeCategories.length === 0 ? (
+                  <li className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
+                    No categories yet.
+                  </li>
+                ) : null}
+              </ul>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-4">
+            {activeCategories.map((category) => (
+              <Card key={category.id}>
+                <CardHeader>
+                  <CardTitle>{category.name}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">
+                      Active
+                    </h3>
+                    <ul className="mt-2 space-y-2">
+                      {category.activeQuestions.map((question) => (
+                        <li
+                          key={question.id}
+                          className="rounded-md border border-border bg-background p-3"
+                        >
+                          <QuestionRow
+                            canMoveDown={
+                              category.activeQuestions.indexOf(question) <
+                              category.activeQuestions.length - 1
+                            }
+                            canMoveUp={
+                              category.activeQuestions.indexOf(question) > 0
+                            }
+                            onArchiveToggle={() =>
+                              handleToggleArchive(question)
+                            }
+                            onEdit={() => startEdit(question)}
+                            onMove={(direction) =>
+                              moveQuestion(category.id, question.id, direction)
+                            }
+                            question={question}
+                          />
+                        </li>
+                      ))}
+                      {category.activeQuestions.length === 0 ? (
+                        <li className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
+                          No active questions in this category.
+                        </li>
+                      ) : null}
+                    </ul>
+                  </div>
+
+                  {category.archivedQuestions.length > 0 ? (
+                    <>
+                      <Separator />
+                      <div>
+                        <h3 className="text-sm font-semibold text-muted-foreground">
+                          Archived
+                        </h3>
+                        <ul className="mt-2 space-y-2">
+                          {category.archivedQuestions.map((question) => (
+                            <li
+                              key={question.id}
+                              className="rounded-md border border-border bg-muted/40 p-3 text-muted-foreground"
+                            >
+                              <QuestionRow
+                                archived
+                                onArchiveToggle={() =>
+                                  handleToggleArchive(question)
+                                }
+                                onEdit={() => startEdit(question)}
+                                question={question}
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </>
+                  ) : null}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </>
+      ) : null}
+
+      <Sheet
+        onOpenChange={(open) => {
+          if (!open) {
+            stopEdit()
+          }
+        }}
+        open={isEditorOpen}
+      >
+        <SheetContent
+          className="w-full overflow-y-auto sm:max-w-lg"
+          side="bottom"
+        >
+          <SheetHeader>
+            <SheetTitle>{editorTitle}</SheetTitle>
+            <SheetDescription>
+              Configure the question and how it should appear in inspections.
+            </SheetDescription>
+          </SheetHeader>
+          <Form {...form}>
             <form
-              className="space-y-3 rounded-lg border border-gray-200 bg-white p-4"
+              className="space-y-4 px-4 pb-4"
+              id="question-form"
               onSubmit={onSubmit}
             >
-              <h2 className="text-base font-semibold text-gray-900">
-                {editingQuestionId === 'new'
-                  ? 'Create question'
-                  : 'Edit question'}
-              </h2>
-              <label className="block text-sm text-gray-700">
-                Label
-                <input
-                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-                  {...form.register('label', { required: true })}
+              <FormField
+                control={form.control}
+                name="label"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Label</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. Apartment title matches listing?"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Pick a type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {QUESTION_TYPES.map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </label>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="block text-sm text-gray-700">
-                  Type
-                  <select
-                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-                    {...form.register('type')}
-                  >
-                    {QUESTION_TYPES.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block text-sm text-gray-700">
-                  Category
-                  <select
-                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-                    {...form.register('categoryId', { required: true })}
-                  >
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+
+                <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Pick a category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="block text-sm text-gray-700">
-                  Order
-                  <input
-                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-                    min={0}
-                    type="number"
-                    {...form.register('order', { valueAsNumber: true })}
-                  />
-                </label>
-                <label className="flex items-center gap-2 pt-7 text-sm text-gray-700">
-                  <input
-                    className="h-4 w-4 rounded border-gray-300"
-                    type="checkbox"
-                    {...form.register('required')}
-                  />
-                  Required
-                </label>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="order"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Order</FormLabel>
+                      <FormControl>
+                        <Input
+                          min={0}
+                          name={field.name}
+                          onBlur={field.onBlur}
+                          onChange={(event) =>
+                            field.onChange(event.target.value)
+                          }
+                          ref={field.ref}
+                          type="number"
+                          value={String(field.value ?? '')}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="required"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-3 pt-6">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="!mt-0">Required</FormLabel>
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {selectedType === 'rating' ? (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <label className="block text-sm text-gray-700">
-                    Rating min
-                    <input
-                      className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-                      min={1}
-                      type="number"
-                      {...form.register('ratingMin', { valueAsNumber: true })}
-                    />
-                  </label>
-                  <label className="block text-sm text-gray-700">
-                    Rating max
-                    <input
-                      className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-                      min={1}
-                      type="number"
-                      {...form.register('ratingMax', { valueAsNumber: true })}
-                    />
-                  </label>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="ratingMin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rating min</FormLabel>
+                        <FormControl>
+                          <Input
+                            min={1}
+                            name={field.name}
+                            onBlur={field.onBlur}
+                            onChange={(event) =>
+                              field.onChange(event.target.value)
+                            }
+                            ref={field.ref}
+                            type="number"
+                            value={String(field.value ?? '')}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="ratingMax"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rating max</FormLabel>
+                        <FormControl>
+                          <Input
+                            min={1}
+                            name={field.name}
+                            onBlur={field.onBlur}
+                            onChange={(event) =>
+                              field.onChange(event.target.value)
+                            }
+                            ref={field.ref}
+                            type="number"
+                            value={String(field.value ?? '')}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               ) : null}
 
               {selectedType === 'select' || selectedType === 'multi-select' ? (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900">
+                    <h3 className="text-sm font-semibold text-foreground">
                       Options
                     </h3>
-                    <button
-                      className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-700"
+                    <Button
                       onClick={() =>
                         optionsArray.append({ label: '', value: '' })
                       }
+                      size="sm"
                       type="button"
+                      variant="outline"
                     >
+                      <Plus aria-hidden="true" />
                       Add option
-                    </button>
+                    </Button>
                   </div>
-                  {optionsArray.fields.map((field, index) => (
-                    <div
-                      key={field.id}
-                      className="grid grid-cols-[1fr_1fr_auto] items-end gap-2"
-                    >
-                      <label className="block text-xs text-gray-700">
-                        Label
-                        <input
-                          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
-                          {...form.register(`options.${index}.label`)}
-                        />
-                      </label>
-                      <label className="block text-xs text-gray-700">
-                        Value
-                        <input
-                          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
-                          {...form.register(`options.${index}.value`)}
-                        />
-                      </label>
-                      <div className="flex gap-1 pb-1">
-                        <button
-                          className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 disabled:opacity-50"
-                          disabled={index === 0}
-                          onClick={() => optionsArray.swap(index, index - 1)}
-                          type="button"
-                        >
-                          ↑
-                        </button>
-                        <button
-                          className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 disabled:opacity-50"
-                          disabled={index === optionsArray.fields.length - 1}
-                          onClick={() => optionsArray.swap(index, index + 1)}
-                          type="button"
-                        >
-                          ↓
-                        </button>
-                        <button
-                          className="rounded border border-red-200 px-2 py-1 text-xs text-red-700"
-                          onClick={() => optionsArray.remove(index)}
-                          type="button"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                  <ul className="space-y-2">
+                    {optionsArray.fields.map((field, index) => (
+                      <li
+                        key={field.id}
+                        className="rounded-md border border-border bg-background p-3"
+                      >
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                          <FormField
+                            control={form.control}
+                            name={`options.${index}.label`}
+                            render={({ field: innerField }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Label</FormLabel>
+                                <FormControl>
+                                  <Input {...innerField} />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`options.${index}.value`}
+                            render={({ field: innerField }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Value</FormLabel>
+                                <FormControl>
+                                  <Input {...innerField} />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="mt-2 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <GripVertical
+                              aria-hidden="true"
+                              className="size-3.5"
+                            />
+                            <span>#{index + 1}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              aria-label="Move option up"
+                              disabled={index === 0}
+                              onClick={() =>
+                                optionsArray.swap(index, index - 1)
+                              }
+                              size="icon-sm"
+                              type="button"
+                              variant="ghost"
+                            >
+                              <ChevronUp aria-hidden="true" />
+                            </Button>
+                            <Button
+                              aria-label="Move option down"
+                              disabled={
+                                index === optionsArray.fields.length - 1
+                              }
+                              onClick={() =>
+                                optionsArray.swap(index, index + 1)
+                              }
+                              size="icon-sm"
+                              type="button"
+                              variant="ghost"
+                            >
+                              <ChevronDown aria-hidden="true" />
+                            </Button>
+                            <Button
+                              aria-label="Remove option"
+                              onClick={() => optionsArray.remove(index)}
+                              size="icon-sm"
+                              type="button"
+                              variant="ghost"
+                            >
+                              <Trash2 aria-hidden="true" />
+                            </Button>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                    {optionsArray.fields.length === 0 ? (
+                      <li className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
+                        Add at least one option for this question.
+                      </li>
+                    ) : null}
+                  </ul>
                 </div>
               ) : null}
-
-              <div className="flex items-center gap-2">
-                <button
-                  className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-                  disabled={
-                    createQuestion.isPending || updateQuestion.isPending
-                  }
-                  type="submit"
-                >
-                  Save
-                </button>
-                <button
-                  className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700"
-                  onClick={stopEdit}
-                  type="button"
-                >
-                  Cancel
-                </button>
-              </div>
             </form>
-          ) : null}
+          </Form>
+          <SheetFooter className="flex-row justify-end gap-2 border-t">
+            <Button onClick={stopEdit} type="button" variant="outline">
+              Cancel
+            </Button>
+            <Button
+              disabled={createQuestion.isPending || updateQuestion.isPending}
+              form="question-form"
+              type="submit"
+            >
+              Save
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
-          <div className="space-y-2 rounded-lg border border-gray-200 bg-white p-4">
-            <h2 className="text-base font-semibold text-gray-900">
-              Categories
-            </h2>
-            <div className="flex gap-2">
-              <input
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                onChange={(event) => setNewCategoryName(event.target.value)}
-                placeholder="New category name"
-                value={newCategoryName}
-              />
-              <button
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 disabled:opacity-50"
-                disabled={!newCategoryName.trim() || createCategory.isPending}
-                onClick={async () => {
-                  await createCategory.mutateAsync({
-                    name: newCategoryName.trim()
-                  })
-                  setNewCategoryName('')
-                }}
-                type="button"
-              >
-                Add
-              </button>
-            </div>
-            <ul className="space-y-2">
-              {categories.map((category, index) => (
-                <li
-                  key={category.id}
-                  className="flex items-center gap-2 rounded-md border border-gray-200 p-2"
-                >
-                  <input
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
-                    onChange={(event) =>
-                      setCategoryRenames((prev) => ({
-                        ...prev,
-                        [category.id]: event.target.value
-                      }))
-                    }
-                    value={categoryRenames[category.id] ?? category.name}
-                  />
-                  <button
-                    className="rounded border border-gray-300 px-2 py-1 text-xs disabled:opacity-50"
-                    disabled={index === 0 || updateCategory.isPending}
-                    onClick={() => moveCategory(category.id, -1)}
-                    type="button"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    className="rounded border border-gray-300 px-2 py-1 text-xs disabled:opacity-50"
-                    disabled={
-                      index === categories.length - 1 ||
-                      updateCategory.isPending
-                    }
-                    onClick={() => moveCategory(category.id, 1)}
-                    type="button"
-                  >
-                    ↓
-                  </button>
-                  <button
-                    className="rounded border border-gray-300 px-2 py-1 text-xs"
-                    onClick={() =>
-                      updateCategory.mutate({
-                        id: category.id,
-                        payload: {
-                          name: (
-                            categoryRenames[category.id] ?? category.name
-                          ).trim()
-                        }
-                      })
-                    }
-                    type="button"
-                  >
-                    Rename
-                  </button>
-                  <button
-                    className="rounded border border-red-200 px-2 py-1 text-xs text-red-700"
-                    onClick={() => deleteCategory.mutate(category.id)}
-                    type="button"
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="space-y-3">
-            {activeCategories.map((category) => (
-              <article
-                key={category.id}
-                className="rounded-lg border border-gray-200 bg-white p-4"
-              >
-                <h2 className="text-base font-semibold text-gray-900">
-                  {category.name}
-                </h2>
-                <h3 className="mt-3 text-sm font-semibold text-gray-700">
-                  Active
-                </h3>
-                <ul className="mt-2 space-y-2">
-                  {category.activeQuestions.map((question) => (
-                    <li
-                      key={question.id}
-                      className="rounded-md border border-gray-200 bg-white p-3"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-medium">{question.label}</p>
-                          <div className="mt-1 flex items-center gap-2 text-xs">
-                            <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-700">
-                              {question.type}
-                            </span>
-                            <span>
-                              {question.required ? 'Required' : 'Optional'}
-                            </span>
-                            <span>Order: {question.order}</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-1">
-                          <button
-                            className="rounded border border-gray-300 px-2 py-1 text-xs"
-                            onClick={() =>
-                              moveQuestion(category.id, question.id, -1)
-                            }
-                            type="button"
-                          >
-                            ↑
-                          </button>
-                          <button
-                            className="rounded border border-gray-300 px-2 py-1 text-xs"
-                            onClick={() =>
-                              moveQuestion(category.id, question.id, 1)
-                            }
-                            type="button"
-                          >
-                            ↓
-                          </button>
-                          <button
-                            className="rounded border border-gray-300 px-2 py-1 text-xs"
-                            onClick={() => startEdit(question)}
-                            type="button"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="rounded border border-gray-300 px-2 py-1 text-xs"
-                            onClick={() =>
-                              updateQuestion.mutate({
-                                id: question.id,
-                                payload: { isArchived: !question.isArchived }
-                              })
-                            }
-                            type="button"
-                          >
-                            {question.isArchived ? 'Unarchive' : 'Archive'}
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                  {category.activeQuestions.length === 0 ? (
-                    <li className="rounded-md border border-dashed border-gray-300 p-3 text-sm text-gray-500">
-                      No active questions in this category.
-                    </li>
-                  ) : null}
-                </ul>
-
-                <h3 className="mt-4 text-sm font-semibold text-gray-700">
-                  Archived
-                </h3>
-                <ul className="mt-2 space-y-2">
-                  {category.archivedQuestions.map((question) => (
-                    <li
-                      key={question.id}
-                      className="rounded-md border border-gray-200 bg-gray-50 p-3 text-gray-500"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-medium">{question.label}</p>
-                          <div className="mt-1 flex items-center gap-2 text-xs">
-                            <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-700">
-                              {question.type}
-                            </span>
-                            <span>
-                              {question.required ? 'Required' : 'Optional'}
-                            </span>
-                            <span>Order: {question.order}</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-1">
-                          <button
-                            className="rounded border border-gray-300 px-2 py-1 text-xs"
-                            onClick={() =>
-                              updateQuestion.mutate({
-                                id: question.id,
-                                payload: { isArchived: false }
-                              })
-                            }
-                            type="button"
-                          >
-                            Unarchive
-                          </button>
-                          <button
-                            className="rounded border border-gray-300 px-2 py-1 text-xs"
-                            onClick={() => startEdit(question)}
-                            type="button"
-                          >
-                            Edit
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                  {category.archivedQuestions.length === 0 ? (
-                    <li className="rounded-md border border-dashed border-gray-300 p-3 text-sm text-gray-500">
-                      No archived questions in this category.
-                    </li>
-                  ) : null}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </>
-      ) : null}
+      <AlertDialog
+        onOpenChange={(open) => {
+          if (!open) {
+            setCategoryToDelete(null)
+          }
+        }}
+        open={categoryToDelete !== null}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this category?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Categories with attached questions cannot be deleted. Archive the
+              questions first or move them elsewhere.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={handleDeleteCategory}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
+  )
+}
+
+type QuestionRowProps = {
+  question: Question
+  archived?: boolean
+  canMoveUp?: boolean
+  canMoveDown?: boolean
+  onEdit: () => void
+  onArchiveToggle: () => void
+  onMove?: (direction: -1 | 1) => void
+}
+
+function QuestionRow({
+  archived = false,
+  canMoveDown = false,
+  canMoveUp = false,
+  onArchiveToggle,
+  onEdit,
+  onMove,
+  question
+}: QuestionRowProps) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0 flex-1">
+        <p className="font-medium text-foreground">{question.label}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <Badge variant="secondary">{question.type}</Badge>
+          <span>{question.required ? 'Required' : 'Optional'}</span>
+          <span aria-hidden="true">·</span>
+          <span>Order: {question.order}</span>
+          {archived ? <Badge variant="outline">Archived</Badge> : null}
+        </div>
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            aria-label={`More actions for ${question.label}`}
+            size="icon-lg"
+            type="button"
+            variant="ghost"
+          >
+            <MoreVertical aria-hidden="true" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={onEdit}>
+            <Pencil aria-hidden="true" />
+            Edit
+          </DropdownMenuItem>
+          {!archived && onMove ? (
+            <>
+              <DropdownMenuItem
+                disabled={!canMoveUp}
+                onSelect={() => onMove(-1)}
+              >
+                <ChevronUp aria-hidden="true" />
+                Move up
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={!canMoveDown}
+                onSelect={() => onMove(1)}
+              >
+                <ChevronDown aria-hidden="true" />
+                Move down
+              </DropdownMenuItem>
+            </>
+          ) : null}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={onArchiveToggle}>
+            {archived ? (
+              <>
+                <ArchiveRestore aria-hidden="true" />
+                Unarchive
+              </>
+            ) : (
+              <>
+                <ArchiveX aria-hidden="true" />
+                Archive
+              </>
+            )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   )
 }

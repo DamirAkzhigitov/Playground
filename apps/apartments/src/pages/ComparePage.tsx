@@ -1,12 +1,18 @@
+import { PageHeader } from '@/components/PageHeader'
+import { Card, CardContent } from '@/components/ui/card'
+
 export function ComparePage() {
   return (
-    <section className="space-y-3">
-      <h1 className="text-xl font-semibold text-gray-900">
-        Compare Apartments
-      </h1>
-      <p className="text-sm text-gray-600">
-        Comparison matrix lands in Phase 5.
-      </p>
+    <section className="space-y-4">
+      <PageHeader
+        title="Compare Apartments"
+        description="Side-by-side comparison of every answer across apartments."
+      />
+      <Card>
+        <CardContent className="py-4 text-sm text-muted-foreground">
+          Comparison matrix lands in Phase 5.
+        </CardContent>
+      </Card>
     </section>
   )
 }
