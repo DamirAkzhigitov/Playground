@@ -134,6 +134,13 @@ export type ReorderQuestionInput = {
   order: number
 }
 
+export type ListingExtractResponse = {
+  title: string
+  address: string
+  price: number | null
+  notes: string
+}
+
 export type CreateApartmentInput = {
   title: string
   address?: string | null

@@ -1,10 +1,14 @@
 import { ChevronLeft } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { useI18n } from '@/contexts/I18nContext'
-import { ApartmentForm } from '@/components/ApartmentForm'
+import {
+  ApartmentForm,
+  type ApartmentFormRef
+} from '@/components/ApartmentForm'
+import { ListingApartmentAiFill } from '@/components/ListingApartmentAiFill'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import { apartmentFormDefaults } from '@/lib/apartmentForm'
 import { ErrorState } from '@/components/ErrorState'
@@ -31,6 +35,7 @@ export function EditApartmentPage() {
   const updateMutation = useUpdateApartment()
   const deleteMutation = useDeleteApartment()
   const [removeOpen, setRemoveOpen] = useState(false)
+  const formRef = useRef<ApartmentFormRef>(null)
 
   const defaults = useMemo(() => {
     if (!data) {
@@ -53,9 +58,15 @@ export function EditApartmentPage() {
 
       {showForm ? (
         <>
+          <ListingApartmentAiFill
+            onApplied={(extracted) =>
+              formRef.current?.applyExtracted(extracted)
+            }
+          />
           <Card>
             <CardContent className="pt-6">
               <ApartmentForm
+                ref={formRef}
                 key={data.id}
                 defaultValues={defaults}
                 onSubmit={async (payload) => {

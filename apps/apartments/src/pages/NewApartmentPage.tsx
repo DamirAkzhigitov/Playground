@@ -1,9 +1,14 @@
 import { ChevronLeft } from 'lucide-react'
+import { useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { useI18n } from '@/contexts/I18nContext'
-import { ApartmentForm } from '@/components/ApartmentForm'
+import {
+  ApartmentForm,
+  type ApartmentFormRef
+} from '@/components/ApartmentForm'
+import { ListingApartmentAiFill } from '@/components/ListingApartmentAiFill'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import type { ApartmentFormValues } from '@/lib/apartmentForm'
 import { PageHeader } from '@/components/PageHeader'
@@ -22,6 +27,7 @@ export function NewApartmentPage() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const createMutation = useCreateApartment()
+  const formRef = useRef<ApartmentFormRef>(null)
 
   return (
     <section className="pb-page-pinned space-y-4">
@@ -29,9 +35,13 @@ export function NewApartmentPage() {
         title={t('newApartment.title')}
         description={t('newApartment.description')}
       />
+      <ListingApartmentAiFill
+        onApplied={(data) => formRef.current?.applyExtracted(data)}
+      />
       <Card>
         <CardContent className="pt-6">
           <ApartmentForm
+            ref={formRef}
             defaultValues={emptyDefaults}
             onSubmit={async (payload) => {
               try {

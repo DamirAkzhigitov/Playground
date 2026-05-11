@@ -9,6 +9,7 @@ import { apartments } from './routes/apartments'
 import { answers } from './routes/answers'
 import { photos } from './routes/photos'
 import { exports_ } from './routes/exports'
+import { listingExtract } from './routes/apartmentListingExtract'
 
 const app = new Hono<AppEnv>()
 
@@ -29,6 +30,7 @@ app.route('/api/apartments', apartments)
 app.route('/api/answers', answers)
 app.route('/api/photos', photos)
 app.route('/api/export', exports_)
+app.route('/api/apartments/extract-listing', listingExtract)
 
 app.onError((err, c) => {
   console.error(err)
