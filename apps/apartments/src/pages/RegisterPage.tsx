@@ -45,7 +45,8 @@ export function RegisterPage() {
               Create account
             </h1>
             <p className="text-sm text-muted-foreground">
-              Start tracking your apartment viewings
+              Start tracking places you are comparing (homes, rentals, cars, and
+              more)
             </p>
           </div>
 

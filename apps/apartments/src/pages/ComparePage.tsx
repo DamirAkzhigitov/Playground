@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useApartments, useQuestions } from '@/hooks'
+import { useApartments } from '@/hooks'
 import { queryKeys } from '@/hooks/queryKeys'
 import { apiRequest } from '@/lib/api'
 import { formatCompareAnswerLabel, ratingBarRatio } from '@/lib/compareDisplay'
@@ -35,6 +35,16 @@ const COMPARE_MULTI_VALUE = '__multi__'
 
 type AnswerCell = { value: string | null; note: string | null }
 
+function rowKeyForCompare(question: Question): string {
+  const k = question.stableKey?.trim()
+  return k && k.length > 0 ? k : question.id
+}
+
+type CompareRowModel = {
+  canonicalQuestion: Question
+  questionIdsByColumn: (string | null)[]
+}
+
 function buildAnswerMap(
   detail: ApartmentDetail | undefined
 ): Map<string, AnswerCell> {
@@ -50,14 +60,10 @@ function buildAnswerMap(
 
 export function ComparePage() {
   const apartmentsQuery = useApartments()
-  const questionsQuery = useQuestions(false)
   /** `null` means every apartment in `list` is selected (default). */
   const [selectionOverride, setSelectionOverride] = useState<string[] | null>(
     null
   )
-
-  const groups = questionsQuery.data ?? EMPTY_GROUPS
-  const flatAll = useMemo(() => flattenActiveQuestions(groups), [groups])
 
   const list = useMemo(() => apartmentsQuery.data ?? [], [apartmentsQuery.data])
   const allIds = useMemo(() => list.map((a) => a.id), [list])
@@ -71,6 +77,64 @@ export function ComparePage() {
     }
     return selectionOverride.filter((id) => allIds.includes(id))
   }, [allIds, selectionOverride])
+
+  const questionsQueries = useQueries({
+    queries: selectedIds.map((id) => ({
+      queryKey: [
+        ...queryKeys.questions,
+        { includeArchived: false, apartmentId: id }
+      ],
+      queryFn: () =>
+        apiRequest<QuestionGroup[]>(
+          `/api/questions?${new URLSearchParams({
+            includeArchived: 'false',
+            apartmentId: id
+          }).toString()}`
+        ),
+      enabled: selectedIds.length > 0,
+      staleTime: 60_000
+    }))
+  })
+
+  const compareRows = useMemo((): CompareRowModel[] => {
+    if (selectedIds.length === 0) {
+      return []
+    }
+    const flats = selectedIds.map((_, i) => {
+      const data = questionsQueries[i]?.data ?? EMPTY_GROUPS
+      return flattenActiveQuestions(data)
+    })
+    const orderedKeys: string[] = []
+    const canonical = new Map<string, Question>()
+    for (const q of flats[0] ?? []) {
+      const k = rowKeyForCompare(q)
+      if (!canonical.has(k)) {
+        orderedKeys.push(k)
+        canonical.set(k, q)
+      }
+    }
+    for (let c = 1; c < flats.length; c++) {
+      for (const q of flats[c] ?? []) {
+        const k = rowKeyForCompare(q)
+        if (!canonical.has(k)) {
+          orderedKeys.push(k)
+          canonical.set(k, q)
+        }
+      }
+    }
+    return orderedKeys.map((k) => {
+      const cq = canonical.get(k)
+      if (!cq) {
+        throw new Error('compare row key missing canonical question')
+      }
+      return {
+        canonicalQuestion: cq,
+        questionIdsByColumn: flats.map(
+          (flat) => flat.find((q) => rowKeyForCompare(q) === k)?.id ?? null
+        )
+      }
+    })
+  }, [selectedIds, questionsQueries])
 
   const normalizeToAllWhenComplete = (ids: string[]) => {
     if (
@@ -170,11 +234,15 @@ export function ComparePage() {
 
   const hasDetailError = detailQueries.some((q) => q.isError)
 
+  const isLoadingQuestions =
+    selectedIds.length > 0 && questionsQueries.some((q) => q.isPending)
+  const hasQuestionsError = questionsQueries.some((q) => q.isError)
+
   const printDisabled =
     apartmentsQuery.isPending ||
     apartmentsQuery.isError ||
-    questionsQuery.isPending ||
-    questionsQuery.isError ||
+    isLoadingQuestions ||
+    hasQuestionsError ||
     selectedIds.length === 0 ||
     isLoadingDetails ||
     hasDetailError
@@ -183,7 +251,7 @@ export function ComparePage() {
     <section className="compare-print pb-page-pinned space-y-4">
       {apartmentsQuery.isPending ? (
         <div className="compare-print-screen-only">
-          <LoadingState label="Loading apartments…" />
+          <LoadingState label="Loading listings…" />
         </div>
       ) : null}
       {apartmentsQuery.isError ? (
@@ -196,12 +264,12 @@ export function ComparePage() {
         <>
           {list.length === 0 ? (
             <p className="text-sm text-muted-foreground compare-print-screen-only">
-              No apartments yet.
+              No listings yet.
             </p>
           ) : (
             <div className="compare-print-screen-only">
               <Label htmlFor="compare-apartments-select" className="sr-only">
-                Apartments to compare
+                Listings to compare
               </Label>
               <Select
                 value={compareSelectValue}
@@ -210,16 +278,16 @@ export function ComparePage() {
                 <SelectTrigger
                   id="compare-apartments-select"
                   className="h-auto min-h-11 w-full py-2 whitespace-normal"
-                  aria-label="Apartments to compare"
+                  aria-label="Listings to compare"
                 >
-                  <SelectValue placeholder="Choose apartments" />
+                  <SelectValue placeholder="Choose listings" />
                 </SelectTrigger>
                 <SelectContent
                   position="popper"
                   className="w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]"
                 >
                   <SelectItem value={COMPARE_ALL_VALUE}>
-                    All apartments
+                    All listings
                   </SelectItem>
                   {compareSelectValue === COMPARE_MULTI_VALUE ? (
                     <SelectItem
@@ -227,7 +295,7 @@ export function ComparePage() {
                       disabled
                       className="text-muted-foreground"
                     >
-                      {selectedIds.length} of {list.length} apartments
+                      {selectedIds.length} of {list.length} listings
                     </SelectItem>
                   ) : null}
                   <SelectSeparator />
@@ -251,28 +319,28 @@ export function ComparePage() {
             </div>
           )}
 
-          {questionsQuery.isPending ? (
+          {isLoadingQuestions ? (
             <div className="compare-print-screen-only">
               <LoadingState label="Loading questions…" />
             </div>
           ) : null}
-          {questionsQuery.isError ? (
+          {hasQuestionsError ? (
             <div className="compare-print-screen-only">
-              <ErrorState message={questionsQuery.error.message} />
+              <ErrorState message="Could not load checklist for one or more listings." />
             </div>
           ) : null}
 
-          {!questionsQuery.isPending && !questionsQuery.isError ? (
+          {!isLoadingQuestions && !hasQuestionsError ? (
             <>
               {hasDetailError ? (
                 <div className="compare-print-screen-only">
-                  <ErrorState message="Could not load answers for one or more apartments." />
+                  <ErrorState message="Could not load answers for one or more listings." />
                 </div>
               ) : null}
 
               {selectedIds.length === 0 ? (
                 <p className="text-sm text-muted-foreground compare-print-screen-only">
-                  No apartments selected.
+                  No listings selected.
                 </p>
               ) : isLoadingDetails ? (
                 <div className="compare-print-screen-only">
@@ -302,20 +370,20 @@ export function ComparePage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {flatAll.length === 0 ? (
+                        {compareRows.length === 0 ? (
                           <tr>
                             <td
                               colSpan={comparisonColumns.length + 1}
                               className="px-3 py-6 text-center text-muted-foreground"
                             >
-                              No questions yet.
+                              No questions in scope for the selected listings.
                             </td>
                           </tr>
                         ) : (
-                          flatAll.map((question) => (
+                          compareRows.map((row) => (
                             <CompareRow
-                              key={question.id}
-                              question={question}
+                              key={rowKeyForCompare(row.canonicalQuestion)}
+                              row={row}
                               columns={comparisonColumns}
                               answerMaps={answerMaps}
                             />
@@ -349,12 +417,13 @@ export function ComparePage() {
 }
 
 type CompareRowProps = {
-  question: Question
+  row: CompareRowModel
   columns: Array<{ apt: Apartment; mapIndex: number }>
   answerMaps: Array<Map<string, AnswerCell>>
 }
 
-function CompareRow({ question, columns, answerMaps }: CompareRowProps) {
+function CompareRow({ row, columns, answerMaps }: CompareRowProps) {
+  const question = row.canonicalQuestion
   return (
     <tr className="border-b border-border last:border-b-0">
       <th
@@ -366,8 +435,9 @@ function CompareRow({ question, columns, answerMaps }: CompareRowProps) {
         </div>
       </th>
       {columns.map(({ apt, mapIndex }) => {
+        const qid = row.questionIdsByColumn[mapIndex] ?? null
         const map = answerMaps[mapIndex] ?? new Map<string, AnswerCell>()
-        const cell = map.get(question.id)
+        const cell = qid ? map.get(qid) : undefined
         const value = cell?.value ?? null
         const note = cell?.note ?? null
         const label = formatCompareAnswerLabel(question, value)

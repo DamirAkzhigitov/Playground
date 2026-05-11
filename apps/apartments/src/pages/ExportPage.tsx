@@ -6,7 +6,7 @@ export function ExportPage() {
     <section className="space-y-4">
       <PageHeader
         title="Export"
-        description="Download all apartments and answers as JSON or XLSX."
+        description="Download all listings and answers as JSON or XLSX."
       />
       <Card>
         <CardContent className="py-4 text-sm text-muted-foreground">

@@ -1,13 +1,19 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import type { AppEnv } from '../types'
+import { applyInspectionTemplate } from '../applyInspectionTemplate'
+import {
+  DEFAULT_INSPECTION_TEMPLATE_SLUG,
+  INSPECTION_TEMPLATES_BY_SLUG
+} from '../inspectionTemplates'
 import { typedRows, formatApartment, nowIso } from '../helpers'
 
 const apartmentSchema = z.object({
   title: z.string().trim().min(1).max(200),
   address: z.string().trim().max(500).nullable().optional(),
   price: z.number().finite().nullable().optional(),
-  notes: z.string().trim().max(5000).nullable().optional()
+  notes: z.string().trim().max(5000).nullable().optional(),
+  templateSlug: z.string().trim().min(1).max(80).optional()
 })
 
 const apartmentPatchSchema = apartmentSchema
@@ -29,7 +35,22 @@ apartments.get('/', async (c) => {
        a.notes,
        a.created_at,
        a.updated_at,
-       (SELECT COUNT(*) FROM questions q WHERE q.is_archived = 0 AND q.user_id = ?) AS total_questions,
+       (
+         SELECT COUNT(*)
+         FROM questions q
+         WHERE q.is_archived = 0
+           AND q.user_id = ?
+           AND (
+             q.apartment_id = a.id
+             OR (
+               q.apartment_id IS NULL
+               AND NOT EXISTS (
+                 SELECT 1 FROM questions qs
+                 WHERE qs.user_id = q.user_id AND qs.apartment_id = a.id
+               )
+             )
+           )
+       ) AS total_questions,
        (
          SELECT COUNT(*)
          FROM questions q
@@ -37,6 +58,16 @@ apartments.get('/', async (c) => {
            ON ans.question_id = q.id AND ans.apartment_id = a.id
          WHERE q.is_archived = 0
            AND q.user_id = ?
+           AND (
+             q.apartment_id = a.id
+             OR (
+               q.apartment_id IS NULL
+               AND NOT EXISTS (
+                 SELECT 1 FROM questions qs
+                 WHERE qs.user_id = q.user_id AND qs.apartment_id = a.id
+               )
+             )
+           )
            AND ans.value IS NOT NULL
            AND TRIM(ans.value) != ''
            AND TRIM(ans.value) != '[]'
@@ -56,6 +87,16 @@ apartments.get('/', async (c) => {
            ON ans.question_id = q.id AND ans.apartment_id = a.id
          WHERE q.is_archived = 0
            AND q.user_id = ?
+           AND (
+             q.apartment_id = a.id
+             OR (
+               q.apartment_id IS NULL
+               AND NOT EXISTS (
+                 SELECT 1 FROM questions qs
+                 WHERE qs.user_id = q.user_id AND qs.apartment_id = a.id
+               )
+             )
+           )
            AND q.required = 1
            AND NOT (
              ans.id IS NOT NULL
@@ -100,10 +141,15 @@ apartments.get('/', async (c) => {
 apartments.post('/', async (c) => {
   const userId = c.get('userId')
   const payload = apartmentSchema.parse(await c.req.json())
+  const templateSlug =
+    payload.templateSlug?.trim() ?? DEFAULT_INSPECTION_TEMPLATE_SLUG
+  if (!INSPECTION_TEMPLATES_BY_SLUG[templateSlug]) {
+    return c.json({ error: 'Unknown inspection template' }, 400)
+  }
   const id = crypto.randomUUID()
   const timestamp = nowIso()
   await c.env.DB.prepare(
-    'INSERT INTO apartments (id, title, address, price, notes, created_at, updated_at, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    'INSERT INTO apartments (id, title, address, price, notes, created_at, updated_at, user_id, template_slug) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
   )
     .bind(
       id,
@@ -113,9 +159,11 @@ apartments.post('/', async (c) => {
       payload.notes ?? null,
       timestamp,
       timestamp,
-      userId
+      userId,
+      templateSlug
     )
     .run()
+  await applyInspectionTemplate(c.env.DB, userId, id, templateSlug)
   return c.json(
     {
       id,
@@ -124,7 +172,8 @@ apartments.post('/', async (c) => {
       price: payload.price ?? null,
       notes: payload.notes ?? null,
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
+      templateSlug
     },
     201
   )
@@ -160,7 +209,7 @@ apartments.patch('/:id', async (c) => {
   }
 
   const apartment = await c.env.DB.prepare(
-    'SELECT id, title, address, price, notes, created_at, updated_at FROM apartments WHERE id = ? AND user_id = ?'
+    'SELECT id, title, address, price, notes, created_at, updated_at, template_slug FROM apartments WHERE id = ? AND user_id = ?'
   )
     .bind(id, userId)
     .first<Record<string, unknown>>()
@@ -171,7 +220,7 @@ apartments.get('/:id', async (c) => {
   const userId = c.get('userId')
   const id = c.req.param('id')
   const apartment = await c.env.DB.prepare(
-    'SELECT id, title, address, price, notes, created_at, updated_at FROM apartments WHERE id = ? AND user_id = ?'
+    'SELECT id, title, address, price, notes, created_at, updated_at, template_slug FROM apartments WHERE id = ? AND user_id = ?'
   )
     .bind(id, userId)
     .first<Record<string, unknown>>()

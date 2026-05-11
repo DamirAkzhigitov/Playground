@@ -41,12 +41,9 @@ export function EditApartmentPage() {
 
   return (
     <section className={showForm ? 'space-y-4 pb-page-pinned' : 'space-y-4'}>
-      <PageHeader
-        title="Edit apartment"
-        description="Update listing details."
-      />
+      <PageHeader title="Edit listing" description="Update listing details." />
 
-      {isPending ? <LoadingState label="Loading apartment…" /> : null}
+      {isPending ? <LoadingState label="Loading listing…" /> : null}
       {isError ? <ErrorState message={error.message} /> : null}
 
       {showForm ? (
@@ -62,7 +59,7 @@ export function EditApartmentPage() {
                       id: data.id,
                       payload
                     })
-                    toast.success('Apartment updated.')
+                    toast.success('Listing updated.')
                     navigate(`/apartments/${data.id}`)
                   } catch (e) {
                     toast.error(
@@ -80,7 +77,7 @@ export function EditApartmentPage() {
                 variant="destructive"
                 onClick={() => setRemoveOpen(true)}
               >
-                Remove apartment
+                Remove listing
               </Button>
             </CardFooter>
           </Card>
@@ -96,7 +93,7 @@ export function EditApartmentPage() {
           >
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Remove this apartment?</AlertDialogTitle>
+                <AlertDialogTitle>Remove this listing?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This permanently deletes the listing, photos, and inspection
                   answers. This cannot be undone.
@@ -113,14 +110,14 @@ export function EditApartmentPage() {
                   onClick={async () => {
                     try {
                       await deleteMutation.mutateAsync(data.id)
-                      toast.success('Apartment removed.')
+                      toast.success('Listing removed.')
                       setRemoveOpen(false)
                       navigate('/apartments')
                     } catch (e) {
                       toast.error(
                         e instanceof Error
                           ? e.message
-                          : 'Could not remove apartment.'
+                          : 'Could not remove listing.'
                       )
                     }
                   }}

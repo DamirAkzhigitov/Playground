@@ -145,7 +145,7 @@ export function QuestionsPage() {
   >({})
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null)
 
-  const questionsQuery = useQuestions(true)
+  const questionsQuery = useQuestions({ includeArchived: true })
   const categoriesQuery = useCategories()
   const createQuestion = useCreateQuestion()
   const updateQuestion = useUpdateQuestion()
@@ -421,7 +421,7 @@ export function QuestionsPage() {
     >
       <PageHeader
         title="Question Management"
-        description="The catalog of questions used during every apartment inspection."
+        description="Your global checklist (optional extras). Each new listing gets its own copy from the template you pick at creation."
       />
 
       {isLoading ? <LoadingState label="Loading questions..." /> : null}

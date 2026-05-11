@@ -74,7 +74,7 @@ export function InspectionPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const apartmentQuery = useApartment(id)
-  const questionsQuery = useQuestions(false)
+  const questionsQuery = useQuestions({ apartmentId: id })
   const upsert = useUpsertAnswer()
   const { queueSave, flushSave } = useDebouncedAnswerSave(upsert.mutateAsync)
 
@@ -272,7 +272,7 @@ export function InspectionPage() {
     return <ErrorState message={errMsg ?? 'Something went wrong.'} />
   }
   if (!id || !apartmentQuery.data) {
-    return <ErrorState message="Apartment not found." />
+    return <ErrorState message="Listing not found." />
   }
   if (flat.length === 0) {
     return (
@@ -305,7 +305,7 @@ export function InspectionPage() {
         description={apartmentQuery.data.title}
         actions={
           <Button variant="outline" size="sm" asChild>
-            <Link to={`/apartments/${id}`}>Apartment</Link>
+            <Link to={`/apartments/${id}`}>Listing</Link>
           </Button>
         }
       />

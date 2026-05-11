@@ -7,7 +7,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 
 const tabs = [
-  { to: '/apartments', label: 'Apartments', icon: Home },
+  { to: '/apartments', label: 'Listings', icon: Home },
   { to: '/questions', label: 'Questions', icon: ListChecks },
   { to: '/compare', label: 'Compare', icon: BarChart2 },
   { to: '/export', label: 'Export', icon: Download }

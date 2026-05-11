@@ -48,11 +48,11 @@ export function ApartmentsPage() {
           className="h-11 rounded-full border-input bg-muted/40 pl-10 shadow-sm focus-visible:bg-background"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search apartments"
+          aria-label="Search listings"
         />
       </div>
 
-      {isPending ? <LoadingState label="Loading apartments…" /> : null}
+      {isPending ? <LoadingState label="Loading listings…" /> : null}
       {isError ? <ErrorState message={error.message} /> : null}
 
       {!isPending && !isError ? (
@@ -114,9 +114,9 @@ export function ApartmentsPage() {
             <li>
               <Card className="border-dashed">
                 <CardContent className="py-6 text-center text-sm text-muted-foreground">
-                  No apartments yet. Tap{' '}
+                  No listings yet. Tap{' '}
                   <span className="font-medium text-foreground">
-                    New apartment
+                    New listing
                   </span>{' '}
                   to add one.
                 </CardContent>
@@ -127,7 +127,7 @@ export function ApartmentsPage() {
             <li>
               <Card className="border-dashed">
                 <CardContent className="py-6 text-center text-sm text-muted-foreground">
-                  No apartments match “{query.trim()}”.
+                  No listings match “{query.trim()}”.
                 </CardContent>
               </Card>
             </li>
@@ -140,9 +140,9 @@ export function ApartmentsPage() {
           asChild
           className="min-h-11 inline-flex flex-1 items-center justify-center gap-1"
         >
-          <Link to="/apartments/new" aria-label="New apartment">
+          <Link to="/apartments/new" aria-label="New listing">
             <Plus aria-hidden="true" className="size-4 shrink-0" />
-            New apartment
+            New listing
           </Link>
         </Button>
       </PinnedActionBar>

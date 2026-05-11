@@ -36,7 +36,7 @@ const EMPTY_GROUPS: QuestionGroup[] = []
 export function ApartmentDetailPage() {
   const { id } = useParams<{ id: string }>()
   const apartmentQuery = useApartment(id)
-  const questionsQuery = useQuestions(false)
+  const questionsQuery = useQuestions({ apartmentId: id })
   const upsert = useUpsertAnswer()
   const dirtyQuestionIdsRef = useRef(new Set<string>())
 
@@ -143,13 +143,13 @@ export function ApartmentDetailPage() {
   const errMsg = apartmentQuery.error?.message ?? questionsQuery.error?.message
 
   if (isLoading) {
-    return <LoadingState label="Loading apartment…" />
+    return <LoadingState label="Loading listing…" />
   }
   if (isErr) {
     return <ErrorState message={errMsg ?? 'Something went wrong.'} />
   }
   if (!id || !apartmentQuery.data) {
-    return <ErrorState message="Apartment not found." />
+    return <ErrorState message="Listing not found." />
   }
 
   const data = apartmentQuery.data
@@ -173,7 +173,7 @@ export function ApartmentDetailPage() {
               <Link
                 to={`/apartments/${data.id}/edit`}
                 className="inline-flex items-center gap-2"
-                aria-label="Edit apartment"
+                aria-label="Edit listing"
               >
                 <Pencil className="size-4" aria-hidden />
                 <span className="hidden sm:inline">Edit</span>
@@ -305,7 +305,7 @@ export function ApartmentDetailPage() {
 
       <PinnedActionBar>
         <Button variant="outline" asChild className="min-h-11 flex-1">
-          <Link to="/apartments">All apartments</Link>
+          <Link to="/apartments">All listings</Link>
         </Button>
         <Button
           asChild
