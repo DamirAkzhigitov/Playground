@@ -113,6 +113,21 @@ pnpm turbo run build --filter=@playground/main
 pnpm dlx wrangler pages deploy apps/main/dist --project-name=playground --branch=preview
 ```
 
+### Apartments (`apps/apartments`)
+
+Production ships as **one Worker** (`apps/apartments/worker`): static files from
+`apps/apartments/dist` plus the Hono API under `/api/*` (see `wrangler.toml`
+`[assets]` and `run_worker_first`). The browser uses relative `/api` URLs (no
+`VITE_API_BASE_URL` in CI).
+
+After deploy, attach **`apartments.da-mr.com`** to that Worker and turn off or
+unlink the hostname from a separate **Pages** project so traffic is not split.
+
+```bash
+pnpm turbo run build --filter=@playground/apartments
+pnpm --filter @playground/apartments-api exec wrangler deploy
+```
+
 ## Adding a new tool (subdomain)
 
 Each tool gets its own subdomain (`<tool>.da-mr.com`), its own Cloudflare

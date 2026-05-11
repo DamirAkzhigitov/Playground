@@ -75,7 +75,7 @@ export const apiRequest = async <T>(
     const contentType = response.headers.get('content-type') ?? ''
     if (!contentType.includes('application/json')) {
       throw new ApiError(
-        `API returned non-JSON (${contentType || 'no Content-Type'}). For production builds, set VITE_API_BASE_URL to your Worker origin (e.g. https://apartments-api.da-mr.com).`,
+        `API returned non-JSON (${contentType || 'no Content-Type'}). Expected same-origin /api from the apartments app build, or set VITE_API_BASE_URL to your API origin.`,
         response.status,
         parsedBody
       )

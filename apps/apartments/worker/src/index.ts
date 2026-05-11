@@ -1,15 +1,14 @@
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
 import { z } from 'zod'
 import * as XLSX from 'xlsx'
 
 type Bindings = {
+  ASSETS: Fetcher
   DB: D1Database
   PHOTOS: R2Bucket
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
-const localhostPattern = /^http:\/\/localhost:\d+$/
 const nowIso = () => new Date().toISOString()
 
 const categorySchema = z.object({
@@ -165,25 +164,6 @@ const exportTableNames = [
   'answers',
   'photos'
 ] as const
-
-app.use(
-  '/api/*',
-  cors({
-    origin: (origin) => {
-      if (!origin) {
-        return ''
-      }
-      if (
-        origin === 'https://apartments.da-mr.com' ||
-        localhostPattern.test(origin)
-      ) {
-        return origin
-      }
-      return ''
-    },
-    allowMethods: ['GET', 'POST', 'PATCH', 'DELETE']
-  })
-)
 
 app.get('/api/health', (c) => c.json({ ok: true }))
 

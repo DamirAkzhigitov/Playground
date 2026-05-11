@@ -88,7 +88,7 @@ jobs:
           packageManager: pnpm
 
   deploy-apartments:
-    name: Deploy apps/apartments to Cloudflare Pages
+    name: Deploy apps/apartments (Worker + SPA)
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -110,21 +110,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build @playground/apartments
-        env:
-          # Required: without it, /api/* resolves to Pages and returns HTML; React Query
-          # then caches a string and list UIs throw (e.g. "map is not a function").
-          VITE_API_BASE_URL: https://apartments-api.da-mr.com
+      - name: Build @playground/apartments (client → dist/)
         run: pnpm turbo run build --filter=@playground/apartments
 
-      - name: Install Wrangler for workspace root
-        run: pnpm add -Dw wrangler@3.90.0
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/apartments/dist --project-name=apartments --branch=main --commit-dirty=true
-          workingDirectory: '.'
-          packageManager: pnpm
+      - name: Deploy Worker (static assets + /api)
+        run: pnpm --filter @playground/apartments-api exec wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -2,6 +2,13 @@ name = "apartments-api"
 main = "src/index.ts"
 compatibility_date = "2025-05-11"
 
+# Vite client build output (apps/apartments/dist). Same Worker serves SPA + /api — no CORS.
+[assets]
+directory = "../dist"
+not_found_handling = "single-page-application"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "apartments-db"
