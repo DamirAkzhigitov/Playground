@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { useI18n } from '@/contexts/I18nContext'
 import {
   Form,
   FormControl,
@@ -12,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
-  apartmentFormSchema,
+  createApartmentFormSchema,
   parsePriceField,
   type ApartmentFormValues
 } from '@/lib/apartmentForm'
@@ -28,15 +30,19 @@ type ApartmentFormProps = {
 }
 
 export function ApartmentForm({ defaultValues, onSubmit }: ApartmentFormProps) {
+  const { t } = useI18n()
+  const schema = useMemo(() => createApartmentFormSchema(t), [t])
+  const resolver = useMemo(() => zodResolver(schema), [schema])
+
   const form = useForm<ApartmentFormValues>({
-    resolver: zodResolver(apartmentFormSchema),
+    resolver,
     defaultValues
   })
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const price = parsePriceField(values.price)
     if (values.price?.trim() && price === null) {
-      form.setError('price', { message: 'Enter a valid number.' })
+      form.setError('price', { message: t('apartmentForm.validNumber') })
       return
     }
     await onSubmit({
@@ -55,10 +61,10 @@ export function ApartmentForm({ defaultValues, onSubmit }: ApartmentFormProps) {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>{t('apartmentForm.title')}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g. Riverside 2BR"
+                  placeholder={t('apartmentForm.titlePlaceholder')}
                   autoComplete="off"
                   {...field}
                 />
@@ -72,10 +78,10 @@ export function ApartmentForm({ defaultValues, onSubmit }: ApartmentFormProps) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>{t('apartmentForm.address')}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Street, city"
+                  placeholder={t('apartmentForm.addressPlaceholder')}
                   autoComplete="street-address"
                   {...field}
                 />
@@ -89,11 +95,11 @@ export function ApartmentForm({ defaultValues, onSubmit }: ApartmentFormProps) {
           name="price"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Price (€)</FormLabel>
+              <FormLabel>{t('apartmentForm.price')}</FormLabel>
               <FormControl>
                 <Input
                   inputMode="decimal"
-                  placeholder="Optional"
+                  placeholder={t('apartmentForm.priceOptional')}
                   autoComplete="off"
                   {...field}
                 />
@@ -107,10 +113,10 @@ export function ApartmentForm({ defaultValues, onSubmit }: ApartmentFormProps) {
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes</FormLabel>
+              <FormLabel>{t('apartmentForm.notes')}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Anything you want to remember before the visit…"
+                  placeholder={t('apartmentForm.notesPlaceholder')}
                   rows={4}
                   className="resize-none"
                   {...field}

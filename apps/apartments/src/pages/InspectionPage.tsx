@@ -10,6 +10,7 @@ import {
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { AnswerField } from '@/components/AnswerField'
 import { QuestionPhotosSection } from '@/components/QuestionPhotosSection'
 import { ErrorState } from '@/components/ErrorState'
@@ -70,6 +71,7 @@ function categoryProgressList(
 }
 
 export function InspectionPage() {
+  const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const location = useLocation()
   const navigate = useNavigate()
@@ -185,12 +187,12 @@ export function InspectionPage() {
             note: next.note
           })
         } catch (e) {
-          toast.error(e instanceof Error ? e.message : 'Could not save answer.')
+          toast.error(e instanceof Error ? e.message : t('errors.saveAnswer'))
         }
         return { ...prev, [questionId]: next }
       })
     },
-    [id, queueSave]
+    [id, queueSave, t]
   )
 
   const goNext = useCallback(async () => {
@@ -266,25 +268,24 @@ export function InspectionPage() {
   const errMsg = apartmentQuery.error?.message ?? questionsQuery.error?.message
 
   if (isLoading) {
-    return <LoadingState label="Loading inspection…" />
+    return <LoadingState label={t('inspection.loading')} />
   }
   if (isErr) {
-    return <ErrorState message={errMsg ?? 'Something went wrong.'} />
+    return <ErrorState message={errMsg ?? t('errors.generic')} />
   }
   if (!id || !apartmentQuery.data) {
-    return <ErrorState message="Apartment not found." />
+    return <ErrorState message={t('errors.notFound')} />
   }
   if (flat.length === 0) {
     return (
       <section className="space-y-4">
         <PageHeader
-          title="Inspection"
+          title={t('inspection.title')}
           description={apartmentQuery.data.title}
         />
         <Card>
           <CardContent className="py-6 text-sm text-muted-foreground">
-            There are no active questions yet. Add questions under the Questions
-            tab first.
+            {t('inspection.noQuestionsBody')}
           </CardContent>
         </Card>
       </section>
@@ -301,11 +302,11 @@ export function InspectionPage() {
     >
       <PageHeader
         className="shrink-0"
-        title="Inspection"
+        title={t('inspection.title')}
         description={apartmentQuery.data.title}
         actions={
           <Button variant="outline" size="sm" asChild>
-            <Link to={`/apartments/${id}`}>Apartment</Link>
+            <Link to={`/apartments/${id}`}>{t('inspection.apartment')}</Link>
           </Button>
         }
       />
@@ -313,11 +314,13 @@ export function InspectionPage() {
       {phase === 'summary' ? (
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-lg">Summary</CardTitle>
+            <CardTitle className="text-lg">{t('inspection.summary')}</CardTitle>
             <p className="text-sm text-muted-foreground">
               {missingRequired.length === 0
-                ? 'All required questions have an answer.'
-                : `${missingRequired.length} required question${missingRequired.length === 1 ? '' : 's'} still need an answer.`}
+                ? t('inspection.summaryDone')
+                : t('inspection.summaryMissing', {
+                    n: missingRequired.length
+                  })}
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -354,10 +357,10 @@ export function InspectionPage() {
                 disabled={isNavBusy}
                 onClick={() => void goPrev()}
               >
-                Back to last question
+                {t('inspection.backToLast')}
               </Button>
               <Button type="button" asChild>
-                <Link to={`/apartments/${id}`}>Done</Link>
+                <Link to={`/apartments/${id}`}>{t('common.done')}</Link>
               </Button>
             </div>
           </CardContent>
@@ -367,10 +370,13 @@ export function InspectionPage() {
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Badge variant="secondary">
-                Question {index + 1} / {flat.length}
+                {t('inspection.questionBadge', {
+                  current: index + 1,
+                  total: flat.length
+                })}
               </Badge>
               {current?.required ? (
-                <Badge variant="outline">Required</Badge>
+                <Badge variant="outline">{t('common.required')}</Badge>
               ) : null}
             </div>
             <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -380,15 +386,17 @@ export function InspectionPage() {
                   variant="outline"
                   size="sm"
                   className="inline-flex items-center gap-2"
-                  aria-label="Open sections menu"
+                  aria-label={t('inspection.openSections')}
                 >
                   <List className="size-4" aria-hidden />
-                  <span className="hidden sm:inline">Sections</span>
+                  <span className="hidden sm:inline">
+                    {t('common.sections')}
+                  </span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="bottom" className="max-h-[85vh]">
                 <SheetHeader>
-                  <SheetTitle>Jump to section</SheetTitle>
+                  <SheetTitle>{t('inspection.jumpTo')}</SheetTitle>
                 </SheetHeader>
                 <ScrollArea className="mt-4 h-[55vh] pr-3">
                   <ul className="space-y-2">
@@ -454,7 +462,7 @@ export function InspectionPage() {
               </Card>
             ) : null}
             <p className="pt-3 text-center text-xs text-muted-foreground">
-              Answers save automatically as you go.
+              {t('inspection.autosave')}
             </p>
           </div>
 
@@ -469,7 +477,7 @@ export function InspectionPage() {
               disabled={isNavBusy || upsert.isPending}
             >
               <ChevronLeft className="size-4" aria-hidden />
-              {index === 0 ? 'Back' : 'Previous'}
+              {index === 0 ? t('common.back') : t('common.previous')}
             </Button>
             <Button
               type="button"
@@ -477,7 +485,7 @@ export function InspectionPage() {
               disabled={isNavBusy || upsert.isPending}
               onClick={() => void goNext()}
             >
-              {index >= flat.length - 1 ? 'Finish' : 'Next'}
+              {index >= flat.length - 1 ? t('common.finish') : t('common.next')}
               {index < flat.length - 1 ? (
                 <ChevronRight className="size-4 shrink-0" aria-hidden />
               ) : null}

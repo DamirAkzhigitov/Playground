@@ -1,14 +1,19 @@
 import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { ErrorState } from './ErrorState'
 
 export function RouteErrorBoundary() {
   const error = useRouteError()
+  const { t } = useI18n()
 
   if (isRouteErrorResponse(error)) {
     return (
       <ErrorState
-        message={`Route error ${error.status}: ${error.statusText || 'Unknown status.'}`}
+        message={t('errors.routeError', {
+          status: error.status,
+          detail: error.statusText || t('errors.routeUnknown')
+        })}
       />
     )
   }
@@ -17,5 +22,5 @@ export function RouteErrorBoundary() {
     return <ErrorState message={error.message} />
   }
 
-  return <ErrorState />
+  return <ErrorState message={t('errors.generic')} />
 }

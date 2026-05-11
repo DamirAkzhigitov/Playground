@@ -1,5 +1,16 @@
 import { z } from 'zod'
 
+import type { MessageId } from '@/i18n/messages'
+
+export function createApartmentFormSchema(t: (id: MessageId) => string) {
+  return z.object({
+    title: z.string().trim().min(1, t('apartmentForm.titleRequired')).max(200),
+    address: z.string().max(500).optional(),
+    notes: z.string().max(5000).optional(),
+    price: z.string().optional()
+  })
+}
+
 export const apartmentFormSchema = z.object({
   title: z.string().trim().min(1, 'Title is required.').max(200),
   address: z.string().max(500).optional(),

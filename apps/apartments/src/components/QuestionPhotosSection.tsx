@@ -8,6 +8,8 @@ import {
 import { useCallback, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { toast } from 'sonner'
 
+import { useI18n } from '@/contexts/I18nContext'
+
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -44,6 +46,7 @@ export function QuestionPhotosSection({
   allPhotos,
   density = 'comfortable'
 }: QuestionPhotosSectionProps) {
+  const { t } = useI18n()
   const photos = useMemo(
     () =>
       allPhotos
@@ -77,12 +80,12 @@ export function QuestionPhotosSection({
           questionId,
           file
         })
-        toast.success('Photo added.')
+        toast.success(t('photos.added'))
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : 'Could not upload photo.')
+        toast.error(e instanceof Error ? e.message : t('photos.uploadFailed'))
       }
     },
-    [apartmentId, questionId, upload]
+    [apartmentId, questionId, upload, t]
   )
 
   const onFileInputChange = useCallback(
@@ -103,7 +106,7 @@ export function QuestionPhotosSection({
     const deletedIndex = snapshot.findIndex((p) => p.id === targetId)
     try {
       await del.mutateAsync({ id: targetId, apartmentId })
-      toast.success('Photo removed.')
+      toast.success(t('photos.removed'))
       setDeleteTarget(null)
       setLightboxIndex((current) => {
         if (current === null) {
@@ -127,9 +130,9 @@ export function QuestionPhotosSection({
         return current
       })
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Could not delete photo.')
+      toast.error(e instanceof Error ? e.message : t('photos.deleteFailed'))
     }
-  }, [apartmentId, del, deleteTarget, photos])
+  }, [apartmentId, del, deleteTarget, photos, t])
 
   const openLightbox = (index: number) => setLightboxIndex(index)
   const closeLightbox = () => setLightboxIndex(null)
@@ -148,7 +151,9 @@ export function QuestionPhotosSection({
   return (
     <div className={cn('space-y-3', compact ? 'pt-1' : 'pt-2')}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-foreground">Photos</p>
+        <p className="text-sm font-medium text-foreground">
+          {t('common.photos')}
+        </p>
         <div className="flex flex-wrap gap-2">
           <input
             ref={cameraInputRef}
@@ -178,7 +183,7 @@ export function QuestionPhotosSection({
             onClick={() => cameraInputRef.current?.click()}
           >
             <Camera className="size-4 shrink-0" aria-hidden />
-            <span>Take photo</span>
+            <span>{t('photos.takePhoto')}</span>
           </Button>
           <Button
             type="button"
@@ -189,7 +194,7 @@ export function QuestionPhotosSection({
             onClick={() => fileInputRef.current?.click()}
           >
             <ImagePlus className="size-4 shrink-0" aria-hidden />
-            <span>Add from library</span>
+            <span>{t('photos.addFromLibrary')}</span>
           </Button>
         </div>
       </div>
@@ -209,7 +214,11 @@ export function QuestionPhotosSection({
                 type="button"
                 className="relative size-full overflow-hidden rounded-xl border border-border bg-muted outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => openLightbox(index)}
-                aria-label={`View photo ${index + 1} of ${photos.length} for ${questionLabel}`}
+                aria-label={t('photos.viewAria', {
+                  index: index + 1,
+                  total: photos.length,
+                  label: questionLabel
+                })}
               >
                 <img
                   src={photoPublicUrl(photo.r2Key)}
@@ -223,7 +232,7 @@ export function QuestionPhotosSection({
                 variant="secondary"
                 size="icon-lg"
                 className="absolute right-1 bottom-1 size-11 rounded-full border border-border shadow-md"
-                aria-label="Delete photo"
+                aria-label={t('photos.deleteAria')}
                 disabled={busy}
                 onClick={(e) => {
                   e.stopPropagation()
@@ -236,10 +245,7 @@ export function QuestionPhotosSection({
           ))}
         </ul>
       ) : (
-        <p className="text-xs text-muted-foreground">
-          No photos yet. Use camera or library to attach images to this
-          question.
-        </p>
+        <p className="text-xs text-muted-foreground">{t('photos.empty')}</p>
       )}
 
       <Dialog
@@ -255,11 +261,10 @@ export function QuestionPhotosSection({
           className="max-h-[95dvh] w-[calc(100vw-1rem)] max-w-4xl gap-0 overflow-hidden border-0 bg-background/95 p-2 sm:p-4"
         >
           <DialogTitle className="sr-only">
-            Photo for {questionLabel}
+            {t('photos.lightboxTitle', { label: questionLabel })}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Full-size inspection photo. Use arrow buttons to browse or close to
-            return.
+            {t('photos.lightboxDesc')}
           </DialogDescription>
           {lightboxPhoto ? (
             <div className="relative flex max-h-[88dvh] items-center justify-center gap-2">
@@ -269,7 +274,7 @@ export function QuestionPhotosSection({
                   variant="outline"
                   size="icon-lg"
                   className="size-11 shrink-0"
-                  aria-label="Previous photo"
+                  aria-label={t('photos.prevAria')}
                   disabled={lightboxIndex === 0}
                   onClick={goPrevLightbox}
                 >
@@ -279,7 +284,7 @@ export function QuestionPhotosSection({
               <div className="min-h-0 min-w-0 flex-1">
                 <img
                   src={photoPublicUrl(lightboxPhoto.r2Key)}
-                  alt={`Photo for ${questionLabel}`}
+                  alt={t('photos.lightboxTitle', { label: questionLabel })}
                   className="mx-auto max-h-[min(80dvh,900px)] w-full object-contain"
                 />
               </div>
@@ -289,7 +294,7 @@ export function QuestionPhotosSection({
                   variant="outline"
                   size="icon-lg"
                   className="size-11 shrink-0"
-                  aria-label="Next photo"
+                  aria-label={t('photos.nextAria')}
                   disabled={lightboxIndex === photos.length - 1}
                   onClick={goNextLightbox}
                 >
@@ -309,7 +314,7 @@ export function QuestionPhotosSection({
                   setDeleteTarget(lightboxPhoto)
                 }}
               >
-                Delete this photo
+                {t('photos.deleteThis')}
               </Button>
             </div>
           ) : null}
@@ -326,14 +331,14 @@ export function QuestionPhotosSection({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this photo?</AlertDialogTitle>
+            <AlertDialogTitle>{t('photos.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes the file from storage. You cannot undo this action.
+              {t('photos.deleteDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={del.isPending}>
-              Cancel
+              {t('common.cancel')}
             </AlertDialogCancel>
             <Button
               variant="destructive"
@@ -341,7 +346,7 @@ export function QuestionPhotosSection({
               disabled={del.isPending}
               onClick={() => void confirmDelete()}
             >
-              {del.isPending ? 'Deleting…' : 'Delete'}
+              {del.isPending ? t('common.deleting') : t('common.delete')}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

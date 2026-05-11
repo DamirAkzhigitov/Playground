@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { ApartmentForm } from '@/components/ApartmentForm'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import { apartmentFormDefaults } from '@/lib/apartmentForm'
@@ -23,6 +24,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { useApartment, useDeleteApartment, useUpdateApartment } from '@/hooks'
 
 export function EditApartmentPage() {
+  const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data, isPending, isError, error } = useApartment(id)
@@ -42,11 +44,11 @@ export function EditApartmentPage() {
   return (
     <section className={showForm ? 'space-y-4 pb-page-pinned' : 'space-y-4'}>
       <PageHeader
-        title="Edit apartment"
-        description="Update listing details."
+        title={t('editApartment.title')}
+        description={t('editApartment.description')}
       />
 
-      {isPending ? <LoadingState label="Loading apartment…" /> : null}
+      {isPending ? <LoadingState label={t('editApartment.loading')} /> : null}
       {isError ? <ErrorState message={error.message} /> : null}
 
       {showForm ? (
@@ -62,11 +64,13 @@ export function EditApartmentPage() {
                       id: data.id,
                       payload
                     })
-                    toast.success('Apartment updated.')
+                    toast.success(t('editApartment.updated'))
                     navigate(`/apartments/${data.id}`)
                   } catch (e) {
                     toast.error(
-                      e instanceof Error ? e.message : 'Could not save changes.'
+                      e instanceof Error
+                        ? e.message
+                        : t('editApartment.saveFailed')
                     )
                   }
                 }}
@@ -80,7 +84,7 @@ export function EditApartmentPage() {
                 variant="destructive"
                 onClick={() => setRemoveOpen(true)}
               >
-                Remove apartment
+                {t('editApartment.remove')}
               </Button>
             </CardFooter>
           </Card>
@@ -96,15 +100,16 @@ export function EditApartmentPage() {
           >
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Remove this apartment?</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {t('editApartment.removeTitle')}
+                </AlertDialogTitle>
                 <AlertDialogDescription>
-                  This permanently deletes the listing, photos, and inspection
-                  answers. This cannot be undone.
+                  {t('editApartment.removeDescription')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={deleteMutation.isPending}>
-                  Cancel
+                  {t('common.cancel')}
                 </AlertDialogCancel>
                 <Button
                   className="min-h-11 sm:min-w-32"
@@ -113,19 +118,21 @@ export function EditApartmentPage() {
                   onClick={async () => {
                     try {
                       await deleteMutation.mutateAsync(data.id)
-                      toast.success('Apartment removed.')
+                      toast.success(t('editApartment.removed'))
                       setRemoveOpen(false)
                       navigate('/apartments')
                     } catch (e) {
                       toast.error(
                         e instanceof Error
                           ? e.message
-                          : 'Could not remove apartment.'
+                          : t('editApartment.removeFailed')
                       )
                     }
                   }}
                 >
-                  {deleteMutation.isPending ? 'Removing…' : 'Remove'}
+                  {deleteMutation.isPending
+                    ? t('common.removing')
+                    : t('common.delete')}
                 </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -138,7 +145,7 @@ export function EditApartmentPage() {
                 className="inline-flex items-center justify-center gap-1"
               >
                 <ChevronLeft aria-hidden className="size-4 shrink-0" />
-                Back
+                {t('common.back')}
               </Link>
             </Button>
             <Button
@@ -147,7 +154,7 @@ export function EditApartmentPage() {
               form="apartment-form"
               type="submit"
             >
-              Save changes
+              {t('editApartment.saveChanges')}
             </Button>
           </PinnedActionBar>
         </>
