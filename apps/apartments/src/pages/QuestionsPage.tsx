@@ -15,6 +15,7 @@ import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
@@ -76,46 +77,43 @@ import {
   useUpdateCategory,
   useUpdateQuestion
 } from '@/hooks'
-import type { Question, QuestionType } from '@/types'
+import type { MessageId } from '@/i18n/messages'
+import type { Question } from '@/types'
+import { QUESTION_TYPE_ORDER } from '@/lib/questionTypes'
+import { questionTypeMessageId } from '@/lib/questionTypeMessageId'
 
-const QUESTION_TYPES: QuestionType[] = [
-  'text',
-  'number',
-  'boolean',
-  'select',
-  'multi-select',
-  'rating'
-]
-
-const questionFormSchema = z
-  .object({
-    label: z.string().trim().min(1, 'Label is required.'),
-    type: z.enum([
-      'text',
-      'number',
-      'boolean',
-      'select',
-      'multi-select',
-      'rating'
-    ]),
-    categoryId: z.string().min(1, 'Pick a category.'),
-    required: z.boolean(),
-    order: z.coerce.number().int().nonnegative(),
-    ratingMin: z.coerce.number().int().min(1),
-    ratingMax: z.coerce.number().int().min(1),
-    options: z.array(
-      z.object({
-        label: z.string(),
-        value: z.string()
-      })
+function buildQuestionFormSchema(t: (id: MessageId) => string) {
+  return z
+    .object({
+      label: z.string().trim().min(1, t('questions.valLabel')),
+      type: z.enum([
+        'text',
+        'number',
+        'date',
+        'boolean',
+        'select',
+        'multi-select',
+        'rating'
+      ]),
+      categoryId: z.string().min(1, t('questions.valCategory')),
+      required: z.boolean(),
+      order: z.coerce.number().int().nonnegative(),
+      ratingMin: z.coerce.number().int().min(1),
+      ratingMax: z.coerce.number().int().min(1),
+      options: z.array(
+        z.object({
+          label: z.string(),
+          value: z.string()
+        })
+      )
+    })
+    .refine(
+      (data) => data.type !== 'rating' || data.ratingMax >= data.ratingMin,
+      { message: t('questions.valRating'), path: ['ratingMax'] }
     )
-  })
-  .refine(
-    (data) => data.type !== 'rating' || data.ratingMax >= data.ratingMin,
-    { message: 'Rating max must be ≥ min.', path: ['ratingMax'] }
-  )
+}
 
-type QuestionFormValues = z.input<typeof questionFormSchema>
+type QuestionFormValues = z.input<ReturnType<typeof buildQuestionFormSchema>>
 
 const buildDefaults = (
   categoryId: string,
@@ -136,6 +134,13 @@ const buildDefaults = (
 })
 
 export function QuestionsPage() {
+  const { t } = useI18n()
+  const questionFormSchema = useMemo(() => buildQuestionFormSchema(t), [t])
+  const questionResolver = useMemo(
+    () => zodResolver(questionFormSchema),
+    [questionFormSchema]
+  )
+
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(
     null
   )
@@ -190,7 +195,7 @@ export function QuestionsPage() {
   const defaultCategoryId = categories[0]?.id ?? ''
 
   const form = useForm<QuestionFormValues>({
-    resolver: zodResolver(questionFormSchema),
+    resolver: questionResolver,
     defaultValues: buildDefaults(defaultCategoryId, editingQuestion)
   })
   const selectedType = useWatch({
@@ -264,7 +269,9 @@ export function QuestionsPage() {
         }))
       )
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Could not reorder.')
+      toast.error(
+        error instanceof Error ? error.message : t('questions.toastReorder')
+      )
     }
   }
 
@@ -292,7 +299,9 @@ export function QuestionsPage() {
         payload: { order: current.order }
       })
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Could not reorder.')
+      toast.error(
+        error instanceof Error ? error.message : t('questions.toastReorder')
+      )
     }
   }
 
@@ -324,18 +333,18 @@ export function QuestionsPage() {
     try {
       if (editingQuestionId === 'new') {
         await createQuestion.mutateAsync(payload)
-        toast.success('Question created.')
+        toast.success(t('questions.toastCreated'))
       } else if (editingQuestionId) {
         await updateQuestion.mutateAsync({
           id: editingQuestionId,
           payload
         })
-        toast.success('Question saved.')
+        toast.success(t('questions.toastSaved'))
       }
       stopEdit()
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Could not save question.'
+        error instanceof Error ? error.message : t('questions.toastSaveFailed')
       )
     }
   })
@@ -354,10 +363,12 @@ export function QuestionsPage() {
         id: categoryId,
         payload: { name }
       })
-      toast.success('Category renamed.')
+      toast.success(t('questions.toastRenamed'))
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Could not rename category.'
+        error instanceof Error
+          ? error.message
+          : t('questions.toastRenameFailed')
       )
     }
   }
@@ -370,10 +381,10 @@ export function QuestionsPage() {
     try {
       await createCategory.mutateAsync({ name })
       setNewCategoryName('')
-      toast.success('Category added.')
+      toast.success(t('questions.toastAdded'))
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Could not add category.'
+        error instanceof Error ? error.message : t('questions.toastAddFailed')
       )
     }
   }
@@ -384,10 +395,12 @@ export function QuestionsPage() {
     }
     try {
       await deleteCategory.mutateAsync(categoryToDelete)
-      toast.success('Category deleted.')
+      toast.success(t('questions.toastDeleted'))
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Could not delete category.'
+        error instanceof Error
+          ? error.message
+          : t('questions.toastDeleteFailed')
       )
     } finally {
       setCategoryToDelete(null)
@@ -401,18 +414,24 @@ export function QuestionsPage() {
         payload: { isArchived: !question.isArchived }
       })
       toast.success(
-        question.isArchived ? 'Question restored.' : 'Question archived.'
+        question.isArchived
+          ? t('questions.toastRestored')
+          : t('questions.toastArchived')
       )
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Could not update question.'
+        error instanceof Error
+          ? error.message
+          : t('questions.toastArchiveFailed')
       )
     }
   }
 
   const isEditorOpen = editingQuestionId !== null
   const editorTitle =
-    editingQuestionId === 'new' ? 'Create question' : 'Edit question'
+    editingQuestionId === 'new'
+      ? t('questions.editorCreate')
+      : t('questions.editorEdit')
   const showQuestionsToolbar = !isLoading && !hasError && !isEditorOpen
 
   return (
@@ -420,26 +439,26 @@ export function QuestionsPage() {
       className={cn('space-y-6', showQuestionsToolbar && 'pb-page-pinned')}
     >
       <PageHeader
-        title="Question Management"
-        description="Your global checklist (optional extras). Each new listing gets its own copy from the template you pick at creation."
+        title={t('questions.pageTitle')}
+        description={t('questions.pageDescription')}
       />
 
-      {isLoading ? <LoadingState label="Loading questions..." /> : null}
+      {isLoading ? <LoadingState label={t('questions.loading')} /> : null}
       {hasError && errorMessage ? <ErrorState message={errorMessage} /> : null}
 
       {!isLoading && !hasError ? (
         <>
           <Card>
             <CardHeader>
-              <CardTitle>Categories</CardTitle>
+              <CardTitle>{t('questions.categories')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Input
-                  aria-label="New category name"
+                  aria-label={t('questions.newCategoryAria')}
                   className="sm:flex-1"
                   onChange={(event) => setNewCategoryName(event.target.value)}
-                  placeholder="New category name"
+                  placeholder={t('questions.newCategoryPh')}
                   value={newCategoryName}
                 />
                 <Button
@@ -448,7 +467,7 @@ export function QuestionsPage() {
                   type="button"
                   variant="outline"
                 >
-                  Add
+                  {t('questions.add')}
                 </Button>
               </div>
 
@@ -460,7 +479,9 @@ export function QuestionsPage() {
                   >
                     <div className="flex flex-row items-center gap-2">
                       <Input
-                        aria-label={`Rename ${category.name}`}
+                        aria-label={t('questions.renameAria', {
+                          name: category.name
+                        })}
                         className="min-w-0 flex-1"
                         onChange={(event) =>
                           setCategoryRenames((prev) => ({
@@ -478,12 +499,14 @@ export function QuestionsPage() {
                           type="button"
                           variant="outline"
                         >
-                          Save
+                          {t('common.save')}
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
-                              aria-label={`More actions for ${category.name}`}
+                              aria-label={t('questions.moreActionsC', {
+                                name: category.name
+                              })}
                               size="icon-lg"
                               type="button"
                               variant="ghost"
@@ -497,14 +520,14 @@ export function QuestionsPage() {
                               onSelect={() => moveCategory(category.id, -1)}
                             >
                               <ChevronUp aria-hidden="true" />
-                              Move up
+                              {t('common.moveUp')}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               disabled={index === activeCategories.length - 1}
                               onSelect={() => moveCategory(category.id, 1)}
                             >
                               <ChevronDown aria-hidden="true" />
-                              Move down
+                              {t('common.moveDown')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -512,7 +535,7 @@ export function QuestionsPage() {
                               variant="destructive"
                             >
                               <Trash2 aria-hidden="true" />
-                              Delete
+                              {t('common.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -522,7 +545,7 @@ export function QuestionsPage() {
                 ))}
                 {activeCategories.length === 0 ? (
                   <li className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
-                    No categories yet.
+                    {t('questions.noCategories')}
                   </li>
                 ) : null}
               </ul>
@@ -538,7 +561,7 @@ export function QuestionsPage() {
                 <CardContent className="space-y-4">
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">
-                      Active
+                      {t('questions.active')}
                     </h3>
                     <ul className="mt-2 space-y-2">
                       {category.activeQuestions.map((question) => (
@@ -567,7 +590,7 @@ export function QuestionsPage() {
                       ))}
                       {category.activeQuestions.length === 0 ? (
                         <li className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
-                          No active questions in this category.
+                          {t('questions.noActiveInCategory')}
                         </li>
                       ) : null}
                     </ul>
@@ -578,7 +601,7 @@ export function QuestionsPage() {
                       <Separator />
                       <div>
                         <h3 className="text-sm font-semibold text-muted-foreground">
-                          Archived
+                          {t('questions.archived')}
                         </h3>
                         <ul className="mt-2 space-y-2">
                           {category.archivedQuestions.map((question) => (
@@ -615,7 +638,7 @@ export function QuestionsPage() {
             type="button"
           >
             <Plus aria-hidden="true" className="size-4 shrink-0" />
-            New question
+            {t('questions.newQuestion')}
           </Button>
         </PinnedActionBar>
       ) : null}
@@ -634,9 +657,7 @@ export function QuestionsPage() {
         >
           <SheetHeader>
             <SheetTitle>{editorTitle}</SheetTitle>
-            <SheetDescription>
-              Configure the question and how it should appear in inspections.
-            </SheetDescription>
+            <SheetDescription>{t('questions.editorDesc')}</SheetDescription>
           </SheetHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
             <Form {...form}>
@@ -650,10 +671,10 @@ export function QuestionsPage() {
                   name="label"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Label</FormLabel>
+                      <FormLabel>{t('questions.label')}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g. Apartment title matches listing?"
+                          placeholder={t('questions.labelPh')}
                           {...field}
                         />
                       </FormControl>
@@ -668,20 +689,22 @@ export function QuestionsPage() {
                     name="type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Type</FormLabel>
+                        <FormLabel>{t('questions.type')}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Pick a type" />
+                              <SelectValue
+                                placeholder={t('questions.pickType')}
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {QUESTION_TYPES.map((type) => (
+                            {QUESTION_TYPE_ORDER.map((type) => (
                               <SelectItem key={type} value={type}>
-                                {type}
+                                {t(questionTypeMessageId(type))}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -696,14 +719,16 @@ export function QuestionsPage() {
                     name="categoryId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Category</FormLabel>
+                        <FormLabel>{t('questions.category')}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Pick a category" />
+                              <SelectValue
+                                placeholder={t('questions.pickCategory')}
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -726,7 +751,7 @@ export function QuestionsPage() {
                     name="order"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Order</FormLabel>
+                        <FormLabel>{t('questions.order')}</FormLabel>
                         <FormControl>
                           <Input
                             min={0}
@@ -755,7 +780,9 @@ export function QuestionsPage() {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                        <FormLabel className="!mt-0">Required</FormLabel>
+                        <FormLabel className="!mt-0">
+                          {t('questions.requiredField')}
+                        </FormLabel>
                       </FormItem>
                     )}
                   />
@@ -768,7 +795,7 @@ export function QuestionsPage() {
                       name="ratingMin"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Rating min</FormLabel>
+                          <FormLabel>{t('questions.ratingMin')}</FormLabel>
                           <FormControl>
                             <Input
                               min={1}
@@ -791,7 +818,7 @@ export function QuestionsPage() {
                       name="ratingMax"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Rating max</FormLabel>
+                          <FormLabel>{t('questions.ratingMax')}</FormLabel>
                           <FormControl>
                             <Input
                               min={1}
@@ -817,7 +844,7 @@ export function QuestionsPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-semibold text-foreground">
-                        Options
+                        {t('questions.optionsTitle')}
                       </h3>
                       <Button
                         onClick={() =>
@@ -828,7 +855,7 @@ export function QuestionsPage() {
                         variant="outline"
                       >
                         <Plus aria-hidden="true" />
-                        Add option
+                        {t('questions.addOption')}
                       </Button>
                     </div>
                     <ul className="space-y-2">
@@ -844,7 +871,7 @@ export function QuestionsPage() {
                               render={({ field: innerField }) => (
                                 <FormItem>
                                   <FormLabel className="text-xs">
-                                    Label
+                                    {t('questions.optionLabel')}
                                   </FormLabel>
                                   <FormControl>
                                     <Input {...innerField} />
@@ -858,7 +885,7 @@ export function QuestionsPage() {
                               render={({ field: innerField }) => (
                                 <FormItem>
                                   <FormLabel className="text-xs">
-                                    Value
+                                    {t('questions.optionValue')}
                                   </FormLabel>
                                   <FormControl>
                                     <Input {...innerField} />
@@ -877,7 +904,7 @@ export function QuestionsPage() {
                             </div>
                             <div className="flex items-center gap-1">
                               <Button
-                                aria-label="Move option up"
+                                aria-label={t('questions.moveOptionUp')}
                                 disabled={index === 0}
                                 onClick={() =>
                                   optionsArray.swap(index, index - 1)
@@ -889,7 +916,7 @@ export function QuestionsPage() {
                                 <ChevronUp aria-hidden="true" />
                               </Button>
                               <Button
-                                aria-label="Move option down"
+                                aria-label={t('questions.moveOptionDown')}
                                 disabled={
                                   index === optionsArray.fields.length - 1
                                 }
@@ -903,7 +930,7 @@ export function QuestionsPage() {
                                 <ChevronDown aria-hidden="true" />
                               </Button>
                               <Button
-                                aria-label="Remove option"
+                                aria-label={t('questions.removeOption')}
                                 onClick={() => optionsArray.remove(index)}
                                 size="icon-sm"
                                 type="button"
@@ -917,7 +944,7 @@ export function QuestionsPage() {
                       ))}
                       {optionsArray.fields.length === 0 ? (
                         <li className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
-                          Add at least one option for this question.
+                          {t('questions.needOneOption')}
                         </li>
                       ) : null}
                     </ul>
@@ -928,14 +955,14 @@ export function QuestionsPage() {
           </div>
           <SheetFooter className="flex-row justify-end gap-2 border-t">
             <Button onClick={stopEdit} type="button" variant="outline">
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               disabled={createQuestion.isPending || updateQuestion.isPending}
               form="question-form"
               type="submit"
             >
-              Save
+              {t('common.save')}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -951,19 +978,20 @@ export function QuestionsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this category?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t('questions.deleteCategoryTitle')}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Categories with attached questions cannot be deleted. Archive the
-              questions first or move them elsewhere.
+              {t('questions.deleteCategoryDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white hover:bg-destructive/90"
               onClick={handleDeleteCategory}
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -991,22 +1019,29 @@ function QuestionRow({
   onMove,
   question
 }: QuestionRowProps) {
+  const { t } = useI18n()
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0 flex-1">
         <p className="font-medium text-foreground">{question.label}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <Badge variant="secondary">{question.type}</Badge>
-          <span>{question.required ? 'Required' : 'Optional'}</span>
+          <Badge variant="secondary">
+            {t(questionTypeMessageId(question.type))}
+          </Badge>
+          <span>
+            {question.required ? t('common.required') : t('common.optional')}
+          </span>
           <span aria-hidden="true">·</span>
-          <span>Order: {question.order}</span>
-          {archived ? <Badge variant="outline">Archived</Badge> : null}
+          <span>{t('questions.orderLabel', { n: question.order })}</span>
+          {archived ? (
+            <Badge variant="outline">{t('common.archived')}</Badge>
+          ) : null}
         </div>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            aria-label={`More actions for ${question.label}`}
+            aria-label={t('questions.moreActionsQ')}
             size="icon-lg"
             type="button"
             variant="ghost"
@@ -1017,7 +1052,7 @@ function QuestionRow({
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={onEdit}>
             <Pencil aria-hidden="true" />
-            Edit
+            {t('common.edit')}
           </DropdownMenuItem>
           {!archived && onMove ? (
             <>
@@ -1026,14 +1061,14 @@ function QuestionRow({
                 onSelect={() => onMove(-1)}
               >
                 <ChevronUp aria-hidden="true" />
-                Move up
+                {t('common.moveUp')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={!canMoveDown}
                 onSelect={() => onMove(1)}
               >
                 <ChevronDown aria-hidden="true" />
-                Move down
+                {t('common.moveDown')}
               </DropdownMenuItem>
             </>
           ) : null}
@@ -1042,12 +1077,12 @@ function QuestionRow({
             {archived ? (
               <>
                 <ArchiveRestore aria-hidden="true" />
-                Unarchive
+                {t('common.unarchive')}
               </>
             ) : (
               <>
                 <ArchiveX aria-hidden="true" />
-                Archive
+                {t('common.archive')}
               </>
             )}
           </DropdownMenuItem>

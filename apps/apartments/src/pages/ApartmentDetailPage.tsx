@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { AnswerField } from '@/components/AnswerField'
 import { QuestionPhotosSection } from '@/components/QuestionPhotosSection'
 import { ApartmentStatusBadge } from '@/components/ApartmentStatusBadge'
@@ -29,11 +30,13 @@ import {
   deriveApartmentStatus
 } from '@/lib/apartmentStatus'
 import { isQuestionAnswerFilled } from '@/lib/answerValue'
+import { questionTypeMessageId } from '@/lib/questionTypeMessageId'
 import { buildAnswerDraftMap, flattenActiveQuestions } from '@/lib/questions'
 
 const EMPTY_GROUPS: QuestionGroup[] = []
 
 export function ApartmentDetailPage() {
+  const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const apartmentQuery = useApartment(id)
   const questionsQuery = useQuestions({ apartmentId: id })
@@ -132,7 +135,7 @@ export function ApartmentDetailPage() {
           note: next.note
         })
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : 'Could not save answer.')
+        toast.error(e instanceof Error ? e.message : t('errors.saveAnswer'))
       }
       return { ...prev, [questionId]: next }
     })
@@ -143,19 +146,21 @@ export function ApartmentDetailPage() {
   const errMsg = apartmentQuery.error?.message ?? questionsQuery.error?.message
 
   if (isLoading) {
-    return <LoadingState label="Loading listing…" />
+    return <LoadingState label={t('detail.loading')} />
   }
   if (isErr) {
-    return <ErrorState message={errMsg ?? 'Something went wrong.'} />
+    return <ErrorState message={errMsg ?? t('errors.generic')} />
   }
   if (!id || !apartmentQuery.data) {
-    return <ErrorState message="Listing not found." />
+    return <ErrorState message={t('errors.notFound')} />
   }
 
   const data = apartmentQuery.data
   const status = deriveApartmentStatus(completion ?? undefined)
   const inspectLabel =
-    status === 'completed' ? 'Review inspection' : 'Start / resume inspection'
+    status === 'completed'
+      ? t('detail.reviewInspection')
+      : t('detail.startInspection')
 
   return (
     <section className="flex flex-col gap-6 pb-page-pinned">
@@ -163,8 +168,8 @@ export function ApartmentDetailPage() {
         title={data.title}
         description={
           data.price !== null && data.price !== undefined
-            ? `${data.address ?? 'No address yet'} · €${data.price.toLocaleString()}`
-            : (data.address ?? 'No address yet')
+            ? `${data.address ?? t('apartments.noAddress')} · €${data.price.toLocaleString()}`
+            : (data.address ?? t('apartments.noAddress'))
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -173,10 +178,10 @@ export function ApartmentDetailPage() {
               <Link
                 to={`/apartments/${data.id}/edit`}
                 className="inline-flex items-center gap-2"
-                aria-label="Edit listing"
+                aria-label={t('detail.editAria')}
               >
                 <Pencil className="size-4" aria-hidden />
-                <span className="hidden sm:inline">Edit</span>
+                <span className="hidden sm:inline">{t('common.edit')}</span>
               </Link>
             </Button>
           </div>
@@ -185,16 +190,16 @@ export function ApartmentDetailPage() {
 
       <Card className="flex flex-col">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-base">Overview</CardTitle>
-          <CardDescription>
-            Completion is based on active questions and saved answers.
-          </CardDescription>
+          <CardTitle className="text-base">{t('detail.overview')}</CardTitle>
+          <CardDescription>{t('detail.overviewDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-1 flex-col space-y-4">
           {completion ? (
             <div className="flex flex-wrap gap-3 text-sm">
               <div>
-                <span className="text-muted-foreground">Progress</span>{' '}
+                <span className="text-muted-foreground">
+                  {t('detail.progress')}
+                </span>{' '}
                 <span className="font-medium tabular-nums">
                   {completion.percent}%
                 </span>
@@ -204,7 +209,9 @@ export function ApartmentDetailPage() {
                 className="hidden h-4 sm:block"
               />
               <div>
-                <span className="text-muted-foreground">Answered</span>{' '}
+                <span className="text-muted-foreground">
+                  {t('detail.answered')}
+                </span>{' '}
                 <span className="font-medium tabular-nums">
                   {completion.answeredQuestions}/{completion.totalQuestions}
                 </span>
@@ -214,7 +221,9 @@ export function ApartmentDetailPage() {
                 className="hidden h-4 sm:block"
               />
               <div>
-                <span className="text-muted-foreground">Critical gaps</span>{' '}
+                <span className="text-muted-foreground">
+                  {t('detail.criticalGaps')}
+                </span>{' '}
                 <span className="font-medium tabular-nums text-destructive">
                   {completion.criticalMissingCount}
                 </span>
@@ -222,13 +231,15 @@ export function ApartmentDetailPage() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No questions configured yet.
+              {t('detail.noQuestions')}
             </p>
           )}
 
           {missingRequired.length > 0 ? (
             <div className="space-y-2">
-              <p className="text-sm font-medium">Missing required answers</p>
+              <p className="text-sm font-medium">
+                {t('detail.missingRequiredTitle')}
+              </p>
               <ul className="list-inside list-disc text-sm text-muted-foreground">
                 {missingRequired.map((q) => (
                   <li key={q.id}>{q.label}</li>
@@ -262,11 +273,11 @@ export function ApartmentDetailPage() {
                       </p>
                       {question.required ? (
                         <Badge variant="outline" className="text-xs">
-                          Required
+                          {t('common.required')}
                         </Badge>
                       ) : null}
-                      <Badge variant="secondary" className="text-xs capitalize">
-                        {question.type.replaceAll('-', ' ')}
+                      <Badge variant="secondary" className="text-xs">
+                        {t(questionTypeMessageId(question.type))}
                       </Badge>
                     </div>
                     <AnswerField
@@ -305,7 +316,7 @@ export function ApartmentDetailPage() {
 
       <PinnedActionBar>
         <Button variant="outline" asChild className="min-h-11 flex-1">
-          <Link to="/apartments">All listings</Link>
+          <Link to="/apartments">{t('detail.allApartments')}</Link>
         </Button>
         <Button
           asChild

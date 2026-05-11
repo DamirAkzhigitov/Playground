@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { ApartmentForm } from '@/components/ApartmentForm'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import type { ApartmentFormValues } from '@/lib/apartmentForm'
@@ -27,6 +28,7 @@ const emptyDefaults: ApartmentFormValues = {
 }
 
 export function NewApartmentPage() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const createMutation = useCreateApartment()
   const templatesQuery = useInspectionTemplates()
@@ -55,16 +57,18 @@ export function NewApartmentPage() {
   return (
     <section className="pb-page-pinned space-y-4">
       <PageHeader
-        title="Create listing"
-        description="Pick a checklist template, then add the basics. You can compare cars, rentals, off-plan units, and more side by side."
+        title={t('newApartment.title')}
+        description={t('newApartment.description')}
       />
       <Card>
         <CardContent className="space-y-6 pt-6">
           <div className="space-y-2">
-            <Label htmlFor="inspection-template">Checklist template</Label>
+            <Label htmlFor="inspection-template">
+              {t('newApartment.templateLabel')}
+            </Label>
             {templatesQuery.isPending ? (
               <p className="text-sm text-muted-foreground">
-                Loading templates…
+                {t('newApartment.loadingTemplates')}
               </p>
             ) : null}
             {templatesQuery.isError ? (
@@ -82,9 +86,11 @@ export function NewApartmentPage() {
                   <SelectTrigger
                     id="inspection-template"
                     className="min-h-11 w-full"
-                    aria-label="Inspection checklist template"
+                    aria-label={t('newApartment.templateAria')}
                   >
-                    <SelectValue placeholder="Choose a template" />
+                    <SelectValue
+                      placeholder={t('newApartment.templatePlaceholder')}
+                    />
                   </SelectTrigger>
                   <SelectContent position="popper">
                     {templateOptions.map((t) => (
@@ -111,11 +117,13 @@ export function NewApartmentPage() {
                   ...payload,
                   templateSlug: effectiveTemplateSlug
                 })
-                toast.success('Listing created.')
+                toast.success(t('newApartment.created'))
                 navigate(`/apartments/${created.id}`)
               } catch (e) {
                 toast.error(
-                  e instanceof Error ? e.message : 'Could not create listing.'
+                  e instanceof Error
+                    ? e.message
+                    : t('newApartment.createFailed')
                 )
               }
             }}
@@ -130,7 +138,7 @@ export function NewApartmentPage() {
             className="inline-flex items-center justify-center gap-1"
           >
             <ChevronLeft aria-hidden className="size-4 shrink-0" />
-            Back
+            {t('common.back')}
           </Link>
         </Button>
         <Button
@@ -143,7 +151,7 @@ export function NewApartmentPage() {
           form="apartment-form"
           type="submit"
         >
-          Create listing
+          {t('newApartment.submit')}
         </Button>
       </PinnedActionBar>
     </section>

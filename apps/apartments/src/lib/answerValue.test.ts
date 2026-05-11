@@ -32,6 +32,14 @@ describe('isAnswerValueFilled', () => {
     expect(isAnswerValueFilled('boolean', 'false')).toBe(true)
   })
 
+  it('accepts only valid ISO calendar dates', () => {
+    expect(isAnswerValueFilled('date', null)).toBe(false)
+    expect(isAnswerValueFilled('date', '')).toBe(false)
+    expect(isAnswerValueFilled('date', '2024-06-15')).toBe(true)
+    expect(isAnswerValueFilled('date', '2024-02-30')).toBe(false)
+    expect(isAnswerValueFilled('date', 'not-a-date')).toBe(false)
+  })
+
   it('parses multi-select JSON', () => {
     expect(isAnswerValueFilled('multi-select', '["a"]')).toBe(true)
     expect(isAnswerValueFilled('multi-select', '["a","b"]')).toBe(true)

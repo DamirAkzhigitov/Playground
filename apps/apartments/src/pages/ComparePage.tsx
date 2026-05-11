@@ -3,6 +3,7 @@ import { Check, MessageSquare, Printer, X } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
@@ -19,7 +20,11 @@ import {
 import { useApartments, useInspectionTemplates } from '@/hooks'
 import { queryKeys } from '@/hooks/queryKeys'
 import { apiRequest } from '@/lib/api'
-import { formatCompareAnswerLabel, ratingBarRatio } from '@/lib/compareDisplay'
+import {
+  formatCompareAnswerLabel,
+  ratingBarRatio,
+  type CompareBooleanLabels
+} from '@/lib/compareDisplay'
 import { flattenActiveQuestions } from '@/lib/questions'
 import type {
   Apartment,
@@ -85,6 +90,16 @@ function buildAnswerMap(
 }
 
 export function ComparePage() {
+  const { t } = useI18n()
+  const boolLabels: CompareBooleanLabels = useMemo(
+    () => ({
+      yes: t('common.yes'),
+      no: t('common.no'),
+      empty: '—'
+    }),
+    [t]
+  )
+
   const apartmentsQuery = useApartments()
   const templatesQuery = useInspectionTemplates()
   const templateNameBySlug = useMemo(() => {
@@ -292,9 +307,7 @@ export function ComparePage() {
         compareTemplateKey(anchor) !== compareTemplateKey(nextApt) &&
         !current.includes(value)
       ) {
-        toast.message(
-          'Switched compare to this listing’s template — add more listings that use the same checklist.'
-        )
+        toast.message(t('compare.toastSwitched'))
         return normalizeToAllWhenComplete([value])
       }
       const next = new Set([...current, value])
@@ -356,7 +369,7 @@ export function ComparePage() {
     <section className="compare-print pb-page-pinned space-y-4">
       {apartmentsQuery.isPending ? (
         <div className="compare-print-screen-only">
-          <LoadingState label="Loading listings…" />
+          <LoadingState label={t('compare.loadingApts')} />
         </div>
       ) : null}
       {apartmentsQuery.isError ? (
@@ -369,12 +382,12 @@ export function ComparePage() {
         <>
           {list.length === 0 ? (
             <p className="text-sm text-muted-foreground compare-print-screen-only">
-              No listings yet.
+              {t('compare.noApts')}
             </p>
           ) : (
             <div className="compare-print-screen-only">
               <Label htmlFor="compare-apartments-select" className="sr-only">
-                Listings to compare
+                {t('compare.selectLabel')}
               </Label>
               <Select
                 value={compareSelectValue}
@@ -383,16 +396,16 @@ export function ComparePage() {
                 <SelectTrigger
                   id="compare-apartments-select"
                   className="h-auto min-h-11 w-full py-2 whitespace-normal"
-                  aria-label="Listings to compare"
+                  aria-label={t('compare.selectLabel')}
                 >
-                  <SelectValue placeholder="Choose listings" />
+                  <SelectValue placeholder={t('compare.choose')} />
                 </SelectTrigger>
                 <SelectContent
                   position="popper"
                   className="w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]"
                 >
                   <SelectItem value={COMPARE_ALL_VALUE}>
-                    All · same checklist as newest
+                    {t('compare.all')}
                   </SelectItem>
                   {compareSelectValue === COMPARE_MULTI_VALUE ? (
                     <SelectItem
@@ -400,8 +413,10 @@ export function ComparePage() {
                       disabled
                       className="text-muted-foreground"
                     >
-                      {selectedIds.length} of {compatibleListCount} in this
-                      template
+                      {t('compare.multi', {
+                        selected: selectedIds.length,
+                        total: compatibleListCount
+                      })}
                     </SelectItem>
                   ) : null}
                   <SelectSeparator />
@@ -418,28 +433,17 @@ export function ComparePage() {
                   ))}
                   <SelectSeparator />
                   <SelectItem value={COMPARE_NONE_VALUE}>
-                    None selected
+                    {t('compare.none')}
                   </SelectItem>
                 </SelectContent>
               </Select>
               {list.length > 0 ? (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {activeCompareTemplateLabel ? (
-                    <>
-                      Checklist template:{' '}
-                      <span className="font-medium text-foreground">
-                        {activeCompareTemplateLabel}
-                      </span>
-                      . Add more listings that use this template, or pick a
-                      different listing to switch templates.
-                    </>
-                  ) : (
-                    <>
-                      Only listings with the same checklist template are
-                      compared together. Choosing a listing with another
-                      template replaces your selection.
-                    </>
-                  )}
+                  {activeCompareTemplateLabel
+                    ? t('compare.templateActive', {
+                        name: activeCompareTemplateLabel
+                      })
+                    : t('compare.templatePick')}
                 </p>
               ) : null}
             </div>
@@ -447,12 +451,12 @@ export function ComparePage() {
 
           {isLoadingQuestions ? (
             <div className="compare-print-screen-only">
-              <LoadingState label="Loading questions…" />
+              <LoadingState label={t('compare.loadingQs')} />
             </div>
           ) : null}
           {hasQuestionsError ? (
             <div className="compare-print-screen-only">
-              <ErrorState message="Could not load checklist for one or more listings." />
+              <ErrorState message={t('compare.loadChecklistFailed')} />
             </div>
           ) : null}
 
@@ -460,17 +464,17 @@ export function ComparePage() {
             <>
               {hasDetailError ? (
                 <div className="compare-print-screen-only">
-                  <ErrorState message="Could not load answers for one or more listings." />
+                  <ErrorState message={t('compare.loadFailed')} />
                 </div>
               ) : null}
 
               {selectedIds.length === 0 ? (
                 <p className="text-sm text-muted-foreground compare-print-screen-only">
-                  No listings selected.
+                  {t('compare.noneSelected')}
                 </p>
               ) : isLoadingDetails ? (
                 <div className="compare-print-screen-only">
-                  <LoadingState label="Loading answers…" />
+                  <LoadingState label={t('compare.loadingAnswers')} />
                 </div>
               ) : (
                 <div className="compare-print-viewport overflow-x-auto rounded-xl border border-border shadow-sm">
@@ -482,7 +486,7 @@ export function ComparePage() {
                             scope="col"
                             className="sticky left-0 top-0 z-30 min-w-[9rem] max-w-[12rem] border-r border-border bg-muted/95 px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur sm:min-w-[11rem] sm:max-w-[16rem]"
                           >
-                            Question
+                            {t('compare.colQuestion')}
                           </th>
                           {comparisonColumns.map(({ apt }) => (
                             <th
@@ -502,7 +506,7 @@ export function ComparePage() {
                               colSpan={comparisonColumns.length + 1}
                               className="px-3 py-6 text-center text-muted-foreground"
                             >
-                              No questions in scope for the selected listings.
+                              {t('compare.noQuestionsInScope')}
                             </td>
                           </tr>
                         ) : (
@@ -510,8 +514,12 @@ export function ComparePage() {
                             <CompareRow
                               key={rowKeyForCompare(row.canonicalQuestion)}
                               row={row}
-                              columns={comparisonColumns}
                               answerMaps={answerMaps}
+                              boolLabels={boolLabels}
+                              columns={comparisonColumns}
+                              hasNoteSr={t('compare.hasNote')}
+                              noAnswerSr={t('compare.noAnswer')}
+                              noteWord={t('common.note')}
                             />
                           ))
                         )}
@@ -534,7 +542,7 @@ export function ComparePage() {
             onClick={() => window.print()}
           >
             <Printer className="size-4 shrink-0" aria-hidden />
-            Print
+            {t('common.print')}
           </Button>
         </PinnedActionBar>
       ) : null}
@@ -546,9 +554,21 @@ type CompareRowProps = {
   row: CompareRowModel
   columns: Array<{ apt: Apartment; mapIndex: number }>
   answerMaps: Array<Map<string, AnswerCell>>
+  boolLabels: CompareBooleanLabels
+  noteWord: string
+  hasNoteSr: string
+  noAnswerSr: string
 }
 
-function CompareRow({ row, columns, answerMaps }: CompareRowProps) {
+function CompareRow({
+  row,
+  columns,
+  answerMaps,
+  boolLabels,
+  noteWord,
+  hasNoteSr,
+  noAnswerSr
+}: CompareRowProps) {
   const question = row.canonicalQuestion
   return (
     <tr className="border-b border-border last:border-b-0">
@@ -566,21 +586,25 @@ function CompareRow({ row, columns, answerMaps }: CompareRowProps) {
         const cell = qid ? map.get(qid) : undefined
         const value = cell?.value ?? null
         const note = cell?.note ?? null
-        const label = formatCompareAnswerLabel(question, value)
+        const label = formatCompareAnswerLabel(question, value, boolLabels)
         const titleParts = [label]
         if (note?.trim()) {
-          titleParts.push(`Note: ${note.trim()}`)
+          titleParts.push(`${noteWord}: ${note.trim()}`)
         }
         const title = titleParts.join(' · ')
 
         return (
           <td key={apt.id} className="max-w-[11rem] px-2 py-2 align-top">
             <CompareCell
-              question={question}
-              value={value}
-              note={note}
+              boolLabels={boolLabels}
+              hasNoteLabel={noteWord}
+              hasNoteSr={hasNoteSr}
               label={label}
+              noAnswerSr={noAnswerSr}
+              note={note}
+              question={question}
               title={title}
+              value={value}
             />
           </td>
         )
@@ -595,6 +619,10 @@ type CompareCellProps = {
   note: string | null
   label: string
   title: string
+  boolLabels: CompareBooleanLabels
+  hasNoteLabel: string
+  hasNoteSr: string
+  noAnswerSr: string
 }
 
 function CompareCell({
@@ -602,7 +630,11 @@ function CompareCell({
   value,
   note,
   label,
-  title
+  title,
+  boolLabels,
+  hasNoteLabel,
+  hasNoteSr,
+  noAnswerSr
 }: CompareCellProps) {
   const ratio = ratingBarRatio(question, value)
   const showNote = Boolean(note?.trim())
@@ -627,9 +659,9 @@ function CompareCell({
       {showNote ? (
         <span className="compare-print-note-indicator inline-flex items-center gap-1 text-[10px] text-muted-foreground">
           <MessageSquare className="size-3 shrink-0" aria-hidden />
-          <span className="sr-only">Has note</span>
+          <span className="sr-only">{hasNoteSr}</span>
           <span className="truncate" title={note ?? undefined}>
-            Note
+            {hasNoteLabel}
           </span>
         </span>
       ) : null}
@@ -641,7 +673,7 @@ function CompareCell({
       return shell(
         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
           <Check className="size-4 shrink-0" aria-hidden />
-          <span>Yes</span>
+          <span>{boolLabels.yes}</span>
           <span className="sr-only">{title}</span>
         </span>
       )
@@ -650,7 +682,7 @@ function CompareCell({
       return shell(
         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-destructive">
           <X className="size-4 shrink-0" aria-hidden />
-          <span>No</span>
+          <span>{boolLabels.no}</span>
           <span className="sr-only">{title}</span>
         </span>
       )
@@ -658,7 +690,7 @@ function CompareCell({
     return shell(
       <span className="text-sm text-muted-foreground">
         <span aria-hidden>—</span>
-        <span className="sr-only">No answer</span>
+        <span className="sr-only">{noAnswerSr}</span>
       </span>
     )
   }

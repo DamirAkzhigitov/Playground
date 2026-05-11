@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { useAuth } from '@/contexts/AuthContext'
+import { useI18n } from '@/contexts/I18nContext'
 import { ApiError } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,6 +13,7 @@ import { Label } from '@/components/ui/label'
 export function RegisterPage() {
   const navigate = useNavigate()
   const { register } = useAuth()
+  const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -20,7 +22,7 @@ export function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (password !== confirm) {
-      toast.error('Passwords do not match')
+      toast.error(t('register.passwordsMismatch'))
       return
     }
     setIsPending(true)
@@ -29,7 +31,7 @@ export function RegisterPage() {
       navigate('/apartments', { replace: true })
     } catch (err) {
       const message =
-        err instanceof ApiError ? err.message : 'Registration failed.'
+        err instanceof ApiError ? err.message : t('register.failedGeneric')
       toast.error(message)
     } finally {
       setIsPending(false)
@@ -42,21 +44,20 @@ export function RegisterPage() {
         <CardContent className="space-y-6 p-6">
           <div className="space-y-1 text-center">
             <h1 className="text-2xl font-bold tracking-tight">
-              Create account
+              {t('register.title')}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Start tracking places you are comparing (homes, rentals, cars, and
-              more)
+              {t('register.subtitle')}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('login.email')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t('login.placeholderEmail')}
                 autoComplete="email"
                 required
                 value={email}
@@ -65,11 +66,11 @@ export function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('login.password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Min. 8 characters"
+                placeholder={t('login.placeholderPassword')}
                 autoComplete="new-password"
                 required
                 minLength={8}
@@ -79,11 +80,11 @@ export function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirm">Confirm password</Label>
+              <Label htmlFor="confirm">{t('register.confirmPassword')}</Label>
               <Input
                 id="confirm"
                 type="password"
-                placeholder="Repeat password"
+                placeholder={t('register.repeatPassword')}
                 autoComplete="new-password"
                 required
                 minLength={8}
@@ -97,14 +98,14 @@ export function RegisterPage() {
               disabled={isPending}
               className="min-h-11 w-full"
             >
-              {isPending ? 'Creating account...' : 'Create account'}
+              {isPending ? t('register.submitting') : t('register.submit')}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
+            {t('register.haveAccount')}{' '}
             <Link to="/login" className="font-medium text-primary underline">
-              Sign in
+              {t('register.signIn')}
             </Link>
           </p>
         </CardContent>

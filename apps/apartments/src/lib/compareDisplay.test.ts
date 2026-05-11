@@ -49,4 +49,10 @@ describe('normalizeAnswerForCompare', () => {
     expect(normalizeAnswerForCompare(q, '0')).toBe('0')
     expect(normalizeAnswerForCompare(q, '3.5')).toBe('3.5')
   })
+
+  it('normalizes dates', () => {
+    const q = baseQuestion({ type: 'date' })
+    expect(normalizeAnswerForCompare(q, '2024-06-15')).toBe('2024-06-15')
+    expect(normalizeAnswerForCompare(q, '2024-02-30')).toBe(COMPARE_EMPTY)
+  })
 })

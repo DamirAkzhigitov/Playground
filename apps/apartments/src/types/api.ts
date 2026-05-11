@@ -1,7 +1,10 @@
+import type { AppLocale } from '@/i18n/locale'
+
 export type AuthUser = {
   id: string
   email: string
   createdAt: string
+  locale: AppLocale
 }
 
 export type LoginInput = {
@@ -24,6 +27,7 @@ export type InspectionTemplateSummary = {
 export type QuestionType =
   | 'text'
   | 'number'
+  | 'date'
   | 'boolean'
   | 'select'
   | 'multi-select'
