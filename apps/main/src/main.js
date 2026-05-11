@@ -16,12 +16,14 @@ function initLocalProjectLinks() {
 
   if (!isLocalHost) return
 
-  const resumeLink = document.getElementById('resume-project-link')
-  if (!(resumeLink instanceof HTMLAnchorElement)) return
+  const projectLinks = document.querySelectorAll('a[data-local-href]')
+  for (const link of projectLinks) {
+    if (!(link instanceof HTMLAnchorElement)) continue
 
-  const localHref = resumeLink.dataset.localHref
-  if (localHref) {
-    resumeLink.href = localHref
+    const localHref = link.dataset.localHref
+    if (localHref) {
+      link.href = localHref
+    }
   }
 }
 

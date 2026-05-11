@@ -56,6 +56,8 @@ h1 {
 }
 
 .project-card {
+  display: flex;
+  flex-direction: column;
   background: color-mix(in srgb, var(--panel) 90%, transparent);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -86,6 +88,8 @@ h1 {
 
 .project-link {
   display: inline-block;
+  align-self: flex-start;
+  margin-top: auto;
   color: #e0e7ff;
   background: rgba(99, 102, 241, 0.22);
   border: 1px solid rgba(129, 140, 248, 0.48);
