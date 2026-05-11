@@ -62,50 +62,51 @@ export function ApartmentsPage() {
             const critical = apartment.completion?.criticalMissingCount ?? 0
             return (
               <li key={apartment.id}>
-                <Card className="transition-colors hover:bg-accent/40">
-                  <CardHeader className="gap-2">
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <CardTitle className="text-base leading-snug">
-                        <Link
-                          className="hover:underline focus-visible:underline focus-visible:outline-none"
-                          to={`/apartments/${apartment.id}`}
-                        >
+                <Link
+                  to={`/apartments/${apartment.id}`}
+                  className="group block rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <Card className="transition-colors group-hover:bg-accent/40">
+                    <CardHeader className="gap-2">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <CardTitle className="text-base leading-snug group-hover:underline">
                           {apartment.title}
-                        </Link>
-                      </CardTitle>
-                      <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-                        <ApartmentStatusBadge
-                          completion={apartment.completion}
-                        />
-                        {typeof percent === 'number' ? (
-                          <Badge variant="secondary">{percent}%</Badge>
-                        ) : (
-                          <Badge variant="outline">New</Badge>
-                        )}
+                        </CardTitle>
+                        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                          <ApartmentStatusBadge
+                            completion={apartment.completion}
+                          />
+                          {typeof percent === 'number' ? (
+                            <Badge variant="secondary">{percent}%</Badge>
+                          ) : (
+                            <Badge variant="outline">New</Badge>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <CardDescription className="flex items-center gap-1.5">
-                      <MapPin
-                        aria-hidden="true"
-                        className="size-3.5 shrink-0"
-                      />
-                      <span className="line-clamp-2">
-                        {apartment.address ?? 'No address yet'}
-                      </span>
-                    </CardDescription>
-                    {critical > 0 ? (
-                      <p className="text-destructive text-xs font-medium">
-                        {critical} critical question{critical === 1 ? '' : 's'}{' '}
-                        missing
-                      </p>
+                      <CardDescription className="flex items-center gap-1.5">
+                        <MapPin
+                          aria-hidden="true"
+                          className="size-3.5 shrink-0"
+                        />
+                        <span className="line-clamp-2">
+                          {apartment.address ?? 'No address yet'}
+                        </span>
+                      </CardDescription>
+                      {critical > 0 ? (
+                        <p className="text-destructive text-xs font-medium">
+                          {critical} critical question
+                          {critical === 1 ? '' : 's'} missing
+                        </p>
+                      ) : null}
+                    </CardHeader>
+                    {apartment.price !== null &&
+                    apartment.price !== undefined ? (
+                      <CardContent className="text-sm text-muted-foreground">
+                        €{apartment.price.toLocaleString()}
+                      </CardContent>
                     ) : null}
-                  </CardHeader>
-                  {apartment.price !== null && apartment.price !== undefined ? (
-                    <CardContent className="text-sm text-muted-foreground">
-                      €{apartment.price.toLocaleString()}
-                    </CardContent>
-                  ) : null}
-                </Card>
+                  </Card>
+                </Link>
               </li>
             )
           })}

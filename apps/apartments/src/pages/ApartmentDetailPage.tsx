@@ -182,7 +182,7 @@ export function ApartmentDetailPage() {
         }
       />
 
-      <Card className="flex min-h-[calc(100dvh_-_var(--global-header-height)_-_13rem)] flex-col">
+      <Card className="flex flex-col">
         <CardHeader className="space-y-1">
           <CardTitle className="text-base">Overview</CardTitle>
           <CardDescription>

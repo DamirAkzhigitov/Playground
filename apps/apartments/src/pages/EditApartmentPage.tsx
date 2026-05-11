@@ -1,5 +1,5 @@
 import { ChevronLeft } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -9,15 +9,26 @@ import { apartmentFormDefaults } from '@/lib/apartmentForm'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
 import { PageHeader } from '@/components/PageHeader'
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { useApartment, useUpdateApartment } from '@/hooks'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { useApartment, useDeleteApartment, useUpdateApartment } from '@/hooks'
 
 export function EditApartmentPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data, isPending, isError, error } = useApartment(id)
   const updateMutation = useUpdateApartment()
+  const deleteMutation = useDeleteApartment()
+  const [removeOpen, setRemoveOpen] = useState(false)
 
   const defaults = useMemo(() => {
     if (!data) {
@@ -61,7 +72,64 @@ export function EditApartmentPage() {
                 }}
               />
             </CardContent>
+            <CardFooter className="flex-col border-t pt-6">
+              <Button
+                className="min-h-11 w-full"
+                disabled={deleteMutation.isPending}
+                type="button"
+                variant="destructive"
+                onClick={() => setRemoveOpen(true)}
+              >
+                Remove apartment
+              </Button>
+            </CardFooter>
           </Card>
+
+          <AlertDialog
+            onOpenChange={(open) => {
+              if (!open && deleteMutation.isPending) {
+                return
+              }
+              setRemoveOpen(open)
+            }}
+            open={removeOpen}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Remove this apartment?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This permanently deletes the listing, photos, and inspection
+                  answers. This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleteMutation.isPending}>
+                  Cancel
+                </AlertDialogCancel>
+                <Button
+                  className="min-h-11 sm:min-w-32"
+                  disabled={deleteMutation.isPending}
+                  variant="destructive"
+                  onClick={async () => {
+                    try {
+                      await deleteMutation.mutateAsync(data.id)
+                      toast.success('Apartment removed.')
+                      setRemoveOpen(false)
+                      navigate('/apartments')
+                    } catch (e) {
+                      toast.error(
+                        e instanceof Error
+                          ? e.message
+                          : 'Could not remove apartment.'
+                      )
+                    }
+                  }}
+                >
+                  {deleteMutation.isPending ? 'Removing…' : 'Remove'}
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           <PinnedActionBar>
             <Button variant="outline" className="min-h-11 flex-1" asChild>
