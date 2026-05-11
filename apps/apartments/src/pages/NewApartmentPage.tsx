@@ -2,6 +2,7 @@ import { ChevronLeft } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { ApartmentForm } from '@/components/ApartmentForm'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import type { ApartmentFormValues } from '@/lib/apartmentForm'
@@ -18,14 +19,15 @@ const emptyDefaults: ApartmentFormValues = {
 }
 
 export function NewApartmentPage() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const createMutation = useCreateApartment()
 
   return (
     <section className="pb-page-pinned space-y-4">
       <PageHeader
-        title="Create apartment"
-        description="Start tracking a new place you're considering."
+        title={t('newApartment.title')}
+        description={t('newApartment.description')}
       />
       <Card>
         <CardContent className="pt-6">
@@ -34,11 +36,13 @@ export function NewApartmentPage() {
             onSubmit={async (payload) => {
               try {
                 const created = await createMutation.mutateAsync(payload)
-                toast.success('Apartment created.')
+                toast.success(t('newApartment.created'))
                 navigate(`/apartments/${created.id}`)
               } catch (e) {
                 toast.error(
-                  e instanceof Error ? e.message : 'Could not create apartment.'
+                  e instanceof Error
+                    ? e.message
+                    : t('newApartment.createFailed')
                 )
               }
             }}
@@ -53,7 +57,7 @@ export function NewApartmentPage() {
             className="inline-flex items-center justify-center gap-1"
           >
             <ChevronLeft aria-hidden className="size-4 shrink-0" />
-            Back
+            {t('common.back')}
           </Link>
         </Button>
         <Button
@@ -62,7 +66,7 @@ export function NewApartmentPage() {
           form="apartment-form"
           type="submit"
         >
-          Create apartment
+          {t('newApartment.submit')}
         </Button>
       </PinnedActionBar>
     </section>

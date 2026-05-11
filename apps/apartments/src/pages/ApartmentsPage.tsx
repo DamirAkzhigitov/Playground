@@ -2,6 +2,7 @@ import { MapPin, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { ApartmentStatusBadge } from '@/components/ApartmentStatusBadge'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
@@ -19,6 +20,7 @@ import { Input } from '@/components/ui/input'
 import { useApartments } from '@/hooks'
 
 export function ApartmentsPage() {
+  const { t } = useI18n()
   const { data, isPending, isError, error } = useApartments()
   const [query, setQuery] = useState('')
 
@@ -44,15 +46,15 @@ export function ApartmentsPage() {
         />
         <Input
           type="search"
-          placeholder="Search by title or address…"
+          placeholder={t('apartments.searchPlaceholder')}
           className="h-11 rounded-full border-input bg-muted/40 pl-10 shadow-sm focus-visible:bg-background"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search apartments"
+          aria-label={t('apartments.searchAria')}
         />
       </div>
 
-      {isPending ? <LoadingState label="Loading apartments…" /> : null}
+      {isPending ? <LoadingState label={t('apartments.loading')} /> : null}
       {isError ? <ErrorState message={error.message} /> : null}
 
       {!isPending && !isError ? (
@@ -79,7 +81,9 @@ export function ApartmentsPage() {
                           {typeof percent === 'number' ? (
                             <Badge variant="secondary">{percent}%</Badge>
                           ) : (
-                            <Badge variant="outline">New</Badge>
+                            <Badge variant="outline">
+                              {t('apartments.new')}
+                            </Badge>
                           )}
                         </div>
                       </div>
@@ -89,13 +93,18 @@ export function ApartmentsPage() {
                           className="size-3.5 shrink-0"
                         />
                         <span className="line-clamp-2">
-                          {apartment.address ?? 'No address yet'}
+                          {apartment.address ?? t('apartments.noAddress')}
                         </span>
                       </CardDescription>
                       {critical > 0 ? (
                         <p className="text-destructive text-xs font-medium">
-                          {critical} critical question
-                          {critical === 1 ? '' : 's'} missing
+                          {critical === 1
+                            ? t('apartments.criticalMissingOne', {
+                                n: critical
+                              })
+                            : t('apartments.criticalMissingMany', {
+                                n: critical
+                              })}
                         </p>
                       ) : null}
                     </CardHeader>
@@ -114,11 +123,9 @@ export function ApartmentsPage() {
             <li>
               <Card className="border-dashed">
                 <CardContent className="py-6 text-center text-sm text-muted-foreground">
-                  No apartments yet. Tap{' '}
-                  <span className="font-medium text-foreground">
-                    New apartment
-                  </span>{' '}
-                  to add one.
+                  {t('apartments.empty', {
+                    newApartment: t('apartments.newApartment')
+                  })}
                 </CardContent>
               </Card>
             </li>
@@ -127,7 +134,7 @@ export function ApartmentsPage() {
             <li>
               <Card className="border-dashed">
                 <CardContent className="py-6 text-center text-sm text-muted-foreground">
-                  No apartments match “{query.trim()}”.
+                  {t('apartments.noMatch', { query: query.trim() })}
                 </CardContent>
               </Card>
             </li>
@@ -140,9 +147,9 @@ export function ApartmentsPage() {
           asChild
           className="min-h-11 inline-flex flex-1 items-center justify-center gap-1"
         >
-          <Link to="/apartments/new" aria-label="New apartment">
+          <Link to="/apartments/new" aria-label={t('apartments.newAria')}>
             <Plus aria-hidden="true" className="size-4 shrink-0" />
-            New apartment
+            {t('apartments.newApartment')}
           </Link>
         </Button>
       </PinnedActionBar>

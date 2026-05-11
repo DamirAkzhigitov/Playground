@@ -1,21 +1,31 @@
-import { BarChart2, Download, Home, ListChecks, LogOut } from 'lucide-react'
+import {
+  BarChart2,
+  Download,
+  Home,
+  ListChecks,
+  LogOut,
+  Settings
+} from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/contexts/AuthContext'
+import { useI18n } from '@/contexts/I18nContext'
 import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 
-const tabs = [
-  { to: '/apartments', label: 'Apartments', icon: Home },
-  { to: '/questions', label: 'Questions', icon: ListChecks },
-  { to: '/compare', label: 'Compare', icon: BarChart2 },
-  { to: '/export', label: 'Export', icon: Download }
-] as const
-
 export function AppLayout() {
   const { user, logout } = useAuth()
+  const { t } = useI18n()
   const navigate = useNavigate()
+
+  const tabs = [
+    { to: '/apartments', labelKey: 'nav.apartments' as const, icon: Home },
+    { to: '/questions', labelKey: 'nav.questions' as const, icon: ListChecks },
+    { to: '/compare', labelKey: 'nav.compare' as const, icon: BarChart2 },
+    { to: '/export', labelKey: 'nav.export' as const, icon: Download },
+    { to: '/settings', labelKey: 'nav.settings' as const, icon: Settings }
+  ] as const
 
   const handleLogout = async () => {
     await logout()
@@ -35,7 +45,7 @@ export function AppLayout() {
           className="gap-1 text-xs text-muted-foreground"
         >
           <LogOut aria-hidden="true" className="size-3.5" />
-          <span className="sr-only sm:not-sr-only">Log out</span>
+          <span className="sr-only sm:not-sr-only">{t('auth.logout')}</span>
         </Button>
       </header>
       <main className="pb-page-tabs mx-auto w-full max-w-3xl px-4 pt-2 print:max-w-none print:pb-4 sm:px-6">
@@ -72,7 +82,7 @@ export function AppLayout() {
                   >
                     <Icon aria-hidden="true" className="size-5 shrink-0" />
                     <span className="line-clamp-2 text-center">
-                      {tab.label}
+                      {t(tab.labelKey)}
                     </span>
                   </NavLink>
                 </li>

@@ -2,6 +2,7 @@ import { useQueries } from '@tanstack/react-query'
 import { Check, MessageSquare, Printer, X } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
@@ -18,7 +19,11 @@ import {
 import { useApartments, useQuestions } from '@/hooks'
 import { queryKeys } from '@/hooks/queryKeys'
 import { apiRequest } from '@/lib/api'
-import { formatCompareAnswerLabel, ratingBarRatio } from '@/lib/compareDisplay'
+import {
+  formatCompareAnswerLabel,
+  ratingBarRatio,
+  type CompareBooleanLabels
+} from '@/lib/compareDisplay'
 import { flattenActiveQuestions } from '@/lib/questions'
 import type {
   Apartment,
@@ -49,6 +54,16 @@ function buildAnswerMap(
 }
 
 export function ComparePage() {
+  const { t } = useI18n()
+  const boolLabels: CompareBooleanLabels = useMemo(
+    () => ({
+      yes: t('common.yes'),
+      no: t('common.no'),
+      empty: '—'
+    }),
+    [t]
+  )
+
   const apartmentsQuery = useApartments()
   const questionsQuery = useQuestions(false)
   /** `null` means every apartment in `list` is selected (default). */
@@ -183,7 +198,7 @@ export function ComparePage() {
     <section className="compare-print pb-page-pinned space-y-4">
       {apartmentsQuery.isPending ? (
         <div className="compare-print-screen-only">
-          <LoadingState label="Loading apartments…" />
+          <LoadingState label={t('compare.loadingApts')} />
         </div>
       ) : null}
       {apartmentsQuery.isError ? (
@@ -196,12 +211,12 @@ export function ComparePage() {
         <>
           {list.length === 0 ? (
             <p className="text-sm text-muted-foreground compare-print-screen-only">
-              No apartments yet.
+              {t('compare.noApts')}
             </p>
           ) : (
             <div className="compare-print-screen-only">
               <Label htmlFor="compare-apartments-select" className="sr-only">
-                Apartments to compare
+                {t('compare.selectLabel')}
               </Label>
               <Select
                 value={compareSelectValue}
@@ -210,16 +225,16 @@ export function ComparePage() {
                 <SelectTrigger
                   id="compare-apartments-select"
                   className="h-auto min-h-11 w-full py-2 whitespace-normal"
-                  aria-label="Apartments to compare"
+                  aria-label={t('compare.selectLabel')}
                 >
-                  <SelectValue placeholder="Choose apartments" />
+                  <SelectValue placeholder={t('compare.choose')} />
                 </SelectTrigger>
                 <SelectContent
                   position="popper"
                   className="w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]"
                 >
                   <SelectItem value={COMPARE_ALL_VALUE}>
-                    All apartments
+                    {t('compare.all')}
                   </SelectItem>
                   {compareSelectValue === COMPARE_MULTI_VALUE ? (
                     <SelectItem
@@ -227,7 +242,10 @@ export function ComparePage() {
                       disabled
                       className="text-muted-foreground"
                     >
-                      {selectedIds.length} of {list.length} apartments
+                      {t('compare.multi', {
+                        selected: selectedIds.length,
+                        total: list.length
+                      })}
                     </SelectItem>
                   ) : null}
                   <SelectSeparator />
@@ -244,7 +262,7 @@ export function ComparePage() {
                   ))}
                   <SelectSeparator />
                   <SelectItem value={COMPARE_NONE_VALUE}>
-                    None selected
+                    {t('compare.none')}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -253,7 +271,7 @@ export function ComparePage() {
 
           {questionsQuery.isPending ? (
             <div className="compare-print-screen-only">
-              <LoadingState label="Loading questions…" />
+              <LoadingState label={t('compare.loadingQs')} />
             </div>
           ) : null}
           {questionsQuery.isError ? (
@@ -266,17 +284,17 @@ export function ComparePage() {
             <>
               {hasDetailError ? (
                 <div className="compare-print-screen-only">
-                  <ErrorState message="Could not load answers for one or more apartments." />
+                  <ErrorState message={t('compare.loadFailed')} />
                 </div>
               ) : null}
 
               {selectedIds.length === 0 ? (
                 <p className="text-sm text-muted-foreground compare-print-screen-only">
-                  No apartments selected.
+                  {t('compare.noneSelected')}
                 </p>
               ) : isLoadingDetails ? (
                 <div className="compare-print-screen-only">
-                  <LoadingState label="Loading answers…" />
+                  <LoadingState label={t('compare.loadingAnswers')} />
                 </div>
               ) : (
                 <div className="compare-print-viewport overflow-x-auto rounded-xl border border-border shadow-sm">
@@ -288,7 +306,7 @@ export function ComparePage() {
                             scope="col"
                             className="sticky left-0 top-0 z-30 min-w-[9rem] max-w-[12rem] border-r border-border bg-muted/95 px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur sm:min-w-[11rem] sm:max-w-[16rem]"
                           >
-                            Question
+                            {t('compare.colQuestion')}
                           </th>
                           {comparisonColumns.map(({ apt }) => (
                             <th
@@ -308,16 +326,20 @@ export function ComparePage() {
                               colSpan={comparisonColumns.length + 1}
                               className="px-3 py-6 text-center text-muted-foreground"
                             >
-                              No questions yet.
+                              {t('compare.noQuestions')}
                             </td>
                           </tr>
                         ) : (
                           flatAll.map((question) => (
                             <CompareRow
                               key={question.id}
-                              question={question}
-                              columns={comparisonColumns}
                               answerMaps={answerMaps}
+                              boolLabels={boolLabels}
+                              columns={comparisonColumns}
+                              hasNoteSr={t('compare.hasNote')}
+                              noAnswerSr={t('compare.noAnswer')}
+                              noteWord={t('common.note')}
+                              question={question}
                             />
                           ))
                         )}
@@ -340,7 +362,7 @@ export function ComparePage() {
             onClick={() => window.print()}
           >
             <Printer className="size-4 shrink-0" aria-hidden />
-            Print
+            {t('common.print')}
           </Button>
         </PinnedActionBar>
       ) : null}
@@ -352,9 +374,21 @@ type CompareRowProps = {
   question: Question
   columns: Array<{ apt: Apartment; mapIndex: number }>
   answerMaps: Array<Map<string, AnswerCell>>
+  boolLabels: CompareBooleanLabels
+  noteWord: string
+  hasNoteSr: string
+  noAnswerSr: string
 }
 
-function CompareRow({ question, columns, answerMaps }: CompareRowProps) {
+function CompareRow({
+  question,
+  columns,
+  answerMaps,
+  boolLabels,
+  noteWord,
+  hasNoteSr,
+  noAnswerSr
+}: CompareRowProps) {
   return (
     <tr className="border-b border-border last:border-b-0">
       <th
@@ -370,21 +404,25 @@ function CompareRow({ question, columns, answerMaps }: CompareRowProps) {
         const cell = map.get(question.id)
         const value = cell?.value ?? null
         const note = cell?.note ?? null
-        const label = formatCompareAnswerLabel(question, value)
+        const label = formatCompareAnswerLabel(question, value, boolLabels)
         const titleParts = [label]
         if (note?.trim()) {
-          titleParts.push(`Note: ${note.trim()}`)
+          titleParts.push(`${noteWord}: ${note.trim()}`)
         }
         const title = titleParts.join(' · ')
 
         return (
           <td key={apt.id} className="max-w-[11rem] px-2 py-2 align-top">
             <CompareCell
-              question={question}
-              value={value}
-              note={note}
+              boolLabels={boolLabels}
+              hasNoteLabel={noteWord}
+              hasNoteSr={hasNoteSr}
               label={label}
+              noAnswerSr={noAnswerSr}
+              note={note}
+              question={question}
               title={title}
+              value={value}
             />
           </td>
         )
@@ -399,6 +437,10 @@ type CompareCellProps = {
   note: string | null
   label: string
   title: string
+  boolLabels: CompareBooleanLabels
+  hasNoteLabel: string
+  hasNoteSr: string
+  noAnswerSr: string
 }
 
 function CompareCell({
@@ -406,7 +448,11 @@ function CompareCell({
   value,
   note,
   label,
-  title
+  title,
+  boolLabels,
+  hasNoteLabel,
+  hasNoteSr,
+  noAnswerSr
 }: CompareCellProps) {
   const ratio = ratingBarRatio(question, value)
   const showNote = Boolean(note?.trim())
@@ -431,9 +477,9 @@ function CompareCell({
       {showNote ? (
         <span className="compare-print-note-indicator inline-flex items-center gap-1 text-[10px] text-muted-foreground">
           <MessageSquare className="size-3 shrink-0" aria-hidden />
-          <span className="sr-only">Has note</span>
+          <span className="sr-only">{hasNoteSr}</span>
           <span className="truncate" title={note ?? undefined}>
-            Note
+            {hasNoteLabel}
           </span>
         </span>
       ) : null}
@@ -445,7 +491,7 @@ function CompareCell({
       return shell(
         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
           <Check className="size-4 shrink-0" aria-hidden />
-          <span>Yes</span>
+          <span>{boolLabels.yes}</span>
           <span className="sr-only">{title}</span>
         </span>
       )
@@ -454,7 +500,7 @@ function CompareCell({
       return shell(
         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-destructive">
           <X className="size-4 shrink-0" aria-hidden />
-          <span>No</span>
+          <span>{boolLabels.no}</span>
           <span className="sr-only">{title}</span>
         </span>
       )
@@ -462,7 +508,7 @@ function CompareCell({
     return shell(
       <span className="text-sm text-muted-foreground">
         <span aria-hidden>—</span>
-        <span className="sr-only">No answer</span>
+        <span className="sr-only">{noAnswerSr}</span>
       </span>
     )
   }

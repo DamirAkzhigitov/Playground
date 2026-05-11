@@ -43,21 +43,36 @@ export function normalizeAnswerForCompare(
   }
 }
 
+export type CompareBooleanLabels = {
+  yes: string
+  no: string
+  empty: string
+}
+
 export function formatCompareAnswerLabel(
   question: Question,
-  value: string | null | undefined
+  value: string | null | undefined,
+  boolLabels: CompareBooleanLabels = {
+    yes: 'Yes',
+    no: 'No',
+    empty: '—'
+  }
 ): string {
   if (!isAnswerValueFilled(question.type, value)) {
-    return '—'
+    return boolLabels.empty
   }
   const v = value as string
   switch (question.type) {
     case 'boolean':
-      return v === 'true' ? 'Yes' : v === 'false' ? 'No' : '—'
+      return v === 'true'
+        ? boolLabels.yes
+        : v === 'false'
+          ? boolLabels.no
+          : boolLabels.empty
     case 'number':
       return v
     case 'text':
-      return v.trim() === '' ? '—' : v.trim()
+      return v.trim() === '' ? boolLabels.empty : v.trim()
     case 'select': {
       const opt = question.options.find((o) => o.value === v)
       return opt?.label ?? v
@@ -69,16 +84,16 @@ export function formatCompareAnswerLabel(
           (val) => question.options.find((o) => o.value === val)?.label ?? val
         )
         .sort()
-      return labels.length ? labels.join(', ') : '—'
+      return labels.length ? labels.join(', ') : boolLabels.empty
     }
     case 'rating': {
       const n = Number(v)
-      return Number.isFinite(n) ? String(n) : '—'
+      return Number.isFinite(n) ? String(n) : boolLabels.empty
     }
     case 'date':
       return formatIsoDateForDisplay(v)
     default:
-      return v.trim() || '—'
+      return v.trim() || boolLabels.empty
   }
 }
 

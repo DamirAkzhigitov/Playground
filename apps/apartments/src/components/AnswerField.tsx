@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronUp, Minus, Plus } from 'lucide-react'
 import { useId, type ReactNode } from 'react'
 
+import { useI18n } from '@/contexts/I18nContext'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -33,6 +34,7 @@ export function AnswerField({
   density = 'comfortable',
   disabled = false
 }: AnswerFieldProps) {
+  const { t } = useI18n()
   const id = useId()
   const btnClass =
     density === 'comfortable'
@@ -55,7 +57,7 @@ export function AnswerField({
         onClick={onToggleNote}
         aria-expanded={noteExpanded}
       >
-        <span>Extra note</span>
+        <span>{t('answerField.extraNote')}</span>
         {noteExpanded ? (
           <ChevronUp aria-hidden className="size-4" />
         ) : (
@@ -69,7 +71,7 @@ export function AnswerField({
           onChange={(e) =>
             onNoteChange(e.target.value.trim() === '' ? null : e.target.value)
           }
-          placeholder="Optional context for this answer…"
+          placeholder={t('answerField.notePlaceholder')}
           disabled={disabled}
           rows={density === 'comfortable' ? 3 : 2}
           className="resize-none"
@@ -89,7 +91,7 @@ export function AnswerField({
           onChange={(e) =>
             onValueChange(e.target.value.trim() === '' ? null : e.target.value)
           }
-          placeholder="Your answer"
+          placeholder={t('answerField.yourAnswer')}
           disabled={disabled}
           rows={density === 'comfortable' ? 5 : 3}
           className="min-h-[120px] resize-none"
@@ -108,7 +110,7 @@ export function AnswerField({
               size="icon"
               className="size-11 shrink-0"
               disabled={disabled}
-              aria-label="Decrease value"
+              aria-label={t('answerField.decrease')}
               onClick={() => {
                 const next = safe - 1
                 onValueChange(String(next))
@@ -142,7 +144,7 @@ export function AnswerField({
               size="icon"
               className="size-11 shrink-0"
               disabled={disabled}
-              aria-label="Increase value"
+              aria-label={t('answerField.increase')}
               onClick={() => {
                 const next = safe + 1
                 onValueChange(String(next))
@@ -175,7 +177,7 @@ export function AnswerField({
         <div
           className="grid grid-cols-1 gap-2 sm:grid-cols-3"
           role="group"
-          aria-label="Yes or no"
+          aria-label={t('answerField.booleanGroup')}
         >
           <Button
             type="button"
@@ -184,7 +186,7 @@ export function AnswerField({
             disabled={disabled}
             onClick={() => onValueChange('true')}
           >
-            Yes
+            {t('common.yes')}
           </Button>
           <Button
             type="button"
@@ -193,7 +195,7 @@ export function AnswerField({
             disabled={disabled}
             onClick={() => onValueChange('false')}
           >
-            No
+            {t('common.no')}
           </Button>
           <Button
             type="button"
@@ -202,7 +204,7 @@ export function AnswerField({
             disabled={disabled}
             onClick={() => onValueChange(null)}
           >
-            Skip
+            {t('common.skip')}
           </Button>
         </div>
       )
@@ -272,7 +274,7 @@ export function AnswerField({
         <div
           className="flex flex-wrap items-center justify-center gap-2"
           role="group"
-          aria-label="Rating"
+          aria-label={t('answerField.ratingGroup')}
         >
           {dots.map((n) => (
             <Button
@@ -287,7 +289,7 @@ export function AnswerField({
               }
               disabled={disabled}
               onClick={() => onValueChange(String(n))}
-              aria-label={`Rate ${n}`}
+              aria-label={t('answerField.rateN', { n })}
             >
               {n}
             </Button>

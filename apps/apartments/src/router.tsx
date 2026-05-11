@@ -13,6 +13,7 @@ import { LoginPage } from './pages/LoginPage'
 import { NewApartmentPage } from './pages/NewApartmentPage'
 import { QuestionsPage } from './pages/QuestionsPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { SettingsPage } from './pages/SettingsPage'
 
 export const AppRouter = createBrowserRouter([
   {
@@ -42,7 +43,8 @@ export const AppRouter = createBrowserRouter([
       { path: 'apartments/:id/inspect', element: <InspectionPage /> },
       { path: 'questions', element: <QuestionsPage /> },
       { path: 'compare', element: <ComparePage /> },
-      { path: 'export', element: <ExportPage /> }
+      { path: 'export', element: <ExportPage /> },
+      { path: 'settings', element: <SettingsPage /> }
     ]
   }
 ])
