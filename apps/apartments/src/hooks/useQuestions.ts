@@ -4,15 +4,19 @@ import { apiRequest } from '../lib/api'
 import type {
   CreateQuestionInput,
   Question,
+  QuestionGroup,
   ReorderQuestionInput,
   UpdateQuestionInput
 } from '../types'
 import { queryKeys } from './queryKeys'
 
-export const useQuestions = () =>
+export const useQuestions = (includeArchived = false) =>
   useQuery({
-    queryKey: queryKeys.questions,
-    queryFn: () => apiRequest<Question[]>('/api/questions')
+    queryKey: [...queryKeys.questions, { includeArchived }],
+    queryFn: () =>
+      apiRequest<QuestionGroup[]>(
+        `/api/questions?includeArchived=${includeArchived ? 'true' : 'false'}`
+      )
   })
 
 export const useCreateQuestion = () => {

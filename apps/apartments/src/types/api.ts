@@ -28,7 +28,13 @@ export type Question = {
   required: boolean
   isArchived: boolean
   order: number
+  ratingMin: number | null
+  ratingMax: number | null
   options: QuestionOption[]
+}
+
+export type QuestionGroup = Category & {
+  questions: Question[]
 }
 
 export type Apartment = {
@@ -81,13 +87,22 @@ export type CreateQuestionInput = {
   categoryId: string
   required: boolean
   order?: number
+  ratingMin?: number | null
+  ratingMax?: number | null
   options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>
 }
 
 export type UpdateQuestionInput = Partial<
   Pick<
     Question,
-    'label' | 'type' | 'categoryId' | 'required' | 'isArchived' | 'order'
+    | 'label'
+    | 'type'
+    | 'categoryId'
+    | 'required'
+    | 'isArchived'
+    | 'order'
+    | 'ratingMin'
+    | 'ratingMax'
   >
 > & {
   options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>

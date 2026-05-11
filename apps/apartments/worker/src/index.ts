@@ -47,6 +47,8 @@ const questionSchema = z.object({
   categoryId: z.string().trim().min(1),
   required: z.boolean(),
   order: z.number().int().min(0).optional(),
+  ratingMin: z.number().int().nullable().optional(),
+  ratingMax: z.number().int().nullable().optional(),
   options: z.array(questionOptionSchema).optional()
 })
 
@@ -58,6 +60,8 @@ const questionPatchSchema = z
     required: z.boolean().optional(),
     isArchived: z.boolean().optional(),
     order: z.number().int().min(0).optional(),
+    ratingMin: z.number().int().nullable().optional(),
+    ratingMax: z.number().int().nullable().optional(),
     options: z.array(questionOptionSchema).optional()
   })
   .refine((payload) => Object.keys(payload).length > 0, {
@@ -114,6 +118,8 @@ const toQuestion = (
   required: Boolean(row.required),
   isArchived: Boolean(row.is_archived),
   order: row.order,
+  ratingMin: row.rating_min === null ? null : Number(row.rating_min),
+  ratingMax: row.rating_max === null ? null : Number(row.rating_max),
   options: options.map((option) => ({
     id: option.id,
     questionId: option.question_id,
@@ -250,11 +256,14 @@ app.delete('/api/categories/:id', async (c) => {
 })
 
 app.get('/api/questions', async (c) => {
+  const includeArchived = c.req.query('includeArchived') === 'true'
   const categoriesResult = await c.env.DB.prepare(
     'SELECT id, name, "order" FROM categories ORDER BY "order" ASC, name ASC'
   ).all()
   const questionResult = await c.env.DB.prepare(
-    'SELECT id, label, type, category_id, required, is_archived, "order" FROM questions WHERE is_archived = 0 ORDER BY category_id ASC, "order" ASC'
+    `SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max FROM questions ${
+      includeArchived ? '' : 'WHERE is_archived = 0'
+    } ORDER BY category_id ASC, "order" ASC`
   ).all()
   const optionResult = await c.env.DB.prepare(
     'SELECT id, question_id, label, value, "order" FROM question_options ORDER BY question_id ASC, "order" ASC'
@@ -305,14 +314,16 @@ app.post('/api/questions', async (c) => {
 
   const statements: D1PreparedStatement[] = [
     c.env.DB.prepare(
-      'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order") VALUES (?, ?, ?, ?, ?, 0, ?)'
+      'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order", rating_min, rating_max) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)'
     ).bind(
       id,
       payload.label,
       payload.type,
       payload.categoryId,
       payload.required ? 1 : 0,
-      order
+      order,
+      payload.type === 'rating' ? (payload.ratingMin ?? 1) : null,
+      payload.type === 'rating' ? (payload.ratingMax ?? 5) : null
     )
   ]
 
@@ -350,7 +361,15 @@ app.patch('/api/questions/:id', async (c) => {
          category_id = COALESCE(?, category_id),
          required = COALESCE(?, required),
          is_archived = COALESCE(?, is_archived),
-         "order" = COALESCE(?, "order")
+         "order" = COALESCE(?, "order"),
+         rating_min = CASE
+           WHEN COALESCE(?, type) = 'rating' THEN COALESCE(?, rating_min, 1)
+           ELSE NULL
+         END,
+         rating_max = CASE
+           WHEN COALESCE(?, type) = 'rating' THEN COALESCE(?, rating_max, 5)
+           ELSE NULL
+         END
      WHERE id = ?`
   )
     .bind(
@@ -360,6 +379,10 @@ app.patch('/api/questions/:id', async (c) => {
       payload.required === undefined ? null : payload.required ? 1 : 0,
       payload.isArchived === undefined ? null : payload.isArchived ? 1 : 0,
       payload.order ?? null,
+      payload.type ?? null,
+      payload.ratingMin ?? null,
+      payload.type ?? null,
+      payload.ratingMax ?? null,
       id
     )
     .run()
@@ -387,7 +410,7 @@ app.patch('/api/questions/:id', async (c) => {
   }
 
   const question = await c.env.DB.prepare(
-    'SELECT id, label, type, category_id, required, is_archived, "order" FROM questions WHERE id = ?'
+    'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max FROM questions WHERE id = ?'
   )
     .bind(id)
     .first<Record<string, unknown>>()
