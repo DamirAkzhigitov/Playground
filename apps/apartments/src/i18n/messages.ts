@@ -191,6 +191,7 @@ const EN = {
 
   'questionType.text': 'Text',
   'questionType.number': 'Number',
+  'questionType.date': 'Date',
   'questionType.boolean': 'Boolean',
   'questionType.select': 'Select',
   'questionType.multiSelect': 'Multi-select',
@@ -463,6 +464,7 @@ const RU: Record<MessageId, string> = {
 
   'questionType.text': 'Текст',
   'questionType.number': 'Число',
+  'questionType.date': 'Дата',
   'questionType.boolean': 'Да/нет',
   'questionType.select': 'Выбор',
   'questionType.multiSelect': 'Множественный выбор',
@@ -734,6 +736,7 @@ const EL: Record<MessageId, string> = {
 
   'questionType.text': 'Κείμενο',
   'questionType.number': 'Αριθμός',
+  'questionType.date': 'Ημερομηνία',
   'questionType.boolean': 'Ναι/Όχι',
   'questionType.select': 'Επιλογή',
   'questionType.multiSelect': 'Πολλαπλή επιλογή',

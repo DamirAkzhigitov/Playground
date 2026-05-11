@@ -1,4 +1,9 @@
-import { isAnswerValueFilled, parseMultiSelect } from '@/lib/answerValue'
+import {
+  formatIsoDateForDisplay,
+  isAnswerValueFilled,
+  isValidIsoDateString,
+  parseMultiSelect
+} from '@/lib/answerValue'
 import type { Question } from '@/types'
 
 /** Sentinel for missing / empty answers in comparison keys. */
@@ -31,6 +36,8 @@ export function normalizeAnswerForCompare(
       const n = Number(v)
       return Number.isFinite(n) ? String(n) : COMPARE_EMPTY
     }
+    case 'date':
+      return isValidIsoDateString(v) ? v.trim() : COMPARE_EMPTY
     default:
       return v.trim()
   }
@@ -83,6 +90,8 @@ export function formatCompareAnswerLabel(
       const n = Number(v)
       return Number.isFinite(n) ? String(n) : boolLabels.empty
     }
+    case 'date':
+      return formatIsoDateForDisplay(v)
     default:
       return v.trim() || boolLabels.empty
   }

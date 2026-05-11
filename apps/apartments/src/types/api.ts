@@ -20,6 +20,7 @@ export type RegisterInput = {
 export type QuestionType =
   | 'text'
   | 'number'
+  | 'date'
   | 'boolean'
   | 'select'
   | 'multi-select'

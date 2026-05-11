@@ -7,6 +7,8 @@ export function questionTypeMessageId(type: QuestionType): MessageId {
       return 'questionType.text'
     case 'number':
       return 'questionType.number'
+    case 'date':
+      return 'questionType.date'
     case 'boolean':
       return 'questionType.boolean'
     case 'select':

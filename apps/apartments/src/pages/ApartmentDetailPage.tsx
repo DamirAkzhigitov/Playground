@@ -276,7 +276,7 @@ export function ApartmentDetailPage() {
                           {t('common.required')}
                         </Badge>
                       ) : null}
-                      <Badge variant="secondary" className="text-xs capitalize">
+                      <Badge variant="secondary" className="text-xs">
                         {t(questionTypeMessageId(question.type))}
                       </Badge>
                     </div>

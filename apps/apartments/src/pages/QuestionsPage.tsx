@@ -77,18 +77,10 @@ import {
   useUpdateCategory,
   useUpdateQuestion
 } from '@/hooks'
-import type { Question, QuestionType } from '@/types'
 import type { MessageId } from '@/i18n/messages'
+import type { Question } from '@/types'
+import { QUESTION_TYPE_ORDER } from '@/lib/questionTypes'
 import { questionTypeMessageId } from '@/lib/questionTypeMessageId'
-
-const QUESTION_TYPES: QuestionType[] = [
-  'text',
-  'number',
-  'boolean',
-  'select',
-  'multi-select',
-  'rating'
-]
 
 function buildQuestionFormSchema(t: (id: MessageId) => string) {
   return z
@@ -97,6 +89,7 @@ function buildQuestionFormSchema(t: (id: MessageId) => string) {
       type: z.enum([
         'text',
         'number',
+        'date',
         'boolean',
         'select',
         'multi-select',
@@ -709,7 +702,7 @@ export function QuestionsPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {QUESTION_TYPES.map((type) => (
+                            {QUESTION_TYPE_ORDER.map((type) => (
                               <SelectItem key={type} value={type}>
                                 {t(questionTypeMessageId(type))}
                               </SelectItem>

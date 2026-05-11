@@ -4,6 +4,7 @@ import { useId, type ReactNode } from 'react'
 import { useI18n } from '@/contexts/I18nContext'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { parseMultiSelect, stringifyMultiSelect } from '@/lib/answerValue'
@@ -156,6 +157,21 @@ export function AnswerField({
         </div>
       )
     }
+    case 'date':
+      body = (
+        <Input
+          id={`${id}-value`}
+          type="date"
+          value={value ?? ''}
+          onChange={(e) => {
+            const raw = e.target.value
+            onValueChange(raw === '' ? null : raw)
+          }}
+          disabled={disabled}
+          className="w-full"
+        />
+      )
+      break
     case 'boolean':
       body = (
         <div
@@ -288,7 +304,7 @@ export function AnswerField({
 
   return (
     <div className="space-y-4">
-      {question.type === 'text' ? (
+      {question.type === 'text' || question.type === 'date' ? (
         <Label htmlFor={`${id}-value`} className="sr-only">
           {question.label}
         </Label>
