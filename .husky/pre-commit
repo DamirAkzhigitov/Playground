@@ -2,8 +2,12 @@
 
 if command -v pnpm >/dev/null 2>&1; then
   pnpm exec lint-staged
+  pnpm lint
 elif command -v corepack >/dev/null 2>&1; then
   corepack pnpm exec lint-staged
+  corepack pnpm lint
 else
   npx --no-install lint-staged
+  echo "pnpm is required to run lint checks."
+  exit 1
 fi

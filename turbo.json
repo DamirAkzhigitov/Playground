@@ -18,6 +18,10 @@
     "lint:fix": {
       "cache": false
     },
+    "format": {
+      "cache": false
+    },
+    "format:check": {},
     "type-check": {},
     "test": {},
     "test:coverage": {
