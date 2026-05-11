@@ -16,7 +16,8 @@ export const useQuestions = (includeArchived = false) =>
     queryFn: () =>
       apiRequest<QuestionGroup[]>(
         `/api/questions?includeArchived=${includeArchived ? 'true' : 'false'}`
-      )
+      ),
+    select: (data): QuestionGroup[] => (Array.isArray(data) ? data : [])
   })
 
 export const useCreateQuestion = () => {

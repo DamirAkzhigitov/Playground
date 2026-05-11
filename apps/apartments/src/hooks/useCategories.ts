@@ -11,7 +11,8 @@ import { queryKeys } from './queryKeys'
 export const useCategories = () =>
   useQuery({
     queryKey: queryKeys.categories,
-    queryFn: () => apiRequest<Category[]>('/api/categories')
+    queryFn: () => apiRequest<Category[]>('/api/categories'),
+    select: (data): Category[] => (Array.isArray(data) ? data : [])
   })
 
 export const useCreateCategory = () => {

@@ -111,6 +111,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build @playground/apartments
+        env:
+          # Required: without it, /api/* resolves to Pages and returns HTML; React Query
+          # then caches a string and list UIs throw (e.g. "map is not a function").
+          VITE_API_BASE_URL: https://apartments-api.da-mr.com
         run: pnpm turbo run build --filter=@playground/apartments
 
       - name: Install Wrangler for workspace root

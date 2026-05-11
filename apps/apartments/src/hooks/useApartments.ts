@@ -12,7 +12,8 @@ import { queryKeys } from './queryKeys'
 export const useApartments = () =>
   useQuery({
     queryKey: queryKeys.apartments,
-    queryFn: () => apiRequest<Apartment[]>('/api/apartments')
+    queryFn: () => apiRequest<Apartment[]>('/api/apartments'),
+    select: (data): Apartment[] => (Array.isArray(data) ? data : [])
   })
 
 export const useApartment = (id?: string) =>
