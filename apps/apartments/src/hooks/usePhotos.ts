@@ -20,8 +20,13 @@ export const useUploadPhoto = () => {
         body: formData
       })
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.apartments })
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.apartments }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.apartment(variables.apartmentId)
+        })
+      ])
     }
   })
 }
@@ -32,8 +37,13 @@ export const useDeletePhoto = () => {
   return useMutation({
     mutationFn: ({ id }: DeletePhotoInput) =>
       apiRequest<void>(`/api/photos/${id}`, { method: 'DELETE' }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.apartments })
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.apartments }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.apartment(variables.apartmentId)
+        })
+      ])
     }
   })
 }

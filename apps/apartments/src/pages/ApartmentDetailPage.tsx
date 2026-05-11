@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { AnswerField } from '@/components/AnswerField'
+import { QuestionPhotosSection } from '@/components/QuestionPhotosSection'
 import { ApartmentStatusBadge } from '@/components/ApartmentStatusBadge'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import { ErrorState } from '@/components/ErrorState'
@@ -285,6 +286,13 @@ export function ApartmentDetailPage() {
                           [question.id]: !prev[question.id]
                         }))
                       }
+                      density="compact"
+                    />
+                    <QuestionPhotosSection
+                      apartmentId={data.id}
+                      questionId={question.id}
+                      questionLabel={question.label}
+                      allPhotos={data.photos}
                       density="compact"
                     />
                   </div>

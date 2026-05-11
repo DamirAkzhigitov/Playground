@@ -223,13 +223,13 @@ end-to-end on a phone-sized screen with data persisted in D1.
 
 ## Phase 4 — Photos (R2)
 
-- [ ] **4.1** Photo capture component — camera or file picker, uploads
+- [x] **4.1** Photo capture component — camera or file picker, uploads
       directly to R2 via the API.
-- [ ] **4.2** Attach photos to a specific `(apartmentId, questionId)` pair.
-- [ ] **4.3** Photo gallery per question in the inspection screen and
+- [x] **4.2** Attach photos to a specific `(apartmentId, questionId)` pair.
+- [x] **4.3** Photo gallery per question in the inspection screen and
       apartment detail page.
-- [ ] **4.4** Lightbox viewer for full-size photos.
-- [ ] **4.5** Delete photos.
+- [x] **4.4** Lightbox viewer for full-size photos.
+- [x] **4.5** Delete photos.
 
 **Exit criteria:** photos captured during inspection appear linked to the
 correct question and apartment, stored in R2.

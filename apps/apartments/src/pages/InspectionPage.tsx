@@ -11,6 +11,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { AnswerField } from '@/components/AnswerField'
+import { QuestionPhotosSection } from '@/components/QuestionPhotosSection'
 import { ErrorState } from '@/components/ErrorState'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import { LoadingState } from '@/components/LoadingState'
@@ -431,7 +432,7 @@ export function InspectionPage() {
                     {current.label}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-4">
                   <AnswerField
                     question={current}
                     value={draft?.value ?? null}
@@ -440,6 +441,13 @@ export function InspectionPage() {
                     onNoteChange={(n) => updateDraft(current.id, { note: n })}
                     noteExpanded={noteExpanded}
                     onToggleNote={() => setNoteExpanded((e) => !e)}
+                    density="comfortable"
+                  />
+                  <QuestionPhotosSection
+                    apartmentId={id}
+                    questionId={current.id}
+                    questionLabel={current.label}
+                    allPhotos={apartmentQuery.data.photos}
                     density="comfortable"
                   />
                 </CardContent>

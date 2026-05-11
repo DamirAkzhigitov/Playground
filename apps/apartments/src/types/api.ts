@@ -146,4 +146,5 @@ export type UploadPhotoInput = {
 
 export type DeletePhotoInput = {
   id: string
+  apartmentId: string
 }
