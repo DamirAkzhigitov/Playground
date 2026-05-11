@@ -128,6 +128,34 @@ pnpm turbo run build --filter=@playground/apartments
 pnpm --filter @playground/apartments-api exec wrangler deploy
 ```
 
+#### Authentication
+
+The apartments app uses **cookie-based session auth** — fully self-contained
+in the Worker with no external auth services.
+
+- Passwords are hashed with PBKDF2 (Web Crypto API, 100k iterations, SHA-256).
+- Sessions are stored in D1 with HTTP-only secure cookies (30-day expiry).
+- Every `/api/*` route (except `/api/auth/*` and `/api/health`) requires a
+  valid session. Unauthenticated requests receive a `401`.
+- All data (categories, questions, apartments, answers, photos) is scoped to
+  the authenticated user via a `user_id` column. Users only see their own data.
+- On registration, default categories and questions are seeded for the new user.
+
+**Auth API routes:**
+
+| Method | Path                 | Purpose                       |
+| ------ | -------------------- | ----------------------------- |
+| POST   | `/api/auth/register` | Create account + session      |
+| POST   | `/api/auth/login`    | Authenticate + create session |
+| POST   | `/api/auth/logout`   | Destroy session + clear cookie|
+| GET    | `/api/auth/me`       | Return current user           |
+
+**D1 migrations** live in `apps/apartments/worker/migrations/`. Run locally:
+
+```bash
+pnpm --filter @playground/apartments-api run db:migrate:local
+```
+
 ## Adding a new tool (subdomain)
 
 Each tool gets its own subdomain (`<tool>.da-mr.com`), its own Cloudflare

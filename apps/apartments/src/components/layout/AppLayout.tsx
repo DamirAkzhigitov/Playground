@@ -1,6 +1,8 @@
-import { BarChart2, Download, Home, ListChecks } from 'lucide-react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { BarChart2, Download, Home, ListChecks, LogOut } from 'lucide-react'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 
+import { useAuth } from '@/contexts/AuthContext'
+import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 
@@ -12,9 +14,31 @@ const tabs = [
 ] as const
 
 export function AppLayout() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <div className="min-h-[calc(100dvh_-_var(--global-header-height))] bg-background text-foreground">
-      <main className="pb-page-tabs mx-auto w-full max-w-3xl px-4 pt-4 print:max-w-none print:pb-4 sm:px-6">
+      <header className="mx-auto flex max-w-3xl items-center justify-between px-4 pt-3 sm:px-6">
+        <span className="truncate text-xs text-muted-foreground">
+          {user?.email}
+        </span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          className="gap-1 text-xs text-muted-foreground"
+        >
+          <LogOut aria-hidden="true" className="size-3.5" />
+          <span className="sr-only sm:not-sr-only">Log out</span>
+        </Button>
+      </header>
+      <main className="pb-page-tabs mx-auto w-full max-w-3xl px-4 pt-2 print:max-w-none print:pb-4 sm:px-6">
         <Outlet />
       </main>
       <nav

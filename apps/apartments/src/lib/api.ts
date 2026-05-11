@@ -59,6 +59,10 @@ export const apiRequest = async <T>(
   const parsedBody = await parseResponseBody(response)
 
   if (!response.ok) {
+    if (response.status === 401 && !path.startsWith('/api/auth/')) {
+      window.location.href = '/login'
+      return undefined as never
+    }
     const fallbackMessage = `Request failed with status ${response.status}`
     const message =
       isRecord(parsedBody) && typeof parsedBody.error === 'string'
