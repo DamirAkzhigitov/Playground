@@ -211,7 +211,6 @@ env(safe-area-inset-bottom))`), `z-30`, `border-t`, blurred
    (badges, edit, overflow menus) may stay in the header.
 
 3. **Buttons** (shadcn `Button`):
-
    - **Secondary / back / cancel (left):** `variant="outline"` +
      `className="min-h-11 flex-1"`.
    - **Primary (right):** default variant +
