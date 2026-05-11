@@ -1,6 +1,7 @@
 import { useQueries } from '@tanstack/react-query'
 import { Check, MessageSquare, Printer, X } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
+import { toast } from 'sonner'
 
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
@@ -15,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useApartments } from '@/hooks'
+import { useApartments, useInspectionTemplates } from '@/hooks'
 import { queryKeys } from '@/hooks/queryKeys'
 import { apiRequest } from '@/lib/api'
 import { formatCompareAnswerLabel, ratingBarRatio } from '@/lib/compareDisplay'
@@ -45,6 +46,31 @@ type CompareRowModel = {
   questionIdsByColumn: (string | null)[]
 }
 
+/** Listings without `templateSlug` share one legacy compare bucket. */
+function compareTemplateKey(apt: Apartment): string {
+  return apt.templateSlug ?? 'legacy'
+}
+
+function idsMatchingTemplateOf(
+  list: Apartment[],
+  anchorListingId: string
+): string[] {
+  const anchor = list.find((a) => a.id === anchorListingId)
+  if (!anchor) {
+    return []
+  }
+  const k = compareTemplateKey(anchor)
+  return list.filter((a) => compareTemplateKey(a) === k).map((a) => a.id)
+}
+
+function sameIdSet(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) {
+    return false
+  }
+  const setA = new Set(a)
+  return b.every((id) => setA.has(id))
+}
+
 function buildAnswerMap(
   detail: ApartmentDetail | undefined
 ): Map<string, AnswerCell> {
@@ -60,7 +86,19 @@ function buildAnswerMap(
 
 export function ComparePage() {
   const apartmentsQuery = useApartments()
-  /** `null` means every apartment in `list` is selected (default). */
+  const templatesQuery = useInspectionTemplates()
+  const templateNameBySlug = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const t of templatesQuery.data ?? []) {
+      m.set(t.slug, t.name)
+    }
+    return m
+  }, [templatesQuery.data])
+
+  /**
+   * `null` = select every listing that shares the **newest** listing's checklist
+   * template (list order is newest first from the API).
+   */
   const [selectionOverride, setSelectionOverride] = useState<string[] | null>(
     null
   )
@@ -68,15 +106,72 @@ export function ComparePage() {
   const list = useMemo(() => apartmentsQuery.data ?? [], [apartmentsQuery.data])
   const allIds = useMemo(() => list.map((a) => a.id), [list])
 
+  const sameTemplateAllIds = useMemo(() => {
+    if (list.length === 0) {
+      return []
+    }
+    const first = list[0]
+    if (!first) {
+      return []
+    }
+    const key = compareTemplateKey(first)
+    return list.filter((a) => compareTemplateKey(a) === key).map((a) => a.id)
+  }, [list])
+
   const selectedIds = useMemo(() => {
-    if (allIds.length === 0) {
+    if (list.length === 0) {
       return []
     }
     if (selectionOverride === null) {
-      return allIds
+      return sameTemplateAllIds
     }
-    return selectionOverride.filter((id) => allIds.includes(id))
-  }, [allIds, selectionOverride])
+    const filtered = selectionOverride.filter((id) => allIds.includes(id))
+    if (filtered.length === 0) {
+      return []
+    }
+    const anchorApt = list.find((a) => a.id === filtered[0])
+    if (!anchorApt) {
+      return []
+    }
+    const anchorKey = compareTemplateKey(anchorApt)
+    return filtered.filter((id) => {
+      const apt = list.find((a) => a.id === id)
+      return apt !== undefined && compareTemplateKey(apt) === anchorKey
+    })
+  }, [list, allIds, selectionOverride, sameTemplateAllIds])
+
+  const compatibleListCount = useMemo(() => {
+    if (selectedIds.length === 0) {
+      return 0
+    }
+    const anchorApt = list.find((a) => a.id === selectedIds[0])
+    if (!anchorApt) {
+      return 0
+    }
+    const k = compareTemplateKey(anchorApt)
+    return list.filter((a) => compareTemplateKey(a) === k).length
+  }, [list, selectedIds])
+
+  const compareAnchorTemplateKey = useMemo(() => {
+    if (selectedIds.length === 0) {
+      return null
+    }
+    const apt = list.find((a) => a.id === selectedIds[0])
+    return apt ? compareTemplateKey(apt) : null
+  }, [list, selectedIds])
+
+  const activeCompareTemplateLabel = useMemo(() => {
+    if (!compareAnchorTemplateKey) {
+      return null
+    }
+    if (compareAnchorTemplateKey === 'legacy') {
+      return 'Shared global checklist (legacy)'
+    }
+    return (
+      templateNameBySlug.get(compareAnchorTemplateKey) ??
+      compareAnchorTemplateKey
+    )
+  }, [compareAnchorTemplateKey, templateNameBySlug])
 
   const questionsQueries = useQueries({
     queries: selectedIds.map((id) => ({
@@ -136,16 +231,6 @@ export function ComparePage() {
     })
   }, [selectedIds, questionsQueries])
 
-  const normalizeToAllWhenComplete = (ids: string[]) => {
-    if (
-      ids.length === allIds.length &&
-      allIds.every((id) => ids.includes(id))
-    ) {
-      return null
-    }
-    return ids
-  }
-
   const compareSelectValue = useMemo(() => {
     if (list.length === 0) {
       return COMPARE_NONE_VALUE
@@ -153,17 +238,21 @@ export function ComparePage() {
     if (selectedIds.length === 0) {
       return COMPARE_NONE_VALUE
     }
-    if (
-      selectedIds.length === list.length &&
-      list.every((a) => selectedIds.includes(a.id))
-    ) {
+    if (selectionOverride === null) {
       return COMPARE_ALL_VALUE
     }
     if (selectedIds.length === 1) {
       return selectedIds[0]
     }
     return COMPARE_MULTI_VALUE
-  }, [selectedIds, list])
+  }, [list.length, selectedIds, selectionOverride])
+
+  const normalizeToAllWhenComplete = (ids: string[]) => {
+    if (sameIdSet(ids, sameTemplateAllIds)) {
+      return null
+    }
+    return ids
+  }
 
   const handleCompareSelectChange = (value: string) => {
     if (value === COMPARE_MULTI_VALUE) {
@@ -180,17 +269,33 @@ export function ComparePage() {
     setSelectionOverride((prevOverride) => {
       const current =
         prevOverride === null
-          ? [...allIds]
+          ? [...sameTemplateAllIds]
           : prevOverride.filter((id) => allIds.includes(id))
+      const anchorId = current.length > 0 ? current[0]! : value
+      const bucket = idsMatchingTemplateOf(list, anchorId)
       const isFull =
-        allIds.length > 0 &&
-        current.length === allIds.length &&
-        allIds.every((id) => current.includes(id))
+        bucket.length > 0 &&
+        current.length === bucket.length &&
+        bucket.every((id) => current.includes(id))
       if (isFull) {
-        return normalizeToAllWhenComplete(allIds.filter((id) => id !== value))
+        return normalizeToAllWhenComplete(bucket.filter((id) => id !== value))
       }
       if (current.includes(value)) {
         return normalizeToAllWhenComplete(current.filter((id) => id !== value))
+      }
+      const anchor =
+        current.length > 0 ? list.find((a) => a.id === current[0]) : null
+      const nextApt = list.find((a) => a.id === value)
+      if (
+        anchor &&
+        nextApt &&
+        compareTemplateKey(anchor) !== compareTemplateKey(nextApt) &&
+        !current.includes(value)
+      ) {
+        toast.message(
+          'Switched compare to this listing’s template — add more listings that use the same checklist.'
+        )
+        return normalizeToAllWhenComplete([value])
       }
       const next = new Set([...current, value])
       return normalizeToAllWhenComplete(allIds.filter((id) => next.has(id)))
@@ -287,7 +392,7 @@ export function ComparePage() {
                   className="w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]"
                 >
                   <SelectItem value={COMPARE_ALL_VALUE}>
-                    All listings
+                    All · same checklist as newest
                   </SelectItem>
                   {compareSelectValue === COMPARE_MULTI_VALUE ? (
                     <SelectItem
@@ -295,7 +400,8 @@ export function ComparePage() {
                       disabled
                       className="text-muted-foreground"
                     >
-                      {selectedIds.length} of {list.length} listings
+                      {selectedIds.length} of {compatibleListCount} in this
+                      template
                     </SelectItem>
                   ) : null}
                   <SelectSeparator />
@@ -316,6 +422,26 @@ export function ComparePage() {
                   </SelectItem>
                 </SelectContent>
               </Select>
+              {list.length > 0 ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {activeCompareTemplateLabel ? (
+                    <>
+                      Checklist template:{' '}
+                      <span className="font-medium text-foreground">
+                        {activeCompareTemplateLabel}
+                      </span>
+                      . Add more listings that use this template, or pick a
+                      different listing to switch templates.
+                    </>
+                  ) : (
+                    <>
+                      Only listings with the same checklist template are
+                      compared together. Choosing a listing with another
+                      template replaces your selection.
+                    </>
+                  )}
+                </p>
+              ) : null}
             </div>
           )}
 
