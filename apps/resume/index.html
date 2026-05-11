@@ -134,48 +134,44 @@
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="container header-inner">
-        <div class="brand">
-          <span class="brand-name">Damir Akzhigitov</span>
-          <span class="brand-role brand-role-en">Senior Frontend Engineer</span>
-          <span class="brand-role brand-role-ru" hidden
-            >Senior frontend-инженер</span
-          >
-        </div>
-        <div class="header-actions">
-          <nav class="lang-switch" aria-label="Language">
-            <button
-              id="lang-ru"
-              type="button"
-              data-lang="ru"
-              class="lang-btn"
-              aria-pressed="false"
-            >
-              RU
-            </button>
-            <button
-              id="lang-en"
-              type="button"
-              data-lang="en"
-              class="lang-btn"
-              aria-pressed="false"
-            >
-              EN
-            </button>
-          </nav>
+    <playground-global-header
+      brand="Damir Akzhigitov"
+      home-label="Dashboard"
+      home-href="https://da-mr.com"
+      home-local-href="http://localhost:3000"
+    >
+      <div slot="actions" class="header-actions">
+        <nav class="lang-switch" aria-label="Language">
           <button
-            id="print-pdf-btn"
+            id="lang-ru"
             type="button"
-            class="print-pdf-btn"
-            title="Open print dialog — choose Save as PDF, A4"
-            aria-label="Print or save resume as PDF (A4)"
+            data-lang="ru"
+            class="lang-btn"
+            aria-pressed="false"
           >
-            PDF
+            RU
           </button>
-        </div>
+          <button
+            id="lang-en"
+            type="button"
+            data-lang="en"
+            class="lang-btn"
+            aria-pressed="false"
+          >
+            EN
+          </button>
+        </nav>
+        <button
+          id="print-pdf-btn"
+          type="button"
+          class="print-pdf-btn"
+          title="Open print dialog — choose Save as PDF, A4"
+          aria-label="Print or save resume as PDF (A4)"
+        >
+          PDF
+        </button>
       </div>
-    </header>
+    </playground-global-header>
 
     <section class="hero-immersive" aria-labelledby="profile-heading">
       <div class="hero-media">

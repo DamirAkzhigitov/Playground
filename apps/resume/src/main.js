@@ -1,3 +1,5 @@
+import { registerGlobalHeader } from '@playground/global-header'
+
 const STORAGE_KEY = 'lang'
 
 const ruBtn = document.getElementById('lang-ru')
@@ -24,11 +26,6 @@ function setVisibleLang(lang) {
   for (const el of document.querySelectorAll('.title-ru, .footer-ru')) {
     el.hidden = !isRu
   }
-
-  const brandEn = document.querySelector('.brand-role-en')
-  const brandRu = document.querySelector('.brand-role-ru')
-  if (brandEn) brandEn.hidden = isRu
-  if (brandRu) brandRu.hidden = !isRu
 
   ruBtn?.setAttribute('aria-pressed', String(isRu))
   enBtn?.setAttribute('aria-pressed', String(!isRu))
@@ -59,6 +56,8 @@ function initPrintPdf() {
     })
   })
 }
+
+registerGlobalHeader()
 
 document.addEventListener('DOMContentLoaded', () => {
   initLang()

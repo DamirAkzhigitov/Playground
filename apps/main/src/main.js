@@ -1,3 +1,7 @@
+import { registerGlobalHeader } from '@playground/global-header'
+
+registerGlobalHeader()
+
 function initYear() {
   const year = document.getElementById('year')
   if (year) {

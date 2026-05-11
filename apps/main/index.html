@@ -20,23 +20,27 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <playground-global-header
+      brand="da-mr.com"
+      home-label="Dashboard"
+      current-page="home"
+      home-href="https://da-mr.com"
+      home-local-href="http://localhost:3000"
+    ></playground-global-header>
+
     <main class="container">
       <header class="hero">
         <p class="eyebrow">da-mr.com</p>
         <h1>Projects and Tools</h1>
         <p class="subtitle">
-          Main page is now a simple directory. Each project lives as an
-          independent app/subdomain.
+          A small collection of things I build and keep improving.
         </p>
       </header>
 
       <section aria-label="Project list" class="projects">
         <article class="project-card">
           <h2>Resume</h2>
-          <p>
-            Dedicated resume project app (separate from the main tools
-            directory).
-          </p>
+          <p>My resume.</p>
           <a
             id="resume-project-link"
             class="project-link"

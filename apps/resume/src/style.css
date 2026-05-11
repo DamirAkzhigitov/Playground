@@ -735,6 +735,7 @@ body {
 @media print {
   .skip-link,
   .site-header,
+  playground-global-header,
   .hero-immersive,
   .site-footer {
     display: none !important;
