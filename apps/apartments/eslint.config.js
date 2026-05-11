@@ -8,7 +8,7 @@ import globals from 'globals'
 
 export default [
   {
-    ignores: ['dist/', 'node_modules/', 'coverage/']
+    ignores: ['dist/', 'node_modules/', 'coverage/', 'worker/.wrangler/']
   },
   js.configs.recommended,
   {
@@ -18,7 +18,11 @@ export default [
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
-        project: ['./tsconfig.app.json', './tsconfig.node.json']
+        project: [
+          './tsconfig.app.json',
+          './tsconfig.node.json',
+          './worker/tsconfig.json'
+        ]
       },
       globals: {
         ...globals.browser
@@ -32,6 +36,7 @@ export default [
     rules: {
       ...tseslint.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      'no-undef': 'off',
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true }
