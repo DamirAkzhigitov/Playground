@@ -180,7 +180,7 @@ export function ComparePage() {
     hasDetailError
 
   return (
-    <section className="compare-print space-y-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+    <section className="compare-print pb-page-pinned space-y-4">
       {apartmentsQuery.isPending ? (
         <div className="compare-print-screen-only">
           <LoadingState label="Loading apartments…" />

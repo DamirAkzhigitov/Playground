@@ -423,7 +423,7 @@ export function InspectionPage() {
             </Sheet>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+          <div className="min-h-0 flex-1 overflow-y-auto pb-page-pinned">
             {current ? (
               <Card>
                 <CardHeader>

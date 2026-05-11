@@ -36,16 +36,16 @@ export function ApartmentsPage() {
   }, [data, query])
 
   return (
-    <section className="space-y-6 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+    <section className="pb-page-pinned space-y-6">
       <div className="relative">
         <Search
           aria-hidden
-          className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2"
+          className="text-muted-foreground pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2"
         />
         <Input
           type="search"
           placeholder="Search by title or address…"
-          className="pl-9"
+          className="h-11 rounded-full border-input bg-muted/40 pl-10 shadow-sm focus-visible:bg-background"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Search apartments"

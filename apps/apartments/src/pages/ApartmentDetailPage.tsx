@@ -157,7 +157,7 @@ export function ApartmentDetailPage() {
     status === 'completed' ? 'Review inspection' : 'Start / resume inspection'
 
   return (
-    <section className="flex flex-col gap-6 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+    <section className="flex flex-col gap-6 pb-page-pinned">
       <PageHeader
         title={data.title}
         description={

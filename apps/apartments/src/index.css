@@ -6,77 +6,103 @@
 :root {
   /* playground-global-header in index.html (sticky bar above #root) */
   --global-header-height: 55px;
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* DESIGN.md — soft UI, ~14–16px base control radius */
+  --radius: 0.875rem;
+  /* Floating bottom nav (see AppLayout) */
+  --bottom-nav-gap: 0.75rem;
+  --bottom-nav-height: 3.5rem;
+  --bottom-nav-stack: calc(
+    var(--bottom-nav-gap) + var(--bottom-nav-height) +
+      env(safe-area-inset-bottom, 0px)
+  );
+  --main-pb-tabs: calc(var(--bottom-nav-stack) + 0.75rem);
+  /* Pinned CTA strip (~min-h-11 row + padding); pairs with --bottom-nav-stack */
+  --pinned-action-bar-clearance: 2.75rem;
+  --main-pb-pinned: calc(
+    var(--bottom-nav-stack) + var(--pinned-action-bar-clearance) + 0.5rem
+  );
+
+  /* Brand + surfaces (hex via relative oklch — DESIGN.md visual language) */
+  --background: oklch(from #f4f5fb l c h);
+  --foreground: oklch(from #1e2138 l c h);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(from #1e2138 l c h);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(from #1e2138 l c h);
+  --primary: oklch(from #5d5fef l c h);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.02 277);
+  --secondary-foreground: oklch(0.32 0.06 277);
+  --muted: oklch(0.96 0.01 277);
+  --muted-foreground: oklch(0.52 0.03 277);
+  --accent: oklch(0.94 0.04 277);
+  --accent-foreground: oklch(0.32 0.08 277);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* Accent tags (“House”) — semantic pair for Badge `variant="tag"` */
+  --tag: oklch(from #ff725e l c h);
+  --tag-foreground: oklch(0.99 0 0);
+  --border: oklch(0.91 0.01 277);
+  --input: oklch(0.93 0.015 277);
+  --ring: oklch(from #2dd4bf l c h);
   --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-2: oklch(0.58 0.12 195);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: oklch(0.99 0.005 277);
+  --sidebar-foreground: oklch(from #1e2138 l c h);
+  --sidebar-primary: oklch(from #5d5fef l c h);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.96 0.02 277);
+  --sidebar-accent-foreground: oklch(0.32 0.06 277);
+  --sidebar-border: oklch(0.91 0.01 277);
+  --sidebar-ring: oklch(from #2dd4bf l c h);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: oklch(from #242845 l c h);
+  --foreground: oklch(0.97 0.01 277);
+  --card: oklch(from #2d3254 l c h);
+  --card-foreground: oklch(0.97 0.01 277);
+  --popover: oklch(from #2d3254 l c h);
+  --popover-foreground: oklch(0.97 0.01 277);
+  /* Brand stays vivid on dark surfaces (not inverted to near-white). */
+  --primary: oklch(from #5d5fef l c h);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.34 0.04 277);
+  --secondary-foreground: oklch(0.97 0.01 277);
+  --muted: oklch(0.34 0.04 277);
+  --muted-foreground: oklch(0.72 0.03 277);
+  --accent: oklch(0.38 0.06 277);
+  --accent-foreground: oklch(0.97 0.02 277);
+  --destructive: oklch(0.65 0.2 22);
+  --destructive-foreground: oklch(0.99 0 0);
+  --tag: oklch(from #ff725e l c h);
+  --tag-foreground: oklch(0.99 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(from #5eead4 l c h);
+  --chart-1: oklch(0.55 0.22 277);
+  --chart-2: oklch(0.65 0.14 195);
+  --chart-3: oklch(0.72 0.12 227);
+  --chart-4: oklch(0.75 0.15 84);
+  --chart-5: oklch(0.7 0.18 70);
+  --sidebar: oklch(from #2d3254 l c h);
+  --sidebar-foreground: oklch(0.97 0.01 277);
+  --sidebar-primary: oklch(from #5d5fef l c h);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.36 0.05 277);
+  --sidebar-accent-foreground: oklch(0.97 0.01 277);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(from #5eead4 l c h);
 }
 
 @theme inline {
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -98,6 +124,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-tag: var(--tag);
+  --color-tag-foreground: var(--tag-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -121,8 +149,17 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
   }
+}
+
+/* Scroll padding above floating tab bar. Use with PinnedActionBar pages. */
+@utility pb-page-tabs {
+  padding-bottom: var(--main-pb-tabs);
+}
+
+@utility pb-page-pinned {
+  padding-bottom: var(--main-pb-pinned);
 }
 
 @media print {
@@ -134,27 +171,20 @@
     background: #fff !important;
   }
 
-  /* Compare page: A4 landscape, one sheet; layout + typography only (no JS). */
+  /* Compare page: A4 landscape; hide chrome via .compare-print-screen-only; table flows to extra pages as needed. */
   @page apartments-compare {
     size: A4 landscape;
     margin: 6mm;
   }
 
+  /* Full table prints; screen-only chrome is hidden via .compare-print-screen-only. */
   .compare-print {
     page: apartments-compare;
     display: block;
-    margin-left: -1rem;
-    margin-right: -1rem;
-    width: calc(100% + 2rem);
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
     padding-bottom: 0;
-  }
-
-  @media (min-width: 640px) {
-    .compare-print {
-      margin-left: -1.5rem;
-      margin-right: -1.5rem;
-      width: calc(100% + 3rem);
-    }
   }
 
   .compare-print-screen-only {
@@ -164,32 +194,30 @@
   .compare-print-viewport {
     position: relative;
     box-sizing: border-box;
-    width: 285mm;
-    height: 198mm;
-    max-height: 198mm;
-    margin-left: auto;
-    margin-right: auto;
-    overflow: hidden;
-    break-inside: avoid;
-    page-break-inside: avoid;
-    border-radius: 0.375rem;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+    margin: 0;
+    overflow: visible !important;
+    border-radius: 0;
     box-shadow: none;
   }
 
-  /* Static scale so more rows fit one sheet; compensating width keeps table usable width. */
   .compare-print-scale {
     box-sizing: border-box;
-    transform: scale(0.82);
+    transform: none !important;
     transform-origin: top left;
-    width: 121.95%; /* 100% / 0.82 */
-    max-width: none;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .compare-print-table {
     width: 100% !important;
     max-width: none !important;
     min-width: 0 !important;
-    table-layout: fixed;
+    table-layout: auto;
     border-collapse: collapse;
     font-size: 7pt;
     line-height: 1.2;
@@ -201,9 +229,10 @@
   .compare-print-table tbody td {
     position: static !important;
     min-width: 0 !important;
-    max-width: none !important;
+    max-width: 200px !important;
     padding: 0.15rem 0.2rem !important;
     vertical-align: top;
+    overflow-wrap: break-word;
   }
 
   .compare-print-table thead th {
@@ -213,7 +242,6 @@
   }
 
   .compare-print-table thead th:first-child {
-    width: 18%;
     text-transform: uppercase;
   }
 
@@ -244,6 +272,7 @@
 
   .compare-print-cell-shell {
     display: flex;
+    max-width: 100%;
     flex-direction: column;
     justify-content: center;
     gap: 0;

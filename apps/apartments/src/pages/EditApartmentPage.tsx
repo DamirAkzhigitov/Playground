@@ -29,13 +29,7 @@ export function EditApartmentPage() {
   const showForm = !isPending && !isError && data && defaults
 
   return (
-    <section
-      className={
-        showForm
-          ? 'space-y-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))]'
-          : 'space-y-4'
-      }
-    >
+    <section className={showForm ? 'space-y-4 pb-page-pinned' : 'space-y-4'}>
       <PageHeader
         title="Edit apartment"
         description="Update listing details."

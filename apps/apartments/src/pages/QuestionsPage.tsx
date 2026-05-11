@@ -417,10 +417,7 @@ export function QuestionsPage() {
 
   return (
     <section
-      className={cn(
-        'space-y-6',
-        showQuestionsToolbar && 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]'
-      )}
+      className={cn('space-y-6', showQuestionsToolbar && 'pb-page-pinned')}
     >
       <PageHeader
         title="Question Management"

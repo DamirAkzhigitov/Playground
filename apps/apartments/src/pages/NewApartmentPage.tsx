@@ -22,7 +22,7 @@ export function NewApartmentPage() {
   const createMutation = useCreateApartment()
 
   return (
-    <section className="space-y-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+    <section className="pb-page-pinned space-y-4">
       <PageHeader
         title="Create apartment"
         description="Start tracking a new place you're considering."

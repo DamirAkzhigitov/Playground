@@ -15,12 +15,12 @@ export function PinnedActionBar({ children, className }: PinnedActionBarProps) {
   return (
     <div
       className={cn(
-        'fixed inset-x-0 z-30 border-t border-border bg-background/95 px-4 pt-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:px-6',
+        'fixed inset-x-0 z-30 rounded-t-2xl border border-border/60 border-b-0 bg-card/95 px-4 pt-2 shadow-[0_-8px_30px_-12px_rgba(0,0,0,0.12)] backdrop-blur supports-[backdrop-filter]:bg-card/90 sm:px-6',
         className
       )}
       style={{
-        bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))',
-        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))'
+        bottom: 'var(--bottom-nav-stack)',
+        paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))'
       }}
     >
       <div className="mx-auto flex max-w-3xl gap-2">{children}</div>

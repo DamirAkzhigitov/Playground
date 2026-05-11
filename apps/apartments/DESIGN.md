@@ -33,6 +33,123 @@ looks and behaves.
 
 ---
 
+## Visual language (product reference)
+
+The mood board at `apps/apartments/img.png` is the **visual north star** for
+this app: soft UI, high corner radius, generous padding, and a **royal
+indigo** brand family. Implementation still uses **semantic tokens** in
+code (`bg-primary`, `text-muted-foreground`, etc.); tune `src/index.css`
+until those variables match the reference. Do not sprinkle raw hex in
+app components.
+
+### Color
+
+| Role                                                          | Reference (hex)              | Semantic token (use in JSX)                                                                            | Notes                                                                                  |
+| ------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| Brand / primary actions, key numbers (e.g. price), active nav | `#5D5FEF`                    | `primary` / `text-primary` / `bg-primary`                                                              | Vibrant royal blue–violet; primary buttons use **white** label (`primary-foreground`). |
+| Accent / category or type tags (“House”, highlights)          | `#FF725E`                    | Map to `destructive` **or** a dedicated tag token once added to `index.css` — never hard-code in pages | Soft coral; use sparingly so it stays a signal, not wallpaper.                         |
+| Dark surfaces (cards, chrome in dark comps)                   | `#242845`                    | `card` / `background` in `.dark`                                                                       | Deep blue-gray, not pure black.                                                        |
+| Light canvas                                                  | Off-white behind white cards | `background`                                                                                           | Slight separation between page and `bg-card` panels.                                   |
+| Range sliders, secondary interactive emphasis                 | Teal / cyan in ref           | `ring` / chart or a future `--slider-*` if we add sliders                                              | Keep slider thumbs and track clearly contrasted.                                       |
+| Secondary text, icons, borders                                | Muted grays in ref           | `muted-foreground`, `border`, `input`                                                                  | Thin-line icons stay legible at small sizes.                                           |
+
+Charts and trends (green / red deltas) can use existing `chart-*` tokens;
+align saturation with the reference so dashboards feel consistent with
+marketing cards.
+
+### Typography
+
+- **Family:** A clean geometric sans (e.g. **Inter** or **Poppins**). The
+  app should load one primary UI family and use it everywhere; avoid
+  mixing multiple display faces.
+- **Hierarchy:** Bold for titles and names; **semibold** for prices when
+  you need emphasis inside a card; regular for addresses, meta, and counts
+  (beds / baths). Small caps or tracked labels only for true metadata
+  lines — default to sentence case for product copy.
+- **Price:** Prefer `text-primary` (or `font-semibold text-primary`) so
+  money reads as part of the brand, not generic body text.
+
+### Radius, elevation, and motion
+
+- **Small controls** (buttons, inputs, chips): about **12px** effective
+  radius — maps to `rounded-xl` / theme `--radius` once aligned.
+- **Cards and sheets:** **16–24px** outer radius; hero property cards can
+  go **larger on top corners** (e.g. image radius **24–32px**) to match
+  the soft “poster” look in the reference.
+- **Shadows:** Soft, diffuse elevation on floating bars and cards
+  (`shadow-md` / custom token), not harsh offsets. Cards on `background`
+  should lift slightly from the canvas.
+- **Motion:** Short, ease-out transitions on press/hover; respect reduced
+  motion per _Accessibility_.
+
+### Spacing and padding
+
+- **Page horizontal padding:** Keep `px-4` mobile / `sm:px-6` as in
+  _Layout grid_; the reference reads “airy” because **inner** card and
+  bar padding are generous too.
+- **Cards:** Target **~20px** (`p-5`) internal padding for dense list
+  cards; hero cards can use **20–24px** under the image for title + meta
+  row.
+- **Primary buttons:** About **12px vertical × 24px horizontal** minimum
+  feel (shadcn `min-h-11` + horizontal padding already approximates this;
+  do not shrink below 44px tap height on mobile).
+- **Between sections:** `space-y-4` minimum; use `space-y-6` when the
+  screen is mostly cards with images.
+
+### Navigation shell (bottom)
+
+The reference uses a **floating** bottom bar: rounded container, inset
+from the screen edges, with a **raised center action** (circular brand
+button, e.g. grid / hub icon) and four flanking destinations (e.g. home,
+saved, messages, settings).
+
+- **Structure:** Up to **five slots** — four `NavLink` items plus one
+  **center FAB** when we need a global “create / hub” action. Until that
+  exists, a flat four-tab bar is fine; **do not** add a fifth tab without
+  design review.
+- **Light bar:** `bg-card` or `bg-background` with **full rounding** on the
+  bar (`rounded-2xl` or `rounded-3xl`), horizontal margin from viewport
+  (`mx-3`–`mx-4`), **lifted** with shadow; optional subtle `border`.
+- **Dark variant:** Same layout with `#242845`-aligned tokens — active
+  item still reads clearly (icon + label in `primary` or high-contrast
+  `foreground`).
+- **Active state:** Brand color on icon + label; inactive uses
+  `text-muted-foreground`.
+- **Safe area:** Continue `env(safe-area-inset-bottom)` on the **nav
+  container** so the floating bar clears the home indicator.
+
+`PinnedActionBar` stays **above** this nav; when the bar is floating,
+leave enough `pb-*` on `main` so the last card clears both the CTA strip
+and the tab island (tune `calc(...)` in page shells as heights change).
+
+### Search and filters
+
+- **Search field:** **Pill** shape — `rounded-full` on the input shell,
+  leading search icon (`text-muted-foreground`), placeholder in muted
+  tone. Full width minus page padding on mobile.
+- **Filter / icon actions:** Compact **square-ish** brand-tinted control
+  next to the field is acceptable; keep **≤ 3** inline actions per row on
+  mobile (see _Breakpoints & touch targets_).
+
+### Property and list cards
+
+- **Hero layout:** Large image on top (object-cover), rounded top corners
+  aligned with card radius; below: title, **price** (`text-primary`), row
+  with map pin + address, then icon row for beds / baths / kitchen (or
+  equivalent meta) using `lucide-react` at consistent sizes.
+- **Compact rows:** Thumbnail + title + price + condensed stats; same
+  token rules as hero.
+- **Dark cards:** Same information hierarchy with inverted surfaces; no
+  washed-out gray body text — keep contrast AA.
+
+### Tags and badges
+
+- Small **rounded-rectangle** badges for type (“House”) using the accent
+  role; text short and legible. Prefer shadcn `Badge` with a variant wired
+  to tokens, not inline styles.
+
+---
+
 ## Tech baseline
 
 | Layer            | Choice                                        |
@@ -64,8 +181,11 @@ edit them like any other file, don't treat them as `node_modules`.
 | `≥ 768px`  | `max-w-3xl mx-auto`, `px-6` | room for inline form layouts          |
 | `≥ 1024px` | `max-w-3xl mx-auto`, `px-6` | bottom tabs become side rail (future) |
 
-- Bottom-tab nav (`AppLayout`) is the mobile primary navigation. It
-  stays visible at all widths until we promote it to a side rail
+- Bottom-tab nav (`AppLayout`) is the mobile primary navigation. Target
+  the **floating island** pattern from _Visual language_ (rounded bar,
+  side margins, soft shadow); full-bleed `border-t` is acceptable as an
+  interim implementation until the shell is refactored.
+- It stays visible at all widths until we promote it to a side rail
   (deferred).
 - Pages add their own `space-y-{4|6}` rhythm between sections.
 - Use `pb-[env(safe-area-inset-bottom)]` on the bottom nav so iOS
@@ -124,9 +244,9 @@ Reference implementations: `ApartmentsPage`, `ApartmentDetailPage`
     (`size-10 = 40px`) inside a `min-h-11` wrapper, or wrap with
     `className="size-11"`.
 - **Never put more than 3 inline actions on a mobile row.** The fourth
-  collapses into a `DropdownMenu` (`MoreVertical` trigger). This is the
-  fix for the broken Categories row in the screenshot — input + 4 inline
-  buttons on a 360px screen squeezes the input to 3 characters.
+  collapses into a `DropdownMenu` (`MoreVertical` trigger). Dense filter
+  rows (search + multiple icon buttons) quickly make the field unusable
+  at 360px width.
 - Forms stack labels above inputs on mobile, side-by-side only `≥ sm`.
 
 ---
@@ -206,6 +326,14 @@ A typical field:
 - Light + dark mode are both shipped via CSS variables in
   `src/index.css`. The toggle UI lands in Phase 7 (`PLAN.md` 7.4); the
   tokens are already in place.
+- **Brand alignment:** `:root` and `.dark` should be adjusted so computed
+  `primary` matches the **#5D5FEF** family in light mode (with accessible
+  `primary-foreground`), and dark surfaces lean toward **#242845** for
+  cards/backgrounds per _Visual language_. Prefer **oklch()** in CSS for
+  smoother ramps; the hex table there is the design contract.
+- **Radius:** Consider raising `--radius` toward **~0.75rem–1rem** so
+  defaults match the soft UI reference; large cards can still use
+  explicit `rounded-2xl` / `rounded-3xl` where needed.
 - Use **semantic tokens**, never raw colors:
   - Surfaces: `bg-background` / `bg-card` / `bg-popover` / `bg-muted`.
   - Text: `text-foreground` / `text-muted-foreground` / `text-primary`.
@@ -251,7 +379,8 @@ A typical field:
 
 ## Adding a new screen — checklist
 
-1. **Design at 360 px** in the browser before writing JSX.
+1. **Design at 360 px** in the browser before writing JSX. Check contrast
+   and spacing against _Visual language_ and `apps/apartments/img.png`.
 2. **Pick the layout** — use `space-y-*` between sections, `Card` for
    anything that's a list row or self-contained block.
 3. **Wire data** with the existing TanStack Query hooks from
