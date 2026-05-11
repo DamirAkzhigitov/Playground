@@ -15,6 +15,10 @@ export const toQuestion = (
   order: row.order,
   ratingMin: row.rating_min === null ? null : Number(row.rating_min),
   ratingMax: row.rating_max === null ? null : Number(row.rating_max),
+  stableKey:
+    row.stable_key === null || row.stable_key === undefined
+      ? null
+      : String(row.stable_key),
   options: options.map((option) => ({
     id: option.id,
     questionId: option.question_id,
@@ -31,7 +35,11 @@ export const formatApartment = (row: Record<string, unknown>) => ({
   price: row.price,
   notes: row.notes,
   createdAt: row.created_at,
-  updatedAt: row.updated_at
+  updatedAt: row.updated_at,
+  templateSlug:
+    row.template_slug === null || row.template_slug === undefined
+      ? null
+      : String(row.template_slug)
 })
 
 export const nowIso = () => new Date().toISOString()

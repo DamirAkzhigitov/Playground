@@ -10,15 +10,45 @@ import type {
 } from '../types'
 import { queryKeys } from './queryKeys'
 
-export const useQuestions = (includeArchived = false) =>
-  useQuery({
-    queryKey: [...queryKeys.questions, { includeArchived }],
-    queryFn: () =>
-      apiRequest<QuestionGroup[]>(
-        `/api/questions?includeArchived=${includeArchived ? 'true' : 'false'}`
-      ),
-    select: (data): QuestionGroup[] => (Array.isArray(data) ? data : [])
+export type UseQuestionsOptions = {
+  includeArchived?: boolean
+  /** When set, returns the checklist copied for this listing (template scope). */
+  apartmentId?: string
+}
+
+function buildQuestionsQueryKey(opts: UseQuestionsOptions) {
+  return [
+    ...queryKeys.questions,
+    {
+      includeArchived: opts.includeArchived ?? false,
+      apartmentId: opts.apartmentId
+    }
+  ] as const
+}
+
+export const useQuestions = (
+  options: UseQuestionsOptions | boolean = false
+) => {
+  const opts: UseQuestionsOptions =
+    typeof options === 'boolean' ? { includeArchived: options } : options
+  const includeArchived = opts.includeArchived ?? false
+  const apartmentId = opts.apartmentId
+
+  const qs = new URLSearchParams({
+    includeArchived: includeArchived ? 'true' : 'false'
   })
+  if (apartmentId) {
+    qs.set('apartmentId', apartmentId)
+  }
+
+  return useQuery({
+    queryKey: buildQuestionsQueryKey(opts),
+    queryFn: () =>
+      apiRequest<QuestionGroup[]>(`/api/questions?${qs.toString()}`),
+    select: (data): QuestionGroup[] => (Array.isArray(data) ? data : []),
+    enabled: apartmentId === undefined || Boolean(apartmentId)
+  })
+}
 
 export const useCreateQuestion = () => {
   const queryClient = useQueryClient()

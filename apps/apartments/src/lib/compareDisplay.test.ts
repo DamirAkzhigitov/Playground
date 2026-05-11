@@ -13,6 +13,7 @@ const baseQuestion = (overrides: Partial<Question>): Question => ({
   order: 0,
   ratingMin: null,
   ratingMax: null,
+  stableKey: null,
   options: [],
   ...overrides
 })

@@ -9,6 +9,7 @@ import { apartments } from './routes/apartments'
 import { answers } from './routes/answers'
 import { photos } from './routes/photos'
 import { exports_ } from './routes/exports'
+import { inspectionTemplates } from './routes/inspection-templates'
 
 const app = new Hono<AppEnv>()
 
@@ -24,6 +25,7 @@ app.use('/api/*', async (c, next) => {
 })
 
 app.route('/api/categories', categories)
+app.route('/api/inspection-templates', inspectionTemplates)
 app.route('/api/questions', questions)
 app.route('/api/apartments', apartments)
 app.route('/api/answers', answers)

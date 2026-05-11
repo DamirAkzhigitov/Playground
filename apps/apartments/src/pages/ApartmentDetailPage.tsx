@@ -39,7 +39,7 @@ export function ApartmentDetailPage() {
   const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const apartmentQuery = useApartment(id)
-  const questionsQuery = useQuestions(false)
+  const questionsQuery = useQuestions({ apartmentId: id })
   const upsert = useUpsertAnswer()
   const dirtyQuestionIdsRef = useRef(new Set<string>())
 

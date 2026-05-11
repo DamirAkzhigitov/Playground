@@ -62,19 +62,49 @@ const questions = new Hono<AppEnv>()
 questions.get('/', async (c) => {
   const userId = c.get('userId')
   const includeArchived = c.req.query('includeArchived') === 'true'
+  const apartmentId = c.req.query('apartmentId')?.trim()
+
+  let categorySql = 'user_id = ? AND apartment_id IS NULL'
+  const categoryBind: string[] = [userId]
+
+  let questionScopeSql = 'user_id = ? AND apartment_id IS NULL'
+  const questionScopeBind: string[] = [userId]
+
+  if (apartmentId) {
+    const owns = await c.env.DB.prepare(
+      'SELECT 1 FROM apartments WHERE id = ? AND user_id = ?'
+    )
+      .bind(apartmentId, userId)
+      .first()
+    if (!owns) {
+      return c.json({ error: 'Apartment not found' }, 404)
+    }
+    const scoped = await c.env.DB.prepare(
+      'SELECT 1 FROM questions WHERE user_id = ? AND apartment_id = ? LIMIT 1'
+    )
+      .bind(userId, apartmentId)
+      .first()
+    if (scoped) {
+      categorySql = 'user_id = ? AND apartment_id = ?'
+      categoryBind.push(apartmentId)
+      questionScopeSql = 'user_id = ? AND apartment_id = ?'
+      questionScopeBind.push(apartmentId)
+    }
+  }
+
   const categoriesResult = await c.env.DB.prepare(
-    'SELECT id, name, "order" FROM categories WHERE user_id = ? ORDER BY "order" ASC, name ASC'
+    `SELECT id, name, "order" FROM categories WHERE ${categorySql} ORDER BY "order" ASC, name ASC`
   )
-    .bind(userId)
+    .bind(...categoryBind)
     .all()
 
   const archiveClause = includeArchived
-    ? 'WHERE user_id = ?'
-    : 'WHERE is_archived = 0 AND user_id = ?'
+    ? `WHERE ${questionScopeSql}`
+    : `WHERE is_archived = 0 AND ${questionScopeSql}`
   const questionResult = await c.env.DB.prepare(
-    `SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max FROM questions ${archiveClause} ORDER BY category_id ASC, "order" ASC`
+    `SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, stable_key FROM questions ${archiveClause} ORDER BY category_id ASC, "order" ASC`
   )
-    .bind(userId)
+    .bind(...questionScopeBind)
     .all()
 
   const questionIds = typedRows(questionResult).map((q) => String(q.id))
@@ -132,7 +162,7 @@ questions.post('/', async (c) => {
 
   const statements: D1PreparedStatement[] = [
     c.env.DB.prepare(
-      'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, user_id) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?)'
+      'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, user_id, apartment_id, stable_key) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, NULL, NULL)'
     ).bind(
       id,
       payload.label,
@@ -231,7 +261,7 @@ questions.patch('/:id', async (c) => {
   }
 
   const question = await c.env.DB.prepare(
-    'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max FROM questions WHERE id = ? AND user_id = ?'
+    'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, stable_key FROM questions WHERE id = ? AND user_id = ?'
   )
     .bind(id, userId)
     .first<Record<string, unknown>>()

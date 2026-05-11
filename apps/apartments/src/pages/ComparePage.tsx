@@ -1,6 +1,7 @@
 import { useQueries } from '@tanstack/react-query'
 import { Check, MessageSquare, Printer, X } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
+import { toast } from 'sonner'
 
 import { useI18n } from '@/contexts/I18nContext'
 import { ErrorState } from '@/components/ErrorState'
@@ -16,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useApartments, useQuestions } from '@/hooks'
+import { useApartments, useInspectionTemplates } from '@/hooks'
 import { queryKeys } from '@/hooks/queryKeys'
 import { apiRequest } from '@/lib/api'
 import {
@@ -39,6 +40,41 @@ const COMPARE_NONE_VALUE = '__none__'
 const COMPARE_MULTI_VALUE = '__multi__'
 
 type AnswerCell = { value: string | null; note: string | null }
+
+function rowKeyForCompare(question: Question): string {
+  const k = question.stableKey?.trim()
+  return k && k.length > 0 ? k : question.id
+}
+
+type CompareRowModel = {
+  canonicalQuestion: Question
+  questionIdsByColumn: (string | null)[]
+}
+
+/** Listings without `templateSlug` share one legacy compare bucket. */
+function compareTemplateKey(apt: Apartment): string {
+  return apt.templateSlug ?? 'legacy'
+}
+
+function idsMatchingTemplateOf(
+  list: Apartment[],
+  anchorListingId: string
+): string[] {
+  const anchor = list.find((a) => a.id === anchorListingId)
+  if (!anchor) {
+    return []
+  }
+  const k = compareTemplateKey(anchor)
+  return list.filter((a) => compareTemplateKey(a) === k).map((a) => a.id)
+}
+
+function sameIdSet(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) {
+    return false
+  }
+  const setA = new Set(a)
+  return b.every((id) => setA.has(id))
+}
 
 function buildAnswerMap(
   detail: ApartmentDetail | undefined
@@ -65,37 +101,150 @@ export function ComparePage() {
   )
 
   const apartmentsQuery = useApartments()
-  const questionsQuery = useQuestions(false)
-  /** `null` means every apartment in `list` is selected (default). */
+  const templatesQuery = useInspectionTemplates()
+  const templateNameBySlug = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const t of templatesQuery.data ?? []) {
+      m.set(t.slug, t.name)
+    }
+    return m
+  }, [templatesQuery.data])
+
+  /**
+   * `null` = select every listing that shares the **newest** listing's checklist
+   * template (list order is newest first from the API).
+   */
   const [selectionOverride, setSelectionOverride] = useState<string[] | null>(
     null
   )
 
-  const groups = questionsQuery.data ?? EMPTY_GROUPS
-  const flatAll = useMemo(() => flattenActiveQuestions(groups), [groups])
-
   const list = useMemo(() => apartmentsQuery.data ?? [], [apartmentsQuery.data])
   const allIds = useMemo(() => list.map((a) => a.id), [list])
 
+  const sameTemplateAllIds = useMemo(() => {
+    if (list.length === 0) {
+      return []
+    }
+    const first = list[0]
+    if (!first) {
+      return []
+    }
+    const key = compareTemplateKey(first)
+    return list.filter((a) => compareTemplateKey(a) === key).map((a) => a.id)
+  }, [list])
+
   const selectedIds = useMemo(() => {
-    if (allIds.length === 0) {
+    if (list.length === 0) {
       return []
     }
     if (selectionOverride === null) {
-      return allIds
+      return sameTemplateAllIds
     }
-    return selectionOverride.filter((id) => allIds.includes(id))
-  }, [allIds, selectionOverride])
+    const filtered = selectionOverride.filter((id) => allIds.includes(id))
+    if (filtered.length === 0) {
+      return []
+    }
+    const anchorApt = list.find((a) => a.id === filtered[0])
+    if (!anchorApt) {
+      return []
+    }
+    const anchorKey = compareTemplateKey(anchorApt)
+    return filtered.filter((id) => {
+      const apt = list.find((a) => a.id === id)
+      return apt !== undefined && compareTemplateKey(apt) === anchorKey
+    })
+  }, [list, allIds, selectionOverride, sameTemplateAllIds])
 
-  const normalizeToAllWhenComplete = (ids: string[]) => {
-    if (
-      ids.length === allIds.length &&
-      allIds.every((id) => ids.includes(id))
-    ) {
+  const compatibleListCount = useMemo(() => {
+    if (selectedIds.length === 0) {
+      return 0
+    }
+    const anchorApt = list.find((a) => a.id === selectedIds[0])
+    if (!anchorApt) {
+      return 0
+    }
+    const k = compareTemplateKey(anchorApt)
+    return list.filter((a) => compareTemplateKey(a) === k).length
+  }, [list, selectedIds])
+
+  const compareAnchorTemplateKey = useMemo(() => {
+    if (selectedIds.length === 0) {
       return null
     }
-    return ids
-  }
+    const apt = list.find((a) => a.id === selectedIds[0])
+    return apt ? compareTemplateKey(apt) : null
+  }, [list, selectedIds])
+
+  const activeCompareTemplateLabel = useMemo(() => {
+    if (!compareAnchorTemplateKey) {
+      return null
+    }
+    if (compareAnchorTemplateKey === 'legacy') {
+      return 'Shared global checklist (legacy)'
+    }
+    return (
+      templateNameBySlug.get(compareAnchorTemplateKey) ??
+      compareAnchorTemplateKey
+    )
+  }, [compareAnchorTemplateKey, templateNameBySlug])
+
+  const questionsQueries = useQueries({
+    queries: selectedIds.map((id) => ({
+      queryKey: [
+        ...queryKeys.questions,
+        { includeArchived: false, apartmentId: id }
+      ],
+      queryFn: () =>
+        apiRequest<QuestionGroup[]>(
+          `/api/questions?${new URLSearchParams({
+            includeArchived: 'false',
+            apartmentId: id
+          }).toString()}`
+        ),
+      enabled: selectedIds.length > 0,
+      staleTime: 60_000
+    }))
+  })
+
+  const compareRows = useMemo((): CompareRowModel[] => {
+    if (selectedIds.length === 0) {
+      return []
+    }
+    const flats = selectedIds.map((_, i) => {
+      const data = questionsQueries[i]?.data ?? EMPTY_GROUPS
+      return flattenActiveQuestions(data)
+    })
+    const orderedKeys: string[] = []
+    const canonical = new Map<string, Question>()
+    for (const q of flats[0] ?? []) {
+      const k = rowKeyForCompare(q)
+      if (!canonical.has(k)) {
+        orderedKeys.push(k)
+        canonical.set(k, q)
+      }
+    }
+    for (let c = 1; c < flats.length; c++) {
+      for (const q of flats[c] ?? []) {
+        const k = rowKeyForCompare(q)
+        if (!canonical.has(k)) {
+          orderedKeys.push(k)
+          canonical.set(k, q)
+        }
+      }
+    }
+    return orderedKeys.map((k) => {
+      const cq = canonical.get(k)
+      if (!cq) {
+        throw new Error('compare row key missing canonical question')
+      }
+      return {
+        canonicalQuestion: cq,
+        questionIdsByColumn: flats.map(
+          (flat) => flat.find((q) => rowKeyForCompare(q) === k)?.id ?? null
+        )
+      }
+    })
+  }, [selectedIds, questionsQueries])
 
   const compareSelectValue = useMemo(() => {
     if (list.length === 0) {
@@ -104,17 +253,21 @@ export function ComparePage() {
     if (selectedIds.length === 0) {
       return COMPARE_NONE_VALUE
     }
-    if (
-      selectedIds.length === list.length &&
-      list.every((a) => selectedIds.includes(a.id))
-    ) {
+    if (selectionOverride === null) {
       return COMPARE_ALL_VALUE
     }
     if (selectedIds.length === 1) {
       return selectedIds[0]
     }
     return COMPARE_MULTI_VALUE
-  }, [selectedIds, list])
+  }, [list.length, selectedIds, selectionOverride])
+
+  const normalizeToAllWhenComplete = (ids: string[]) => {
+    if (sameIdSet(ids, sameTemplateAllIds)) {
+      return null
+    }
+    return ids
+  }
 
   const handleCompareSelectChange = (value: string) => {
     if (value === COMPARE_MULTI_VALUE) {
@@ -131,17 +284,31 @@ export function ComparePage() {
     setSelectionOverride((prevOverride) => {
       const current =
         prevOverride === null
-          ? [...allIds]
+          ? [...sameTemplateAllIds]
           : prevOverride.filter((id) => allIds.includes(id))
+      const anchorId = current.length > 0 ? current[0]! : value
+      const bucket = idsMatchingTemplateOf(list, anchorId)
       const isFull =
-        allIds.length > 0 &&
-        current.length === allIds.length &&
-        allIds.every((id) => current.includes(id))
+        bucket.length > 0 &&
+        current.length === bucket.length &&
+        bucket.every((id) => current.includes(id))
       if (isFull) {
-        return normalizeToAllWhenComplete(allIds.filter((id) => id !== value))
+        return normalizeToAllWhenComplete(bucket.filter((id) => id !== value))
       }
       if (current.includes(value)) {
         return normalizeToAllWhenComplete(current.filter((id) => id !== value))
+      }
+      const anchor =
+        current.length > 0 ? list.find((a) => a.id === current[0]) : null
+      const nextApt = list.find((a) => a.id === value)
+      if (
+        anchor &&
+        nextApt &&
+        compareTemplateKey(anchor) !== compareTemplateKey(nextApt) &&
+        !current.includes(value)
+      ) {
+        toast.message(t('compare.toastSwitched'))
+        return normalizeToAllWhenComplete([value])
       }
       const next = new Set([...current, value])
       return normalizeToAllWhenComplete(allIds.filter((id) => next.has(id)))
@@ -185,11 +352,15 @@ export function ComparePage() {
 
   const hasDetailError = detailQueries.some((q) => q.isError)
 
+  const isLoadingQuestions =
+    selectedIds.length > 0 && questionsQueries.some((q) => q.isPending)
+  const hasQuestionsError = questionsQueries.some((q) => q.isError)
+
   const printDisabled =
     apartmentsQuery.isPending ||
     apartmentsQuery.isError ||
-    questionsQuery.isPending ||
-    questionsQuery.isError ||
+    isLoadingQuestions ||
+    hasQuestionsError ||
     selectedIds.length === 0 ||
     isLoadingDetails ||
     hasDetailError
@@ -244,7 +415,7 @@ export function ComparePage() {
                     >
                       {t('compare.multi', {
                         selected: selectedIds.length,
-                        total: list.length
+                        total: compatibleListCount
                       })}
                     </SelectItem>
                   ) : null}
@@ -266,21 +437,30 @@ export function ComparePage() {
                   </SelectItem>
                 </SelectContent>
               </Select>
+              {list.length > 0 ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {activeCompareTemplateLabel
+                    ? t('compare.templateActive', {
+                        name: activeCompareTemplateLabel
+                      })
+                    : t('compare.templatePick')}
+                </p>
+              ) : null}
             </div>
           )}
 
-          {questionsQuery.isPending ? (
+          {isLoadingQuestions ? (
             <div className="compare-print-screen-only">
               <LoadingState label={t('compare.loadingQs')} />
             </div>
           ) : null}
-          {questionsQuery.isError ? (
+          {hasQuestionsError ? (
             <div className="compare-print-screen-only">
-              <ErrorState message={questionsQuery.error.message} />
+              <ErrorState message={t('compare.loadChecklistFailed')} />
             </div>
           ) : null}
 
-          {!questionsQuery.isPending && !questionsQuery.isError ? (
+          {!isLoadingQuestions && !hasQuestionsError ? (
             <>
               {hasDetailError ? (
                 <div className="compare-print-screen-only">
@@ -320,26 +500,26 @@ export function ComparePage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {flatAll.length === 0 ? (
+                        {compareRows.length === 0 ? (
                           <tr>
                             <td
                               colSpan={comparisonColumns.length + 1}
                               className="px-3 py-6 text-center text-muted-foreground"
                             >
-                              {t('compare.noQuestions')}
+                              {t('compare.noQuestionsInScope')}
                             </td>
                           </tr>
                         ) : (
-                          flatAll.map((question) => (
+                          compareRows.map((row) => (
                             <CompareRow
-                              key={question.id}
+                              key={rowKeyForCompare(row.canonicalQuestion)}
+                              row={row}
                               answerMaps={answerMaps}
                               boolLabels={boolLabels}
                               columns={comparisonColumns}
                               hasNoteSr={t('compare.hasNote')}
                               noAnswerSr={t('compare.noAnswer')}
                               noteWord={t('common.note')}
-                              question={question}
                             />
                           ))
                         )}
@@ -371,7 +551,7 @@ export function ComparePage() {
 }
 
 type CompareRowProps = {
-  question: Question
+  row: CompareRowModel
   columns: Array<{ apt: Apartment; mapIndex: number }>
   answerMaps: Array<Map<string, AnswerCell>>
   boolLabels: CompareBooleanLabels
@@ -381,7 +561,7 @@ type CompareRowProps = {
 }
 
 function CompareRow({
-  question,
+  row,
   columns,
   answerMaps,
   boolLabels,
@@ -389,6 +569,7 @@ function CompareRow({
   hasNoteSr,
   noAnswerSr
 }: CompareRowProps) {
+  const question = row.canonicalQuestion
   return (
     <tr className="border-b border-border last:border-b-0">
       <th
@@ -400,8 +581,9 @@ function CompareRow({
         </div>
       </th>
       {columns.map(({ apt, mapIndex }) => {
+        const qid = row.questionIdsByColumn[mapIndex] ?? null
         const map = answerMaps[mapIndex] ?? new Map<string, AnswerCell>()
-        const cell = map.get(question.id)
+        const cell = qid ? map.get(qid) : undefined
         const value = cell?.value ?? null
         const note = cell?.note ?? null
         const label = formatCompareAnswerLabel(question, value, boolLabels)

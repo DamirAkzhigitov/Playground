@@ -2,7 +2,7 @@ import type { AppLocale } from './locale'
 
 const EN = {
   'nav.dashboard': 'Dashboard',
-  'nav.apartments': 'Apartments',
+  'nav.apartments': 'Listings',
   'nav.questions': 'Questions',
   'nav.compare': 'Compare',
   'nav.export': 'Export',
@@ -22,7 +22,8 @@ const EN = {
   'login.failedGeneric': 'Login failed. Try again.',
 
   'register.title': 'Create account',
-  'register.subtitle': 'Start tracking your apartment viewings',
+  'register.subtitle':
+    'Start tracking places you are comparing (homes, rentals, cars, and more)',
   'register.confirmPassword': 'Confirm password',
   'register.repeatPassword': 'Repeat password',
   'register.submit': 'Create account',
@@ -64,43 +65,48 @@ const EN = {
   'common.extraNote': 'Extra note',
 
   'errors.generic': 'Something went wrong.',
-  'errors.notFound': 'Apartment not found.',
+  'errors.notFound': 'Listing not found.',
   'errors.routeError': 'Route error {status}: {detail}',
   'errors.routeUnknown': 'Unknown status.',
   'errors.saveAnswer': 'Could not save answer.',
 
   'apartments.searchPlaceholder': 'Search by title or address…',
-  'apartments.searchAria': 'Search apartments',
-  'apartments.loading': 'Loading apartments…',
+  'apartments.searchAria': 'Search listings',
+  'apartments.loading': 'Loading listings…',
   'apartments.noAddress': 'No address yet',
   'apartments.new': 'New',
   'apartments.criticalMissingOne': '{n} critical question missing',
   'apartments.criticalMissingMany': '{n} critical questions missing',
-  'apartments.empty': 'No apartments yet. Tap {newApartment} to add one.',
-  'apartments.noMatch': 'No apartments match “{query}”.',
-  'apartments.newApartment': 'New apartment',
-  'apartments.newAria': 'New apartment',
+  'apartments.empty': 'No listings yet. Tap {newApartment} to add one.',
+  'apartments.noMatch': 'No listings match “{query}”.',
+  'apartments.newApartment': 'New listing',
+  'apartments.newAria': 'New listing',
 
-  'newApartment.title': 'Create apartment',
-  'newApartment.description': "Start tracking a new place you're considering.",
-  'newApartment.created': 'Apartment created.',
-  'newApartment.createFailed': 'Could not create apartment.',
-  'newApartment.submit': 'Create apartment',
+  'newApartment.title': 'Create listing',
+  'newApartment.description':
+    'Pick a checklist template, then add the basics. You can compare cars, rentals, off-plan units, and more side by side.',
+  'newApartment.templateLabel': 'Checklist template',
+  'newApartment.loadingTemplates': 'Loading templates…',
+  'newApartment.templateAria': 'Inspection checklist template',
+  'newApartment.templatePlaceholder': 'Choose a template',
+  'newApartment.created': 'Listing created.',
+  'newApartment.createFailed': 'Could not create listing.',
+  'newApartment.submit': 'Create listing',
 
-  'editApartment.title': 'Edit apartment',
+  'editApartment.title': 'Edit listing',
   'editApartment.description': 'Update listing details.',
-  'editApartment.loading': 'Loading apartment…',
-  'editApartment.updated': 'Apartment updated.',
+  'editApartment.loading': 'Loading listing…',
+  'editApartment.updated': 'Listing updated.',
   'editApartment.saveFailed': 'Could not save changes.',
-  'editApartment.remove': 'Remove apartment',
-  'editApartment.removeTitle': 'Remove this apartment?',
+  'editApartment.remove': 'Remove listing',
+  'editApartment.removeTitle': 'Remove this listing?',
   'editApartment.removeDescription':
     'This permanently deletes the listing, photos, and inspection answers. This cannot be undone.',
-  'editApartment.removed': 'Apartment removed.',
-  'editApartment.removeFailed': 'Could not remove apartment.',
+  'editApartment.removed': 'Listing removed.',
+  'editApartment.removeFailed': 'Could not remove listing.',
   'editApartment.saveChanges': 'Save changes',
 
-  'detail.loading': 'Loading apartment…',
+  'detail.loading': 'Loading listing…',
   'detail.reviewInspection': 'Review inspection',
   'detail.startInspection': 'Start / resume inspection',
   'detail.overview': 'Overview',
@@ -111,8 +117,8 @@ const EN = {
   'detail.criticalGaps': 'Critical gaps',
   'detail.noQuestions': 'No questions configured yet.',
   'detail.missingRequiredTitle': 'Missing required answers',
-  'detail.allApartments': 'All apartments',
-  'detail.editAria': 'Edit apartment',
+  'detail.allApartments': 'All listings',
+  'detail.editAria': 'Edit listing',
 
   'apartmentForm.title': 'Title',
   'apartmentForm.titlePlaceholder': 'e.g. Riverside 2BR',
@@ -156,14 +162,14 @@ const EN = {
   'answerField.rateN': 'Rate {n}',
 
   'export.title': 'Export',
-  'export.description': 'Download all apartments and answers as JSON or XLSX.',
+  'export.description': 'Download all listings and answers as JSON or XLSX.',
   'export.placeholder': 'JSON and XLSX export tools land in Phase 5.',
 
   'inspection.loading': 'Loading inspection…',
   'inspection.title': 'Inspection',
   'inspection.noQuestionsBody':
     'There are no active questions yet. Add questions under the Questions tab first.',
-  'inspection.apartment': 'Apartment',
+  'inspection.apartment': 'Listing',
   'inspection.summary': 'Summary',
   'inspection.summaryDone': 'All required questions have an answer.',
   'inspection.summaryMissing': '{n} required question(s) still need an answer.',
@@ -173,21 +179,31 @@ const EN = {
   'inspection.jumpTo': 'Jump to section',
   'inspection.autosave': 'Answers save automatically as you go.',
 
-  'compare.loadingApts': 'Loading apartments…',
-  'compare.noApts': 'No apartments yet.',
-  'compare.selectLabel': 'Apartments to compare',
-  'compare.choose': 'Choose apartments',
+  'compare.loadingApts': 'Loading listings…',
+  'compare.noApts': 'No listings yet.',
+  'compare.selectLabel': 'Listings to compare',
+  'compare.choose': 'Choose listings',
   'compare.colQuestion': 'Question',
-  'compare.all': 'All apartments',
+  'compare.all': 'All · same checklist as newest',
   'compare.none': 'None selected',
-  'compare.multi': '{selected} of {total} apartments',
+  'compare.multi': '{selected} of {total} with this checklist',
   'compare.loadingQs': 'Loading questions…',
-  'compare.loadFailed': 'Could not load answers for one or more apartments.',
-  'compare.noneSelected': 'No apartments selected.',
+  'compare.loadFailed': 'Could not load answers for one or more listings.',
+  'compare.loadChecklistFailed':
+    'Could not load checklist for one or more listings.',
+  'compare.noneSelected': 'No listings selected.',
   'compare.loadingAnswers': 'Loading answers…',
   'compare.noQuestions': 'No questions yet.',
+  'compare.noQuestionsInScope':
+    'No questions in scope for the selected listings.',
   'compare.hasNote': 'Has note',
   'compare.noAnswer': 'No answer',
+  'compare.templateActive':
+    'Checklist template: {name}. Add more listings that use this template, or pick a different listing to switch templates.',
+  'compare.templatePick':
+    'Only listings with the same checklist template are compared together. Choosing a listing with another template replaces your selection.',
+  'compare.toastSwitched':
+    "Switched compare to this listing's template — add more listings that use the same checklist.",
 
   'questionType.text': 'Text',
   'questionType.number': 'Number',
@@ -199,7 +215,7 @@ const EN = {
 
   'questions.pageTitle': 'Question Management',
   'questions.pageDescription':
-    'The catalog of questions used during every apartment inspection.',
+    'Your global checklist (optional extras). Each new listing gets its own copy from the template you pick at creation.',
   'questions.loading': 'Loading questions…',
   'questions.categories': 'Categories',
   'questions.newCategoryPh': 'New category name',
@@ -274,7 +290,7 @@ export type MessageId = keyof typeof EN
 
 const RU: Record<MessageId, string> = {
   'nav.dashboard': 'Панель',
-  'nav.apartments': 'Квартиры',
+  'nav.apartments': 'Объявления',
   'nav.questions': 'Вопросы',
   'nav.compare': 'Сравнение',
   'nav.export': 'Экспорт',
@@ -294,7 +310,8 @@ const RU: Record<MessageId, string> = {
   'login.failedGeneric': 'Не удалось войти. Попробуйте снова.',
 
   'register.title': 'Создать аккаунт',
-  'register.subtitle': 'Начните вести осмотры квартир',
+  'register.subtitle':
+    'Отслеживайте сравниваемые варианты: жильё, аренду, авто и другое',
   'register.confirmPassword': 'Подтвердите пароль',
   'register.repeatPassword': 'Повторите пароль',
   'register.submit': 'Создать аккаунт',
@@ -336,44 +353,49 @@ const RU: Record<MessageId, string> = {
   'common.extraNote': 'Доп. заметка',
 
   'errors.generic': 'Что-то пошло не так.',
-  'errors.notFound': 'Квартира не найдена.',
+  'errors.notFound': 'Объявление не найдено.',
   'errors.routeError': 'Ошибка маршрута {status}: {detail}',
   'errors.routeUnknown': 'Неизвестный статус.',
   'errors.saveAnswer': 'Не удалось сохранить ответ.',
 
   'apartments.searchPlaceholder': 'Поиск по названию или адресу…',
-  'apartments.searchAria': 'Поиск квартир',
-  'apartments.loading': 'Загрузка квартир…',
+  'apartments.searchAria': 'Поиск объявлений',
+  'apartments.loading': 'Загрузка объявлений…',
   'apartments.noAddress': 'Адрес не указан',
   'apartments.new': 'Новая',
   'apartments.criticalMissingOne': '{n} критический вопрос без ответа',
   'apartments.criticalMissingMany': '{n} критических вопросов без ответа',
   'apartments.empty':
-    'Пока нет квартир. Нажмите «{newApartment}», чтобы добавить.',
-  'apartments.noMatch': 'Нет квартир по запросу «{query}».',
-  'apartments.newApartment': 'Новая квартира',
-  'apartments.newAria': 'Новая квартира',
+    'Пока нет объявлений. Нажмите «{newApartment}», чтобы добавить.',
+  'apartments.noMatch': 'Нет объявлений по запросу «{query}».',
+  'apartments.newApartment': 'Новое объявление',
+  'apartments.newAria': 'Новое объявление',
 
-  'newApartment.title': 'Создать квартиру',
-  'newApartment.description': 'Начните учёт нового объекта.',
-  'newApartment.created': 'Квартира создана.',
-  'newApartment.createFailed': 'Не удалось создать квартиру.',
-  'newApartment.submit': 'Создать квартиру',
+  'newApartment.title': 'Создать объявление',
+  'newApartment.description':
+    'Выберите шаблон чек-листа и заполните основное. Можно сравнивать авто, аренду, новостройки и другое.',
+  'newApartment.templateLabel': 'Шаблон чек-листа',
+  'newApartment.loadingTemplates': 'Загрузка шаблонов…',
+  'newApartment.templateAria': 'Шаблон чек-листа осмотра',
+  'newApartment.templatePlaceholder': 'Выберите шаблон',
+  'newApartment.created': 'Объявление создано.',
+  'newApartment.createFailed': 'Не удалось создать объявление.',
+  'newApartment.submit': 'Создать объявление',
 
-  'editApartment.title': 'Редактировать квартиру',
+  'editApartment.title': 'Редактировать объявление',
   'editApartment.description': 'Обновите данные объявления.',
-  'editApartment.loading': 'Загрузка квартиры…',
-  'editApartment.updated': 'Квартира обновлена.',
+  'editApartment.loading': 'Загрузка объявления…',
+  'editApartment.updated': 'Объявление обновлено.',
   'editApartment.saveFailed': 'Не удалось сохранить изменения.',
-  'editApartment.remove': 'Удалить квартиру',
-  'editApartment.removeTitle': 'Удалить эту квартиру?',
+  'editApartment.remove': 'Удалить объявление',
+  'editApartment.removeTitle': 'Удалить это объявление?',
   'editApartment.removeDescription':
     'Будут удалены объявление, фото и ответы осмотра. Это нельзя отменить.',
-  'editApartment.removed': 'Квартира удалена.',
-  'editApartment.removeFailed': 'Не удалось удалить квартиру.',
+  'editApartment.removed': 'Объявление удалено.',
+  'editApartment.removeFailed': 'Не удалось удалить объявление.',
   'editApartment.saveChanges': 'Сохранить изменения',
 
-  'detail.loading': 'Загрузка квартиры…',
+  'detail.loading': 'Загрузка объявления…',
   'detail.reviewInspection': 'Просмотр осмотра',
   'detail.startInspection': 'Начать / продолжить осмотр',
   'detail.overview': 'Обзор',
@@ -384,8 +406,8 @@ const RU: Record<MessageId, string> = {
   'detail.criticalGaps': 'Критические пробелы',
   'detail.noQuestions': 'Вопросы ещё не настроены.',
   'detail.missingRequiredTitle': 'Нет ответов на обязательные вопросы',
-  'detail.allApartments': 'Все квартиры',
-  'detail.editAria': 'Редактировать квартиру',
+  'detail.allApartments': 'Все объявления',
+  'detail.editAria': 'Редактировать объявление',
 
   'apartmentForm.title': 'Название',
   'apartmentForm.titlePlaceholder': 'напр. Riverside 2BR',
@@ -427,14 +449,14 @@ const RU: Record<MessageId, string> = {
   'answerField.rateN': 'Оценка {n}',
 
   'export.title': 'Экспорт',
-  'export.description': 'Скачать все квартиры и ответы в JSON или XLSX.',
+  'export.description': 'Скачать все объявления и ответы в JSON или XLSX.',
   'export.placeholder': 'Экспорт JSON и XLSX — в фазе 5.',
 
   'inspection.loading': 'Загрузка осмотра…',
   'inspection.title': 'Осмотр',
   'inspection.noQuestionsBody':
     'Активных вопросов пока нет. Сначала добавьте их на вкладке «Вопросы».',
-  'inspection.apartment': 'Квартира',
+  'inspection.apartment': 'Объявление',
   'inspection.summary': 'Итог',
   'inspection.summaryDone': 'На все обязательные вопросы есть ответы.',
   'inspection.summaryMissing':
@@ -445,22 +467,31 @@ const RU: Record<MessageId, string> = {
   'inspection.jumpTo': 'Перейти к разделу',
   'inspection.autosave': 'Ответы сохраняются автоматически.',
 
-  'compare.loadingApts': 'Загрузка квартир…',
-  'compare.noApts': 'Пока нет квартир.',
-  'compare.selectLabel': 'Квартиры для сравнения',
-  'compare.choose': 'Выберите квартиры',
+  'compare.loadingApts': 'Загрузка объявлений…',
+  'compare.noApts': 'Пока нет объявлений.',
+  'compare.selectLabel': 'Объявления для сравнения',
+  'compare.choose': 'Выберите объявления',
   'compare.colQuestion': 'Вопрос',
-  'compare.all': 'Все квартиры',
+  'compare.all': 'Все · тот же чек-лист, что у самого нового',
   'compare.none': 'Ничего не выбрано',
-  'compare.multi': '{selected} из {total} квартир',
+  'compare.multi': '{selected} из {total} с этим чек-листом',
   'compare.loadingQs': 'Загрузка вопросов…',
   'compare.loadFailed':
-    'Не удалось загрузить ответы для одной или нескольких квартир.',
-  'compare.noneSelected': 'Квартиры не выбраны.',
+    'Не удалось загрузить ответы для одного или нескольких объявлений.',
+  'compare.loadChecklistFailed':
+    'Не удалось загрузить чек-лист для одного или нескольких объявлений.',
+  'compare.noneSelected': 'Объявления не выбраны.',
   'compare.loadingAnswers': 'Загрузка ответов…',
   'compare.noQuestions': 'Пока нет вопросов.',
+  'compare.noQuestionsInScope': 'Нет вопросов в области выбранных объявлений.',
   'compare.hasNote': 'Есть заметка',
   'compare.noAnswer': 'Нет ответа',
+  'compare.templateActive':
+    'Шаблон чек-листа: {name}. Добавьте объявления с тем же шаблоном или выберите другое — сравнение переключится.',
+  'compare.templatePick':
+    'Сравниваются только объявления с одинаковым шаблоном чек-листа. Выбор объявления с другим шаблоном заменит текущий выбор.',
+  'compare.toastSwitched':
+    'Сравнение переключено на шаблон этого объявления — добавьте ещё объявления с тем же чек-листом.',
 
   'questionType.text': 'Текст',
   'questionType.number': 'Число',
@@ -471,7 +502,8 @@ const RU: Record<MessageId, string> = {
   'questionType.rating': 'Рейтинг',
 
   'questions.pageTitle': 'Управление вопросами',
-  'questions.pageDescription': 'Каталог вопросов для каждого осмотра квартиры.',
+  'questions.pageDescription':
+    'Глобальный чек-лист (доп. вопросы). У каждого нового объявления — своя копия из шаблона при создании.',
   'questions.loading': 'Загрузка вопросов…',
   'questions.categories': 'Категории',
   'questions.newCategoryPh': 'Название новой категории',
@@ -543,7 +575,7 @@ const RU: Record<MessageId, string> = {
 
 const EL: Record<MessageId, string> = {
   'nav.dashboard': 'Αρχική',
-  'nav.apartments': 'Διαμερίσματα',
+  'nav.apartments': 'Καταχωρίσεις',
   'nav.questions': 'Ερωτήσεις',
   'nav.compare': 'Σύγκριση',
   'nav.export': 'Εξαγωγή',
@@ -563,7 +595,8 @@ const EL: Record<MessageId, string> = {
   'login.failedGeneric': 'Η σύνδεση απέτυχε. Δοκιμάστε ξανά.',
 
   'register.title': 'Δημιουργία λογαριασμού',
-  'register.subtitle': 'Ξεκινήστε να παρακολουθείτε τις επισκέψεις σας',
+  'register.subtitle':
+    'Παρακολουθήστε μέρη που συγκρίνετε (σπίτια, ενοικίαση, αυτοκίνητα και άλλα)',
   'register.confirmPassword': 'Επιβεβαίωση κωδικού',
   'register.repeatPassword': 'Επανάληψη κωδικού',
   'register.submit': 'Δημιουργία λογαριασμού',
@@ -605,44 +638,49 @@ const EL: Record<MessageId, string> = {
   'common.extraNote': 'Επιπλέον σημείωση',
 
   'errors.generic': 'Κάτι πήγε στραβά.',
-  'errors.notFound': 'Το διαμέρισμα δεν βρέθηκε.',
+  'errors.notFound': 'Η καταχώριση δεν βρέθηκε.',
   'errors.routeError': 'Σφάλμα διαδρομής {status}: {detail}',
   'errors.routeUnknown': 'Άγνωστη κατάσταση.',
   'errors.saveAnswer': 'Αποτυχία αποθήκευσης απάντησης.',
 
   'apartments.searchPlaceholder': 'Αναζήτηση με τίτλο ή διεύθυνση…',
-  'apartments.searchAria': 'Αναζήτηση διαμερισμάτων',
-  'apartments.loading': 'Φόρτωση διαμερισμάτων…',
+  'apartments.searchAria': 'Αναζήτηση καταχωρίσεων',
+  'apartments.loading': 'Φόρτωση καταχωρίσεων…',
   'apartments.noAddress': 'Χωρίς διεύθυνση ακόμη',
   'apartments.new': 'Νέο',
   'apartments.criticalMissingOne': '{n} κρίσιμη ερώτηση λείπει',
   'apartments.criticalMissingMany': '{n} κρίσιμες ερωτήσεις λείπουν',
   'apartments.empty':
-    'Δεν υπάρχουν διαμερίσματα. Πατήστε «{newApartment}» για προσθήκη.',
-  'apartments.noMatch': 'Κανένα διαμέρισμα δεν ταιριάζει με «{query}».',
-  'apartments.newApartment': 'Νέο διαμέρισμα',
-  'apartments.newAria': 'Νέο διαμέρισμα',
+    'Δεν υπάρχουν καταχωρίσεις ακόμη. Πατήστε «{newApartment}» για προσθήκη.',
+  'apartments.noMatch': 'Καμία καταχώριση δεν ταιριάζει με «{query}».',
+  'apartments.newApartment': 'Νέα καταχώριση',
+  'apartments.newAria': 'Νέα καταχώριση',
 
-  'newApartment.title': 'Δημιουργία διαμερίσματος',
-  'newApartment.description': 'Ξεκινήστε για ένα νέο ακίνητο που εξετάζετε.',
-  'newApartment.created': 'Το διαμέρισμα δημιουργήθηκε.',
-  'newApartment.createFailed': 'Αποτυχία δημιουργίας διαμερίσματος.',
-  'newApartment.submit': 'Δημιουργία διαμερίσματος',
+  'newApartment.title': 'Νέα καταχώριση',
+  'newApartment.description':
+    'Επιλέξτε πρότυπο λίστας ελέγχου και συμπληρώστε τα βασικά. Μπορείτε να συγκρίνετε αυτοκίνητα, ενοικίαση, off-plan και άλλα.',
+  'newApartment.templateLabel': 'Πρότυπο λίστας ελέγχου',
+  'newApartment.loadingTemplates': 'Φόρτωση προτύπων…',
+  'newApartment.templateAria': 'Πρότυπο λίστας ελέγχου επίσκεψης',
+  'newApartment.templatePlaceholder': 'Επιλέξτε πρότυπο',
+  'newApartment.created': 'Η καταχώριση δημιουργήθηκε.',
+  'newApartment.createFailed': 'Αποτυχία δημιουργίας καταχώρισης.',
+  'newApartment.submit': 'Δημιουργία καταχώρισης',
 
-  'editApartment.title': 'Επεξεργασία διαμερίσματος',
+  'editApartment.title': 'Επεξεργασία καταχώρισης',
   'editApartment.description': 'Ενημερώστε τα στοιχεία της καταχώρισης.',
-  'editApartment.loading': 'Φόρτωση διαμερίσματος…',
-  'editApartment.updated': 'Το διαμέρισμα ενημερώθηκε.',
+  'editApartment.loading': 'Φόρτωση καταχώρισης…',
+  'editApartment.updated': 'Η καταχώριση ενημερώθηκε.',
   'editApartment.saveFailed': 'Αποτυχία αποθήκευσης αλλαγών.',
-  'editApartment.remove': 'Διαγραφή διαμερίσματος',
-  'editApartment.removeTitle': 'Διαγραφή αυτού του διαμερίσματος;',
+  'editApartment.remove': 'Διαγραφή καταχώρισης',
+  'editApartment.removeTitle': 'Διαγραφή αυτής της καταχώρισης;',
   'editApartment.removeDescription':
     'Διαγράφονται οριστικά η καταχώριση, οι φωτογραφίες και οι απαντήσεις. Δεν αναιρείται.',
-  'editApartment.removed': 'Το διαμέρισμα διαγράφηκε.',
-  'editApartment.removeFailed': 'Αποτυχία διαγραφής διαμερίσματος.',
+  'editApartment.removed': 'Η καταχώριση διαγράφηκε.',
+  'editApartment.removeFailed': 'Αποτυχία διαγραφής καταχώρισης.',
   'editApartment.saveChanges': 'Αποθήκευση αλλαγών',
 
-  'detail.loading': 'Φόρτωση διαμερίσματος…',
+  'detail.loading': 'Φόρτωση καταχώρισης…',
   'detail.reviewInspection': 'Ανασκόπηση επίσκεψης',
   'detail.startInspection': 'Έναρξη / συνέχιση επίσκεψης',
   'detail.overview': 'Επισκόπηση',
@@ -653,8 +691,8 @@ const EL: Record<MessageId, string> = {
   'detail.criticalGaps': 'Κρίσινα κενά',
   'detail.noQuestions': 'Δεν έχουν ρυθμιστεί ερωτήσεις ακόμη.',
   'detail.missingRequiredTitle': 'Λείπουν υποχρεωτικές απαντήσεις',
-  'detail.allApartments': 'Όλα τα διαμερίσματα',
-  'detail.editAria': 'Επεξεργασία διαμερίσματος',
+  'detail.allApartments': 'Όλες οι καταχωρίσεις',
+  'detail.editAria': 'Επεξεργασία καταχώρισης',
 
   'apartmentForm.title': 'Τίτλος',
   'apartmentForm.titlePlaceholder': 'π.χ. Riverside 2BR',
@@ -698,7 +736,7 @@ const EL: Record<MessageId, string> = {
 
   'export.title': 'Εξαγωγή',
   'export.description':
-    'Λήψη όλων των διαμερισμάτων και απαντήσεων ως JSON ή XLSX.',
+    'Λήψη όλων των καταχωρίσεων και απαντήσεων ως JSON ή XLSX.',
   'export.placeholder':
     'Τα εργαλεία εξαγωγής JSON και XLSX έρχονται στη φάση 5.',
 
@@ -706,7 +744,7 @@ const EL: Record<MessageId, string> = {
   'inspection.title': 'Επίσκεψη',
   'inspection.noQuestionsBody':
     'Δεν υπάρχουν ενεργές ερωτήσεις. Προσθέστε από την καρτέλα Ερωτήσεις.',
-  'inspection.apartment': 'Διαμέρισμα',
+  'inspection.apartment': 'Καταχώριση',
   'inspection.summary': 'Σύνοψη',
   'inspection.summaryDone': 'Όλες οι υποχρεωτικές ερωτήσεις έχουν απάντηση.',
   'inspection.summaryMissing':
@@ -717,22 +755,32 @@ const EL: Record<MessageId, string> = {
   'inspection.jumpTo': 'Μετάβαση σε ενότητα',
   'inspection.autosave': 'Οι απαντήσεις αποθηκεύονται αυτόματα.',
 
-  'compare.loadingApts': 'Φόρτωση διαμερισμάτων…',
-  'compare.noApts': 'Δεν υπάρχουν διαμερίσματα ακόμη.',
-  'compare.selectLabel': 'Διαμερίσματα για σύγκριση',
-  'compare.choose': 'Επιλέξτε διαμερίσματα',
+  'compare.loadingApts': 'Φόρτωση καταχωρίσεων…',
+  'compare.noApts': 'Δεν υπάρχουν καταχωρίσεις ακόμη.',
+  'compare.selectLabel': 'Καταχωρίσεις για σύγκριση',
+  'compare.choose': 'Επιλέξτε καταχωρίσεις',
   'compare.colQuestion': 'Ερώτηση',
-  'compare.all': 'Όλα τα διαμερίσματα',
+  'compare.all': 'Όλα · ίδια λίστα με τη νεότερη καταχώριση',
   'compare.none': 'Καμία επιλογή',
-  'compare.multi': '{selected} από {total} διαμερίσματα',
+  'compare.multi': '{selected} από {total} με αυτή τη λίστα',
   'compare.loadingQs': 'Φόρτωση ερωτήσεων…',
   'compare.loadFailed':
-    'Αποτυχία φόρτωσης απαντήσεων για ένα ή περισσότερα διαμερίσματα.',
-  'compare.noneSelected': 'Δεν επιλέχθηκαν διαμερίσματα.',
+    'Αποτυχία φόρτωσης απαντήσεων για μία ή περισσότερες καταχωρίσεις.',
+  'compare.loadChecklistFailed':
+    'Αποτυχία φόρτωσης λίστας ελέγχου για μία ή περισσότερες καταχωρίσεις.',
+  'compare.noneSelected': 'Δεν επιλέχθηκαν καταχωρίσεις.',
   'compare.loadingAnswers': 'Φόρτωση απαντήσεων…',
   'compare.noQuestions': 'Δεν υπάρχουν ερωτήσεις ακόμη.',
+  'compare.noQuestionsInScope':
+    'Δεν υπάρχουν ερωτήσεις για τις επιλεγμένες καταχωρίσεις.',
   'compare.hasNote': 'Έχει σημείωση',
   'compare.noAnswer': 'Χωρίς απάντηση',
+  'compare.templateActive':
+    'Πρότυπο λίστας: {name}. Προσθέστε καταχωρίσεις με το ίδιο πρότυπο ή επιλέξτε άλλη για αλλαγή.',
+  'compare.templatePick':
+    'Συγκρίνονται μόνο καταχωρίσεις με το ίδιο πρότυπο λίστας. Η επιλογή άλλου προτύπου αντικαθιστά την τρέχουσα επιλογή.',
+  'compare.toastSwitched':
+    'Η σύγκριση άλλαξε στο πρότυπο αυτής της καταχώρισης — προσθέστε κι άλλες με την ίδια λίστα.',
 
   'questionType.text': 'Κείμενο',
   'questionType.number': 'Αριθμός',
@@ -744,7 +792,7 @@ const EL: Record<MessageId, string> = {
 
   'questions.pageTitle': 'Διαχείριση ερωτήσεων',
   'questions.pageDescription':
-    'Ο κατάλογος ερωτήσεων για κάθε επίσκεψη διαμερίσματος.',
+    'Καθολική λίστα (προαιρετικά επιπλέον). Κάθε νέα καταχώριση παίρνει αντίγραφο από το πρότυπο που επιλέγετε κατά τη δημιουργία.',
   'questions.loading': 'Φόρτωση ερωτήσεων…',
   'questions.categories': 'Κατηγορίες',
   'questions.newCategoryPh': 'Όνομα νέας κατηγορίας',

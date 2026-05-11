@@ -76,7 +76,7 @@ export function InspectionPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const apartmentQuery = useApartment(id)
-  const questionsQuery = useQuestions(false)
+  const questionsQuery = useQuestions({ apartmentId: id })
   const upsert = useUpsertAnswer()
   const { queueSave, flushSave } = useDebouncedAnswerSave(upsert.mutateAsync)
 

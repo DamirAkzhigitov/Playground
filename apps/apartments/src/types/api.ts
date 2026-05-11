@@ -17,6 +17,13 @@ export type RegisterInput = {
   password: string
 }
 
+export type InspectionTemplateSummary = {
+  slug: string
+  name: string
+  description: string
+  sortOrder: number
+}
+
 export type QuestionType =
   | 'text'
   | 'number'
@@ -50,6 +57,8 @@ export type Question = {
   order: number
   ratingMin: number | null
   ratingMax: number | null
+  /** Stable id when copied from a shared template (for compare across listings). */
+  stableKey: string | null
   options: QuestionOption[]
 }
 
@@ -65,6 +74,7 @@ export type Apartment = {
   notes: string | null
   createdAt: string
   updatedAt: string
+  templateSlug: string | null
   completion?: {
     answeredQuestions: number
     totalQuestions: number
@@ -139,6 +149,8 @@ export type CreateApartmentInput = {
   address?: string | null
   price?: number | null
   notes?: string | null
+  /** Shared checklist preset; defaults to residential on the server. */
+  templateSlug?: string | null
 }
 
 export type UpdateApartmentInput = Partial<CreateApartmentInput>

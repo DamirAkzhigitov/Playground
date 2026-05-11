@@ -32,7 +32,10 @@ export const useCreateApartment = () => {
         body: payload
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.apartments })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.apartments }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.questions })
+      ])
     }
   })
 }
@@ -70,7 +73,8 @@ export const useDeleteApartment = () => {
     onSuccess: async (_, id) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.apartments }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.apartment(id) })
+        queryClient.invalidateQueries({ queryKey: queryKeys.apartment(id) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.questions })
       ])
     }
   })

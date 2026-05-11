@@ -22,7 +22,7 @@ const categories = new Hono<AppEnv>()
 categories.get('/', async (c) => {
   const userId = c.get('userId')
   const result = await c.env.DB.prepare(
-    'SELECT id, name, "order" FROM categories WHERE user_id = ? ORDER BY "order" ASC, name ASC'
+    'SELECT id, name, "order" FROM categories WHERE user_id = ? AND apartment_id IS NULL ORDER BY "order" ASC, name ASC'
   )
     .bind(userId)
     .all()
@@ -43,7 +43,7 @@ categories.post('/', async (c) => {
         .first<{ value: number }>()
     )?.value ?? 0) + 1
   await c.env.DB.prepare(
-    'INSERT INTO categories (id, name, "order", user_id) VALUES (?, ?, ?, ?)'
+    'INSERT INTO categories (id, name, "order", user_id, apartment_id) VALUES (?, ?, ?, ?, NULL)'
   )
     .bind(id, payload.name, order, userId)
     .run()

@@ -2,7 +2,6 @@ import { Hono } from 'hono'
 import { setCookie, deleteCookie } from 'hono/cookie'
 import { z } from 'zod'
 import { hashPassword, verifyPassword } from './crypto'
-import { seedDefaultData } from './seed'
 import { requireAuth } from './middleware'
 import type { AppEnv } from './types'
 
@@ -50,8 +49,6 @@ auth.post('/register', async (c) => {
   )
     .bind(userId, email, passwordHash, now)
     .run()
-
-  await seedDefaultData(c.env.DB, userId)
 
   const sessionId = crypto.randomUUID()
   const expiresAt = new Date(Date.now() + SESSION_MAX_AGE * 1000).toISOString()

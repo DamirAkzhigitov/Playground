@@ -11,7 +11,7 @@ exports_.get('/json', async (c) => {
 
   dump.categories = typedRows(
     await c.env.DB.prepare(
-      'SELECT id, name, "order" FROM categories WHERE user_id = ?'
+      'SELECT id, name, "order", apartment_id FROM categories WHERE user_id = ?'
     )
       .bind(userId)
       .all()
@@ -19,7 +19,7 @@ exports_.get('/json', async (c) => {
 
   dump.questions = typedRows(
     await c.env.DB.prepare(
-      'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max FROM questions WHERE user_id = ?'
+      'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, apartment_id, stable_key FROM questions WHERE user_id = ?'
     )
       .bind(userId)
       .all()
@@ -41,7 +41,7 @@ exports_.get('/json', async (c) => {
 
   dump.apartments = typedRows(
     await c.env.DB.prepare(
-      'SELECT id, title, address, price, notes, created_at, updated_at FROM apartments WHERE user_id = ?'
+      'SELECT id, title, address, price, notes, created_at, updated_at, template_slug FROM apartments WHERE user_id = ?'
     )
       .bind(userId)
       .all()
@@ -76,14 +76,7 @@ exports_.get('/xlsx', async (c) => {
   const userId = c.get('userId')
   const apartmentRows = typedRows(
     await c.env.DB.prepare(
-      'SELECT id, title, address, price, notes FROM apartments WHERE user_id = ? ORDER BY created_at DESC'
-    )
-      .bind(userId)
-      .all()
-  )
-  const questionRows = typedRows(
-    await c.env.DB.prepare(
-      'SELECT id, label FROM questions WHERE is_archived = 0 AND user_id = ? ORDER BY category_id ASC, "order" ASC'
+      'SELECT id, title, address, price, notes, template_slug FROM apartments WHERE user_id = ? ORDER BY created_at DESC'
     )
       .bind(userId)
       .all()
@@ -112,26 +105,52 @@ exports_.get('/xlsx', async (c) => {
     answersByApartment.set(apartmentId, apartmentAnswers)
   }
 
-  const records = apartmentRows.map((apartmentRow) => {
+  const questionSql = `SELECT id, label, stable_key FROM questions q
+     WHERE q.is_archived = 0 AND q.user_id = ?
+     AND (
+       q.apartment_id = ?
+       OR (
+         q.apartment_id IS NULL
+         AND NOT EXISTS (
+           SELECT 1 FROM questions qs
+           WHERE qs.user_id = q.user_id AND qs.apartment_id = ?
+         )
+       )
+     )
+     ORDER BY q.category_id ASC, q."order" ASC`
+
+  const records: Record<string, string | number | null>[] = []
+  for (const apartmentRow of apartmentRows) {
+    const aptId = String(apartmentRow.id)
+    const questionRows = typedRows(
+      await c.env.DB.prepare(questionSql).bind(userId, aptId, aptId).all()
+    )
     const baseRecord: Record<string, string | number | null> = {
-      apartmentId: String(apartmentRow.id),
+      apartmentId: aptId,
       title: String(apartmentRow.title),
       address: (apartmentRow.address as string | null) ?? null,
       price: (apartmentRow.price as number | null) ?? null,
-      notes: (apartmentRow.notes as string | null) ?? null
+      notes: (apartmentRow.notes as string | null) ?? null,
+      templateSlug:
+        apartmentRow.template_slug != null
+          ? String(apartmentRow.template_slug)
+          : null
     }
-    const apartmentAnswers =
-      answersByApartment.get(String(apartmentRow.id)) ?? new Map()
+    const apartmentAnswers = answersByApartment.get(aptId) ?? new Map()
     for (const questionRow of questionRows) {
-      baseRecord[String(questionRow.label)] =
-        apartmentAnswers.get(String(questionRow.id)) ?? null
+      const qid = String(questionRow.id)
+      const colKey =
+        questionRow.stable_key != null && String(questionRow.stable_key).trim()
+          ? String(questionRow.stable_key)
+          : `question:${qid}`
+      baseRecord[colKey] = apartmentAnswers.get(qid) ?? null
     }
-    return baseRecord
-  })
+    records.push(baseRecord)
+  }
 
   const workbook = XLSX.utils.book_new()
   const worksheet = XLSX.utils.json_to_sheet(records)
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Apartments')
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Listings')
   const buffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' })
 
   return new Response(buffer, {

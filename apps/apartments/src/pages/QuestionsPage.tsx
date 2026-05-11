@@ -150,7 +150,7 @@ export function QuestionsPage() {
   >({})
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null)
 
-  const questionsQuery = useQuestions(true)
+  const questionsQuery = useQuestions({ includeArchived: true })
   const categoriesQuery = useCategories()
   const createQuestion = useCreateQuestion()
   const updateQuestion = useUpdateQuestion()
