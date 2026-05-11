@@ -2,7 +2,9 @@
 
 Monorepo for [da-mr.com](https://da-mr.com) and its subdomain tools.
 
-- **`apps/main`** — `da-mr.com`. The main page (resume + dashboard of tools).
+- **`apps/main`** — `da-mr.com`. Simple main page with a list of projects/tools.
+  Plain static site (Vite + vanilla JS/CSS). No React, no framework.
+- **`apps/resume`** — `resume.da-mr.com`. Dedicated resume app.
   Plain static site (Vite + vanilla JS/CSS). No React, no framework.
 - **`apps/<tool>`** — `<tool>.da-mr.com`. Each tool is an independent app
   deployed to its own Cloudflare Pages project under its own subdomain.
@@ -56,17 +58,10 @@ changed.
 ```
 .
 ├── apps/
-│   └── main/                 # da-mr.com (static, vanilla)
-│       ├── index.html
-│       ├── src/{main.js, style.css}
-│       ├── public/
-│       ├── tests/
-│       ├── package.json      # @playground/main
-│       ├── vite.config.ts
-│       ├── vitest.config.ts
-│       ├── tsconfig.json
-│       ├── eslint.config.js
-│       └── wrangler.toml     # CF Pages project name: "playground"
+│   ├── main/                 # da-mr.com (tools directory)
+│   │   └── ...               # @playground/main
+│   └── resume/               # resume.da-mr.com (resume app)
+│       └── ...               # @playground/resume
 ├── packages/                 # shared code (currently empty)
 ├── .github/workflows/
 │   ├── ci.yml                # lint/test/build on PR and push
