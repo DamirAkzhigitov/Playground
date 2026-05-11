@@ -629,7 +629,7 @@ export function QuestionsPage() {
         open={isEditorOpen}
       >
         <SheetContent
-          className="w-full overflow-y-auto sm:max-w-lg"
+          className="flex max-h-[90dvh] w-full flex-col overflow-hidden sm:max-w-lg"
           side="bottom"
         >
           <SheetHeader>
@@ -638,139 +638,98 @@ export function QuestionsPage() {
               Configure the question and how it should appear in inspections.
             </SheetDescription>
           </SheetHeader>
-          <Form {...form}>
-            <form
-              className="space-y-4 px-4 pb-4"
-              id="question-form"
-              onSubmit={onSubmit}
-            >
-              <FormField
-                control={form.control}
-                name="label"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Label</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. Apartment title matches listing?"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <Form {...form}>
+              <form
+                className="space-y-4 px-4 pb-4"
+                id="question-form"
+                onSubmit={onSubmit}
+              >
                 <FormField
                   control={form.control}
-                  name="type"
+                  name="label"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Pick a type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {QUESTION_TYPES.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="categoryId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Pick a category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="order"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Order</FormLabel>
+                      <FormLabel>Label</FormLabel>
                       <FormControl>
                         <Input
-                          min={0}
-                          name={field.name}
-                          onBlur={field.onBlur}
-                          onChange={(event) =>
-                            field.onChange(event.target.value)
-                          }
-                          ref={field.ref}
-                          type="number"
-                          value={String(field.value ?? '')}
+                          placeholder="e.g. Apartment title matches listing?"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="required"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center gap-3 pt-6">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="!mt-0">Required</FormLabel>
-                    </FormItem>
-                  )}
-                />
-              </div>
 
-              {selectedType === 'rating' ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="ratingMin"
+                    name="type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Rating min</FormLabel>
+                        <FormLabel>Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Pick a type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {QUESTION_TYPES.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Pick a category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="order"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Order</FormLabel>
                         <FormControl>
                           <Input
-                            min={1}
+                            min={0}
                             name={field.name}
                             onBlur={field.onBlur}
                             onChange={(event) =>
@@ -787,138 +746,186 @@ export function QuestionsPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="ratingMax"
+                    name="required"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Rating max</FormLabel>
+                      <FormItem className="flex flex-row items-center gap-3 pt-6">
                         <FormControl>
-                          <Input
-                            min={1}
-                            name={field.name}
-                            onBlur={field.onBlur}
-                            onChange={(event) =>
-                              field.onChange(event.target.value)
-                            }
-                            ref={field.ref}
-                            type="number"
-                            value={String(field.value ?? '')}
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormLabel className="!mt-0">Required</FormLabel>
                       </FormItem>
                     )}
                   />
                 </div>
-              ) : null}
 
-              {selectedType === 'select' || selectedType === 'multi-select' ? (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-foreground">
-                      Options
-                    </h3>
-                    <Button
-                      onClick={() =>
-                        optionsArray.append({ label: '', value: '' })
-                      }
-                      size="sm"
-                      type="button"
-                      variant="outline"
-                    >
-                      <Plus aria-hidden="true" />
-                      Add option
-                    </Button>
-                  </div>
-                  <ul className="space-y-2">
-                    {optionsArray.fields.map((field, index) => (
-                      <li
-                        key={field.id}
-                        className="rounded-md border border-border bg-background p-3"
-                      >
-                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                          <FormField
-                            control={form.control}
-                            name={`options.${index}.label`}
-                            render={({ field: innerField }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Label</FormLabel>
-                                <FormControl>
-                                  <Input {...innerField} />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name={`options.${index}.value`}
-                            render={({ field: innerField }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Value</FormLabel>
-                                <FormControl>
-                                  <Input {...innerField} />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <div className="mt-2 flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <GripVertical
-                              aria-hidden="true"
-                              className="size-3.5"
+                {selectedType === 'rating' ? (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="ratingMin"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Rating min</FormLabel>
+                          <FormControl>
+                            <Input
+                              min={1}
+                              name={field.name}
+                              onBlur={field.onBlur}
+                              onChange={(event) =>
+                                field.onChange(event.target.value)
+                              }
+                              ref={field.ref}
+                              type="number"
+                              value={String(field.value ?? '')}
                             />
-                            <span>#{index + 1}</span>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="ratingMax"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Rating max</FormLabel>
+                          <FormControl>
+                            <Input
+                              min={1}
+                              name={field.name}
+                              onBlur={field.onBlur}
+                              onChange={(event) =>
+                                field.onChange(event.target.value)
+                              }
+                              ref={field.ref}
+                              type="number"
+                              value={String(field.value ?? '')}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                ) : null}
+
+                {selectedType === 'select' ||
+                selectedType === 'multi-select' ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-foreground">
+                        Options
+                      </h3>
+                      <Button
+                        onClick={() =>
+                          optionsArray.append({ label: '', value: '' })
+                        }
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                      >
+                        <Plus aria-hidden="true" />
+                        Add option
+                      </Button>
+                    </div>
+                    <ul className="space-y-2">
+                      {optionsArray.fields.map((field, index) => (
+                        <li
+                          key={field.id}
+                          className="rounded-md border border-border bg-background p-3"
+                        >
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            <FormField
+                              control={form.control}
+                              name={`options.${index}.label`}
+                              render={({ field: innerField }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">
+                                    Label
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input {...innerField} />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`options.${index}.value`}
+                              render={({ field: innerField }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">
+                                    Value
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input {...innerField} />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              aria-label="Move option up"
-                              disabled={index === 0}
-                              onClick={() =>
-                                optionsArray.swap(index, index - 1)
-                              }
-                              size="icon-sm"
-                              type="button"
-                              variant="ghost"
-                            >
-                              <ChevronUp aria-hidden="true" />
-                            </Button>
-                            <Button
-                              aria-label="Move option down"
-                              disabled={
-                                index === optionsArray.fields.length - 1
-                              }
-                              onClick={() =>
-                                optionsArray.swap(index, index + 1)
-                              }
-                              size="icon-sm"
-                              type="button"
-                              variant="ghost"
-                            >
-                              <ChevronDown aria-hidden="true" />
-                            </Button>
-                            <Button
-                              aria-label="Remove option"
-                              onClick={() => optionsArray.remove(index)}
-                              size="icon-sm"
-                              type="button"
-                              variant="ghost"
-                            >
-                              <Trash2 aria-hidden="true" />
-                            </Button>
+                          <div className="mt-2 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <GripVertical
+                                aria-hidden="true"
+                                className="size-3.5"
+                              />
+                              <span>#{index + 1}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                aria-label="Move option up"
+                                disabled={index === 0}
+                                onClick={() =>
+                                  optionsArray.swap(index, index - 1)
+                                }
+                                size="icon-sm"
+                                type="button"
+                                variant="ghost"
+                              >
+                                <ChevronUp aria-hidden="true" />
+                              </Button>
+                              <Button
+                                aria-label="Move option down"
+                                disabled={
+                                  index === optionsArray.fields.length - 1
+                                }
+                                onClick={() =>
+                                  optionsArray.swap(index, index + 1)
+                                }
+                                size="icon-sm"
+                                type="button"
+                                variant="ghost"
+                              >
+                                <ChevronDown aria-hidden="true" />
+                              </Button>
+                              <Button
+                                aria-label="Remove option"
+                                onClick={() => optionsArray.remove(index)}
+                                size="icon-sm"
+                                type="button"
+                                variant="ghost"
+                              >
+                                <Trash2 aria-hidden="true" />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      </li>
-                    ))}
-                    {optionsArray.fields.length === 0 ? (
-                      <li className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
-                        Add at least one option for this question.
-                      </li>
-                    ) : null}
-                  </ul>
-                </div>
-              ) : null}
-            </form>
-          </Form>
+                        </li>
+                      ))}
+                      {optionsArray.fields.length === 0 ? (
+                        <li className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
+                          Add at least one option for this question.
+                        </li>
+                      ) : null}
+                    </ul>
+                  </div>
+                ) : null}
+              </form>
+            </Form>
+          </div>
           <SheetFooter className="flex-row justify-end gap-2 border-t">
             <Button onClick={stopEdit} type="button" variant="outline">
               Cancel
