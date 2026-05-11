@@ -17,6 +17,7 @@ import { z } from 'zod'
 
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
+import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import { PageHeader } from '@/components/PageHeader'
 import {
   AlertDialog,
@@ -56,6 +57,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 import {
   Sheet,
   SheetContent,
@@ -411,19 +413,18 @@ export function QuestionsPage() {
   const isEditorOpen = editingQuestionId !== null
   const editorTitle =
     editingQuestionId === 'new' ? 'Create question' : 'Edit question'
+  const showQuestionsToolbar = !isLoading && !hasError && !isEditorOpen
 
   return (
-    <section className="space-y-6">
+    <section
+      className={cn(
+        'space-y-6',
+        showQuestionsToolbar && 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]'
+      )}
+    >
       <PageHeader
         title="Question Management"
         description="The catalog of questions used during every apartment inspection."
-        actions={
-          <Button onClick={startCreate} size="sm">
-            <Plus aria-hidden="true" />
-            <span className="hidden sm:inline">New question</span>
-            <span className="sr-only sm:hidden">New question</span>
-          </Button>
-        }
       />
 
       {isLoading ? <LoadingState label="Loading questions..." /> : null}
@@ -460,10 +461,10 @@ export function QuestionsPage() {
                     key={category.id}
                     className="rounded-md border border-border bg-background p-3"
                   >
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <div className="flex flex-row items-center gap-2">
                       <Input
                         aria-label={`Rename ${category.name}`}
-                        className="sm:flex-1"
+                        className="min-w-0 flex-1"
                         onChange={(event) =>
                           setCategoryRenames((prev) => ({
                             ...prev,
@@ -472,7 +473,7 @@ export function QuestionsPage() {
                         }
                         value={categoryRenames[category.id] ?? category.name}
                       />
-                      <div className="flex items-center gap-2">
+                      <div className="ml-auto flex shrink-0 items-center gap-2">
                         <Button
                           disabled={updateCategory.isPending}
                           onClick={() => handleRenameCategory(category.id)}
@@ -480,9 +481,7 @@ export function QuestionsPage() {
                           type="button"
                           variant="outline"
                         >
-                          <Pencil aria-hidden="true" />
-                          <span className="hidden sm:inline">Rename</span>
-                          <span className="sr-only sm:hidden">Rename</span>
+                          Save
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -609,6 +608,19 @@ export function QuestionsPage() {
             ))}
           </div>
         </>
+      ) : null}
+
+      {showQuestionsToolbar ? (
+        <PinnedActionBar>
+          <Button
+            className="min-h-11 inline-flex flex-1 items-center justify-center gap-1"
+            onClick={startCreate}
+            type="button"
+          >
+            <Plus aria-hidden="true" className="size-4 shrink-0" />
+            New question
+          </Button>
+        </PinnedActionBar>
       ) : null}
 
       <Sheet

@@ -1,3 +1,4 @@
+import { isQuestionAnswerFilled } from '@/lib/answerValue'
 import type { Question, QuestionGroup } from '@/types'
 
 export type AnswerDraft = { value: string | null; note: string | null }
@@ -42,4 +43,15 @@ export function firstQuestionIndexForCategory(
   categoryId: string
 ): number {
   return flat.findIndex((q) => q.categoryId === categoryId)
+}
+
+/** First checklist-order question without a filled answer; `0` if all filled. */
+export function firstUnfilledQuestionIndex(
+  flat: Question[],
+  drafts: Record<string, AnswerDraft | undefined>
+): number {
+  const i = flat.findIndex(
+    (q) => !isQuestionAnswerFilled(q, drafts[q.id]?.value)
+  )
+  return i < 0 ? 0 : i
 }

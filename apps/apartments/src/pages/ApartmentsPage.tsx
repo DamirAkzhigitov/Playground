@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { ApartmentStatusBadge } from '@/components/ApartmentStatusBadge'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
-import { PageHeader } from '@/components/PageHeader'
+import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -36,23 +36,7 @@ export function ApartmentsPage() {
   }, [data, query])
 
   return (
-    <section className="space-y-6">
-      <PageHeader
-        title="Apartments"
-        actions={
-          <Button asChild size="sm">
-            <Link
-              to="/apartments/new"
-              className="inline-flex items-center gap-2"
-              aria-label="New apartment"
-            >
-              <Plus aria-hidden="true" />
-              <span className="hidden sm:inline">New apartment</span>
-            </Link>
-          </Button>
-        }
-      />
-
+    <section className="space-y-6 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
       <div className="relative">
         <Search
           aria-hidden
@@ -149,6 +133,18 @@ export function ApartmentsPage() {
           ) : null}
         </ul>
       ) : null}
+
+      <PinnedActionBar>
+        <Button
+          asChild
+          className="min-h-11 inline-flex flex-1 items-center justify-center gap-1"
+        >
+          <Link to="/apartments/new" aria-label="New apartment">
+            <Plus aria-hidden="true" className="size-4 shrink-0" />
+            New apartment
+          </Link>
+        </Button>
+      </PinnedActionBar>
     </section>
   )
 }

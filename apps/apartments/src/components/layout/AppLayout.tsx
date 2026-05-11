@@ -13,7 +13,7 @@ const tabs = [
 
 export function AppLayout() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-[calc(100dvh_-_var(--global-header-height))] bg-background text-foreground">
       <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-4 sm:px-6">
         <Outlet />
       </main>

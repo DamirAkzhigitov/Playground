@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
-import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -26,16 +25,9 @@ type ApartmentFormProps = {
     price: number | null
     notes: string | null
   }) => void | Promise<void>
-  submitLabel: string
-  isPending?: boolean
 }
 
-export function ApartmentForm({
-  defaultValues,
-  onSubmit,
-  submitLabel,
-  isPending = false
-}: ApartmentFormProps) {
+export function ApartmentForm({ defaultValues, onSubmit }: ApartmentFormProps) {
   const form = useForm<ApartmentFormValues>({
     resolver: zodResolver(apartmentFormSchema),
     defaultValues
@@ -57,7 +49,7 @@ export function ApartmentForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form id="apartment-form" onSubmit={handleSubmit} className="space-y-4">
         <FormField
           control={form.control}
           name="title"
@@ -128,9 +120,6 @@ export function ApartmentForm({
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
-          {submitLabel}
-        </Button>
       </form>
     </Form>
   )

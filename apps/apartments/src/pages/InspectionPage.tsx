@@ -7,11 +7,12 @@ import {
   useRef,
   useState
 } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { AnswerField } from '@/components/AnswerField'
 import { ErrorState } from '@/components/ErrorState'
+import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import { LoadingState } from '@/components/LoadingState'
 import { PageHeader } from '@/components/PageHeader'
 import { Badge } from '@/components/ui/badge'
@@ -28,10 +29,12 @@ import {
 import { useApartment, useQuestions, useUpsertAnswer } from '@/hooks'
 import { useDebouncedAnswerSave } from '@/hooks/useDebouncedAnswerSave'
 import { isQuestionAnswerFilled } from '@/lib/answerValue'
+import { cn } from '@/lib/utils'
 import {
   type AnswerDraft,
   buildAnswerDraftMap,
   firstQuestionIndexForCategory,
+  firstUnfilledQuestionIndex,
   flattenActiveQuestions,
   questionIndexInFlatList
 } from '@/lib/questions'
@@ -67,6 +70,8 @@ function categoryProgressList(
 
 export function InspectionPage() {
   const { id } = useParams<{ id: string }>()
+  const location = useLocation()
+  const navigate = useNavigate()
   const apartmentQuery = useApartment(id)
   const questionsQuery = useQuestions(false)
   const upsert = useUpsertAnswer()
@@ -80,7 +85,9 @@ export function InspectionPage() {
   const [answers, setAnswers] = useState<Record<string, AnswerDraft>>({})
   const [noteExpanded, setNoteExpanded] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [isNavBusy, setIsNavBusy] = useState(false)
   const seededRef = useRef(false)
+  const navBusyRef = useRef(false)
 
   useEffect(() => {
     seededRef.current = false
@@ -98,7 +105,27 @@ export function InspectionPage() {
 
   useLayoutEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- restore saved progress once lists load */
-    if (!id || flat.length === 0) {
+    const gr = questionsQuery.data ?? EMPTY_GROUPS
+    const flatList = flattenActiveQuestions(gr)
+    if (!id || flatList.length === 0) {
+      return
+    }
+    const apt = apartmentQuery.data
+    const resume = new URLSearchParams(location.search).get('resume') === '1'
+    if (resume && apt && questionsQuery.data) {
+      const drafts = buildAnswerDraftMap(questionsQuery.data, apt.answers)
+      setIndex(firstUnfilledQuestionIndex(flatList, drafts))
+      setPhase('question')
+      try {
+        sessionStorage.removeItem(sessionIndexKey(id))
+        sessionStorage.removeItem(sessionPhaseKey(id))
+      } catch {
+        /* ignore */
+      }
+      navigate({ pathname: location.pathname, search: '' }, { replace: true })
+      return
+    }
+    if (resume) {
       return
     }
     const rawPhase = sessionStorage.getItem(sessionPhaseKey(id))
@@ -109,12 +136,20 @@ export function InspectionPage() {
     }
     if (rawIndex !== null) {
       const n = Number.parseInt(rawIndex, 10)
-      if (!Number.isNaN(n) && n >= 0 && n < flat.length) {
+      if (!Number.isNaN(n) && n >= 0 && n < flatList.length) {
         setIndex(n)
       }
     }
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [id, flat.length])
+  }, [
+    apartmentQuery.data,
+    flat.length,
+    id,
+    location.pathname,
+    location.search,
+    navigate,
+    questionsQuery.data
+  ])
 
   useEffect(() => {
     if (!id) {
@@ -158,28 +193,61 @@ export function InspectionPage() {
   )
 
   const goNext = useCallback(async () => {
-    if (!current) {
+    if (!current || navBusyRef.current) {
       return
     }
-    await flushSave()
-    setNoteExpanded(false)
-    if (index >= flat.length - 1) {
-      setPhase('summary')
-      return
+    navBusyRef.current = true
+    setIsNavBusy(true)
+    try {
+      await flushSave()
+      setNoteExpanded(false)
+      if (index >= flat.length - 1) {
+        setPhase('summary')
+        return
+      }
+      setIndex((i) => i + 1)
+    } finally {
+      navBusyRef.current = false
+      setIsNavBusy(false)
     }
-    setIndex((i) => i + 1)
   }, [current, flushSave, index, flat.length])
 
   const goPrev = useCallback(async () => {
-    await flushSave()
-    setNoteExpanded(false)
-    if (phase === 'summary') {
-      setPhase('question')
-      setIndex(Math.max(0, flat.length - 1))
+    if (navBusyRef.current) {
       return
     }
-    setIndex((i) => Math.max(0, i - 1))
+    navBusyRef.current = true
+    setIsNavBusy(true)
+    try {
+      await flushSave()
+      setNoteExpanded(false)
+      if (phase === 'summary') {
+        setPhase('question')
+        setIndex(Math.max(0, flat.length - 1))
+        return
+      }
+      setIndex((i) => Math.max(0, i - 1))
+    } finally {
+      navBusyRef.current = false
+      setIsNavBusy(false)
+    }
   }, [flushSave, phase, flat.length])
+
+  const goBackToApartment = useCallback(async () => {
+    if (!id || navBusyRef.current) {
+      return
+    }
+    navBusyRef.current = true
+    setIsNavBusy(true)
+    try {
+      await flushSave()
+      setNoteExpanded(false)
+      navigate(`/apartments/${id}`)
+    } finally {
+      navBusyRef.current = false
+      setIsNavBusy(false)
+    }
+  }, [flushSave, id, navigate])
 
   const missingRequired = useMemo(() => {
     return flat.filter(
@@ -223,8 +291,15 @@ export function InspectionPage() {
   }
 
   return (
-    <section className="space-y-4">
+    <section
+      className={cn(
+        'flex flex-col gap-4',
+        phase === 'question' &&
+          'h-[calc(100dvh_-_var(--global-header-height)_-_8rem)] min-h-0 overflow-hidden'
+      )}
+    >
       <PageHeader
+        className="shrink-0"
         title="Inspection"
         description={apartmentQuery.data.title}
         actions={
@@ -272,7 +347,12 @@ export function InspectionPage() {
               </ul>
             ) : null}
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Button type="button" variant="outline" onClick={() => goPrev()}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isNavBusy}
+                onClick={() => void goPrev()}
+              >
                 Back to last question
               </Button>
               <Button type="button" asChild>
@@ -282,8 +362,8 @@ export function InspectionPage() {
           </CardContent>
         </Card>
       ) : (
-        <>
-          <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Badge variant="secondary">
                 Question {index + 1} / {flat.length}
@@ -343,42 +423,50 @@ export function InspectionPage() {
             </Sheet>
           </div>
 
-          {current ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base leading-snug sm:text-lg">
-                  {current.label}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <AnswerField
-                  question={current}
-                  value={draft?.value ?? null}
-                  note={draft?.note ?? null}
-                  onValueChange={(v) => updateDraft(current.id, { value: v })}
-                  onNoteChange={(n) => updateDraft(current.id, { note: n })}
-                  noteExpanded={noteExpanded}
-                  onToggleNote={() => setNoteExpanded((e) => !e)}
-                  density="comfortable"
-                />
-              </CardContent>
-            </Card>
-          ) : null}
+          <div className="min-h-0 flex-1 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+            {current ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base leading-snug sm:text-lg">
+                    {current.label}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <AnswerField
+                    question={current}
+                    value={draft?.value ?? null}
+                    note={draft?.note ?? null}
+                    onValueChange={(v) => updateDraft(current.id, { value: v })}
+                    onNoteChange={(n) => updateDraft(current.id, { note: n })}
+                    noteExpanded={noteExpanded}
+                    onToggleNote={() => setNoteExpanded((e) => !e)}
+                    density="comfortable"
+                  />
+                </CardContent>
+              </Card>
+            ) : null}
+            <p className="pt-3 text-center text-xs text-muted-foreground">
+              Answers save automatically as you go.
+            </p>
+          </div>
 
-          <div className="flex gap-2 pt-2">
+          <PinnedActionBar>
             <Button
               type="button"
               variant="outline"
               className="min-h-11 flex-1"
-              onClick={() => void goPrev()}
-              disabled={index === 0}
+              onClick={() =>
+                void (index === 0 ? goBackToApartment() : goPrev())
+              }
+              disabled={isNavBusy || upsert.isPending}
             >
               <ChevronLeft className="size-4" aria-hidden />
-              Previous
+              {index === 0 ? 'Back' : 'Previous'}
             </Button>
             <Button
               type="button"
               className="min-h-11 inline-flex flex-1 items-center justify-center gap-1"
+              disabled={isNavBusy || upsert.isPending}
               onClick={() => void goNext()}
             >
               {index >= flat.length - 1 ? 'Finish' : 'Next'}
@@ -386,15 +474,9 @@ export function InspectionPage() {
                 <ChevronRight className="size-4 shrink-0" aria-hidden />
               ) : null}
             </Button>
-          </div>
-        </>
+          </PinnedActionBar>
+        </div>
       )}
-
-      {phase === 'question' ? (
-        <p className="text-center text-xs text-muted-foreground">
-          Answers save automatically as you go.
-        </p>
-      ) : null}
     </section>
   )
 }

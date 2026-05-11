@@ -73,6 +73,47 @@ edit them like any other file, don't treat them as `node_modules`.
 
 ---
 
+## Pinned CTA bar (primary actions)
+
+**All primary screen actions** (create, save, continue, submit, next step,
+destructive confirm after `AlertDialog`, etc.) use the same **bottom-pinned**
+pattern so the thumb zone matches inspection navigation.
+
+1. **Shell.** Render actions inside `PinnedActionBar`
+   (`src/components/layout/PinnedActionBar.tsx`). It is `fixed`,
+   full-bleed, sits **above** the bottom tab bar (`bottom: calc(3.5rem +
+env(safe-area-inset-bottom))`), `z-30`, `border-t`, blurred
+   `bg-background/95`, horizontal padding `px-4 sm:px-6`, inner row
+   `max-w-3xl mx-auto flex gap-2` (aligned with `AppLayout` `main`).
+
+2. **Do not** park primary CTAs in `PageHeader` `actions` on mobile-first
+   flows — that pushes targets into the top third. Secondary chrome
+   (badges, edit, overflow menus) may stay in the header.
+
+3. **Buttons** (shadcn `Button`):
+
+   - **Secondary / back / cancel (left):** `variant="outline"` +
+     `className="min-h-11 flex-1"`.
+   - **Primary (right):** default variant +
+     `className="min-h-11 inline-flex flex-1 items-center justify-center gap-1"`.
+     Pair leading/trailing icons with `size-4 shrink-0` and keep labels
+     visible (no `hidden sm:inline` on the only primary CTA).
+
+4. **Single primary CTA** (e.g. “New apartment” on the list): one
+   `Button` with the **primary** classes above and `flex-1` so it spans
+   the row like “Next”. No dummy outline button for symmetry.
+
+5. **Scroll clearance.** The page `<section>` (or scrollable column) that
+   sits above the bar needs bottom padding so the last card is not
+   hidden behind it, e.g.
+   `pb-[calc(5.5rem+env(safe-area-inset-bottom))]` (tune if the bar
+   height changes).
+
+Reference implementations: `ApartmentsPage`, `ApartmentDetailPage`
+(inspect + list), `InspectionPage` (Previous / Next).
+
+---
+
 ## Breakpoints & touch targets
 
 - Tailwind defaults: `sm 640 / md 768 / lg 1024 / xl 1280`.
@@ -94,31 +135,31 @@ edit them like any other file, don't treat them as `node_modules`.
 
 The canonical question is: "What shadcn primitive is this?"
 
-| Need                                  | Use                                                                    |
-| ------------------------------------- | ---------------------------------------------------------------------- |
-| Page section / list row               | `Card` (`CardHeader` / `CardContent` / `CardFooter`)                   |
-| Primary action                        | `Button` default                                                       |
-| Secondary action                      | `Button variant="outline"`                                             |
-| Destructive action                    | `Button variant="destructive"` + `AlertDialog` confirmation            |
-| Tertiary / dense action               | `Button variant="ghost"`                                               |
-| Icon-only button                      | `Button variant="ghost" size="icon-lg"` + `<span className="sr-only">` |
-| Single-line text input                | `Input`                                                                |
-| Multi-line text input                 | `Textarea`                                                             |
-| Field label                           | `Label` (auto-wired inside `<FormField>`)                              |
-| Single choice (≤ 5 options)           | radio group via `Tabs` or shadcn radio (add when needed)               |
-| Single choice (> 5 options)           | `Select`                                                               |
-| Multi-choice                          | `Checkbox` stack                                                       |
-| On/off toggle                         | `Switch`                                                               |
-| Tag / type marker                     | `Badge`                                                                |
-| Section divider                       | `Separator`                                                            |
-| Mobile-edge sliding panel             | `Sheet side="bottom"` on mobile, `Dialog` on `md+`                     |
-| Native-feeling bottom sheet           | `Drawer` (vaul) — use when momentum scroll matters                     |
-| Modal confirmation                    | `AlertDialog`                                                          |
-| Overflow / collapsed actions          | `DropdownMenu`                                                         |
-| Tab navigation within a page          | `Tabs`                                                                 |
-| Scrollable list with custom scrollbar | `ScrollArea`                                                           |
-| Loading placeholder                   | `Skeleton`                                                             |
-| Success / error feedback after action | `sonner` toast                                                         |
+| Need                                  | Use                                                                     |
+| ------------------------------------- | ----------------------------------------------------------------------- |
+| Page section / list row               | `Card` (`CardHeader` / `CardContent` / `CardFooter`)                    |
+| Primary action                        | `Button` default — **pinned:** see _Pinned CTA bar_ + `PinnedActionBar` |
+| Secondary action                      | `Button variant="outline"` — same bar when paired with primary          |
+| Destructive action                    | `Button variant="destructive"` + `AlertDialog` confirmation             |
+| Tertiary / dense action               | `Button variant="ghost"`                                                |
+| Icon-only button                      | `Button variant="ghost" size="icon-lg"` + `<span className="sr-only">`  |
+| Single-line text input                | `Input`                                                                 |
+| Multi-line text input                 | `Textarea`                                                              |
+| Field label                           | `Label` (auto-wired inside `<FormField>`)                               |
+| Single choice (≤ 5 options)           | radio group via `Tabs` or shadcn radio (add when needed)                |
+| Single choice (> 5 options)           | `Select`                                                                |
+| Multi-choice                          | `Checkbox` stack                                                        |
+| On/off toggle                         | `Switch`                                                                |
+| Tag / type marker                     | `Badge`                                                                 |
+| Section divider                       | `Separator`                                                             |
+| Mobile-edge sliding panel             | `Sheet side="bottom"` on mobile, `Dialog` on `md+`                      |
+| Native-feeling bottom sheet           | `Drawer` (vaul) — use when momentum scroll matters                      |
+| Modal confirmation                    | `AlertDialog`                                                           |
+| Overflow / collapsed actions          | `DropdownMenu`                                                          |
+| Tab navigation within a page          | `Tabs`                                                                  |
+| Scrollable list with custom scrollbar | `ScrollArea`                                                            |
+| Loading placeholder                   | `Skeleton`                                                              |
+| Success / error feedback after action | `sonner` toast                                                          |
 
 If something isn't on this list and you can't compose it from these,
 flag it in the PR rather than rolling your own.
@@ -135,8 +176,8 @@ Always:
 3. Inputs are full-width on mobile (`w-full`, never fixed widths).
 4. Labels render above the input. Side-by-side rows are `sm:` and up.
 5. Submit button stays in a sticky footer on mobile (`Sheet`/`Drawer`
-   footer) or pinned bottom of the page; never above the fold-out of
-   sight.
+   footer) or in `PinnedActionBar` on full-page flows (_Pinned CTA bar_);
+   never only above the fold, out of easy thumb reach.
 6. Validation runs on `onBlur` for text fields, `onChange` for toggles
    and selects.
 
@@ -215,19 +256,22 @@ A typical field:
    anything that's a list row or self-contained block.
 3. **Wire data** with the existing TanStack Query hooks from
    `src/hooks/`. UI state stays in `useState`.
-4. **Compose only from `@/components/ui/*`** and `lucide-react`. If you
+4. **Primary CTAs** — `PinnedActionBar` + button classes from _Pinned CTA
+   bar_; add bottom padding on the page so content clears the bar when
+   scrolling.
+5. **Compose only from `@/components/ui/*`** and `lucide-react`. If you
    need a new shadcn component, add it with
    `pnpm dlx shadcn@latest add <name>` and commit the generated file.
-5. **Forms** — `react-hook-form` + `zod` + shadcn `<Form>`. Always.
-6. **Feedback** — every mutation emits a `sonner` toast on success and
+6. **Forms** — `react-hook-form` + `zod` + shadcn `<Form>`. Always.
+7. **Feedback** — every mutation emits a `sonner` toast on success and
    on error. Destructive mutations go through `AlertDialog` first.
-7. **Verify keyboard + screen reader** — `Tab` through the whole screen
+8. **Verify keyboard + screen reader** — `Tab` through the whole screen
    with VoiceOver / NVDA, confirm every control speaks its purpose.
-8. **Verify breakpoints** — 360 / 414 / 768 / 1280 px. No truncation, no
+9. **Verify breakpoints** — 360 / 414 / 768 / 1280 px. No truncation, no
    horizontal scroll, no overlapping controls.
-9. **Add a render test** with Vitest + `@testing-library/react` for the
-   page-level component when feasible.
-10. **Update `PLAN.md`** to tick the relevant task and link any new
+10. **Add a render test** with Vitest + `@testing-library/react` for the
+    page-level component when feasible.
+11. **Update `PLAN.md`** to tick the relevant task and link any new
     DESIGN.md decisions back here.
 
 ---
@@ -243,7 +287,8 @@ apps/apartments/src/
 │   │   ├── sheet.tsx
 │   │   └── ...
 │   ├── layout/
-│   │   └── AppLayout.tsx    # bottom-tab shell, Toaster mount
+│   │   ├── AppLayout.tsx    # bottom-tab shell, Toaster mount
+│   │   └── PinnedActionBar.tsx  # fixed CTA strip above tabs (required pattern)
 │   ├── PageHeader.tsx       # shared page heading
 │   ├── ErrorState.tsx
 │   └── LoadingState.tsx

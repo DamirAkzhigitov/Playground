@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 
 import { AnswerField } from '@/components/AnswerField'
 import { ApartmentStatusBadge } from '@/components/ApartmentStatusBadge'
+import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
 import { PageHeader } from '@/components/PageHeader'
@@ -156,7 +157,7 @@ export function ApartmentDetailPage() {
     status === 'completed' ? 'Review inspection' : 'Start / resume inspection'
 
   return (
-    <section className="space-y-6">
+    <section className="flex flex-col gap-6 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
       <PageHeader
         title={data.title}
         description={
@@ -181,14 +182,14 @@ export function ApartmentDetailPage() {
         }
       />
 
-      <Card>
+      <Card className="flex min-h-[calc(100dvh_-_var(--global-header-height)_-_13rem)] flex-col">
         <CardHeader className="space-y-1">
           <CardTitle className="text-base">Overview</CardTitle>
           <CardDescription>
             Completion is based on active questions and saved answers.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-1 flex-col space-y-4">
           {completion ? (
             <div className="flex flex-wrap gap-3 text-sm">
               <div>
@@ -234,15 +235,6 @@ export function ApartmentDetailPage() {
               </ul>
             </div>
           ) : null}
-
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button asChild className="w-full sm:w-auto">
-              <Link to={`/apartments/${data.id}/inspect`}>{inspectLabel}</Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full sm:w-auto">
-              <Link to="/apartments">All apartments</Link>
-            </Button>
-          </div>
         </CardContent>
       </Card>
 
@@ -302,6 +294,20 @@ export function ApartmentDetailPage() {
           </Card>
         )
       })}
+
+      <PinnedActionBar>
+        <Button variant="outline" asChild className="min-h-11 flex-1">
+          <Link to="/apartments">All apartments</Link>
+        </Button>
+        <Button
+          asChild
+          className="min-h-11 inline-flex flex-1 items-center justify-center gap-1"
+        >
+          <Link to={`/apartments/${data.id}/inspect?resume=1`}>
+            {inspectLabel}
+          </Link>
+        </Button>
+      </PinnedActionBar>
     </section>
   )
 }
