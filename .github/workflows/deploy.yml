@@ -37,15 +37,12 @@ jobs:
       - name: Build @playground/main
         run: pnpm turbo run build --filter=@playground/main
 
-      - name: Install Wrangler for workspace root
-        run: pnpm add -Dw wrangler@3.90.0
-
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/main/dist --project-name=playground --branch=main
+          command: pages deploy apps/main/dist --project-name=playground --branch=main --commit-dirty=true
           workingDirectory: '.'
           packageManager: pnpm
 
@@ -75,14 +72,11 @@ jobs:
       - name: Build @playground/resume
         run: pnpm turbo run build --filter=@playground/resume
 
-      - name: Install Wrangler for workspace root
-        run: pnpm add -Dw wrangler@3.90.0
-
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/resume/dist --project-name=resume --branch=main
+          command: pages deploy apps/resume/dist --project-name=resume --branch=main --commit-dirty=true
           workingDirectory: '.'
           packageManager: pnpm
