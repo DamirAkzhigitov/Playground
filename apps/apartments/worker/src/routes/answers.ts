@@ -3,16 +3,23 @@ import { z } from 'zod'
 import type { AppEnv } from '../types'
 import { nowIso } from '../helpers'
 
+const MAX_ANSWER_VALUE_CHARS = 50_000
+const MAX_ANSWER_NOTE_CHARS = 5_000
+/** D1 batch limits and abuse prevention — keep well under platform caps. */
+const MAX_ANSWERS_PER_REQUEST = 200
+
 const answerInputSchema = z.object({
   apartmentId: z.string().trim().min(1),
   questionId: z.string().trim().min(1),
-  value: z.string().nullable(),
-  note: z.string().trim().nullable().optional()
+  value: z.union([z.string().max(MAX_ANSWER_VALUE_CHARS), z.null()]),
+  note: z.string().trim().max(MAX_ANSWER_NOTE_CHARS).nullable().optional()
 })
 
 const answersPayloadSchema = z.union([
   z.object({ answer: answerInputSchema }),
-  z.object({ answers: z.array(answerInputSchema).min(1) })
+  z.object({
+    answers: z.array(answerInputSchema).min(1).max(MAX_ANSWERS_PER_REQUEST)
+  })
 ])
 
 const answers = new Hono<AppEnv>()

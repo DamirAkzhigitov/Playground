@@ -2,6 +2,11 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import type { AppEnv } from '../types'
 import { nowIso } from '../helpers'
+import {
+  MAX_PHOTO_BYTES,
+  detectImageContentType,
+  safePhotoFilename
+} from '../photoSecurity'
 
 const uploadPhotoSchema = z.object({
   apartmentId: z.string().trim().min(1),
@@ -44,12 +49,29 @@ photos.post('/upload', async (c) => {
     .first()
   if (!owns) return c.json({ error: 'Apartment not found' }, 404)
 
-  const id = crypto.randomUUID()
-  const key = `${payload.apartmentId}-${Date.now()}-${id}-${file.name}`
+  const buffer = await file.arrayBuffer()
+  if (buffer.byteLength > MAX_PHOTO_BYTES) {
+    return c.json(
+      { error: `Photo must be at most ${MAX_PHOTO_BYTES / (1024 * 1024)} MB` },
+      413
+    )
+  }
+  const bytes = new Uint8Array(buffer)
+  const contentType = detectImageContentType(bytes)
+  if (!contentType) {
+    return c.json(
+      { error: 'Only JPEG, PNG, GIF, and WebP images are allowed' },
+      400
+    )
+  }
 
-  await c.env.PHOTOS.put(key, await file.arrayBuffer(), {
+  const id = crypto.randomUUID()
+  const safeName = safePhotoFilename(file.name)
+  const key = `${payload.apartmentId}-${Date.now()}-${id}-${safeName}`
+
+  await c.env.PHOTOS.put(key, buffer, {
     httpMetadata: {
-      contentType: file.type || 'application/octet-stream'
+      contentType
     }
   })
 
@@ -73,15 +95,41 @@ photos.post('/upload', async (c) => {
 })
 
 photos.get('/:key', async (c) => {
-  const key = c.req.param('key')
-  const object = await c.env.PHOTOS.get(key)
-  if (!object) {
+  const userId = c.get('userId')
+  const paramKey = c.req.param('key')
+  const key = decodeURIComponent(paramKey)
+
+  const row = await c.env.DB.prepare(
+    `SELECT p.r2_key FROM photos p
+     INNER JOIN apartments a ON a.id = p.apartment_id
+     WHERE p.r2_key = ? AND a.user_id = ?`
+  )
+    .bind(key, userId)
+    .first<{ r2_key: string }>()
+  if (!row) {
     return c.json({ error: 'Photo not found' }, 404)
   }
+
+  const object = await c.env.PHOTOS.get(row.r2_key)
+  if (!object?.body) {
+    return c.json({ error: 'Photo not found' }, 404)
+  }
+
+  const buf = await object.arrayBuffer()
+  const sniffed = detectImageContentType(new Uint8Array(buf))
+  if (!sniffed) {
+    return c.json({ error: 'Photo not found' }, 404)
+  }
+
   const headers = new Headers()
-  object.writeHttpMetadata(headers)
-  headers.set('etag', object.httpEtag)
-  return new Response(object.body, { headers })
+  headers.set('Content-Type', sniffed)
+  headers.set('X-Content-Type-Options', 'nosniff')
+  if (object.httpEtag) {
+    headers.set('etag', object.httpEtag)
+  }
+  headers.set('Cache-Control', 'private, max-age=3600')
+
+  return new Response(buf, { headers })
 })
 
 photos.delete('/:id', async (c) => {

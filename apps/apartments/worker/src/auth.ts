@@ -39,7 +39,9 @@ auth.post('/register', async (c) => {
   )
     .bind(email)
     .first()
-  if (existing) return c.json({ error: 'Email already registered' }, 409)
+  if (existing) {
+    return c.json({ error: 'Could not complete registration.' }, 400)
+  }
 
   const userId = crypto.randomUUID()
   const passwordHash = await hashPassword(payload.password)

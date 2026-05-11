@@ -35,7 +35,7 @@ app.onError((err, c) => {
   if (err instanceof z.ZodError) {
     return c.json({ error: 'Validation error', details: err.flatten() }, 400)
   }
-  return c.json({ error: err.message }, 500)
+  return c.json({ error: 'Internal server error' }, 500)
 })
 
 export default app

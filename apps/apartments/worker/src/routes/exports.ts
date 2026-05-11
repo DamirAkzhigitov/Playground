@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import * as XLSX from 'xlsx'
 import type { AppEnv } from '../types'
 import { typedRows, nowIso } from '../helpers'
+import { neutralizeSpreadsheetCell } from '../spreadsheetSafe'
 
 const exports_ = new Hono<AppEnv>()
 
@@ -114,17 +115,24 @@ exports_.get('/xlsx', async (c) => {
 
   const records = apartmentRows.map((apartmentRow) => {
     const baseRecord: Record<string, string | number | null> = {
-      apartmentId: String(apartmentRow.id),
-      title: String(apartmentRow.title),
-      address: (apartmentRow.address as string | null) ?? null,
+      apartmentId: neutralizeSpreadsheetCell(String(apartmentRow.id)),
+      title: neutralizeSpreadsheetCell(String(apartmentRow.title)),
+      address: neutralizeSpreadsheetCell(
+        (apartmentRow.address as string | null) ?? null
+      ),
       price: (apartmentRow.price as number | null) ?? null,
-      notes: (apartmentRow.notes as string | null) ?? null
+      notes: neutralizeSpreadsheetCell(
+        (apartmentRow.notes as string | null) ?? null
+      )
     }
     const apartmentAnswers =
       answersByApartment.get(String(apartmentRow.id)) ?? new Map()
     for (const questionRow of questionRows) {
-      baseRecord[String(questionRow.label)] =
+      const labelKey = neutralizeSpreadsheetCell(String(questionRow.label))
+      if (typeof labelKey !== 'string') continue
+      baseRecord[labelKey] = neutralizeSpreadsheetCell(
         apartmentAnswers.get(String(questionRow.id)) ?? null
+      )
     }
     return baseRecord
   })

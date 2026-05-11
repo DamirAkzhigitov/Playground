@@ -14,8 +14,8 @@ const questionTypeSchema = z.enum([
 ])
 
 const questionOptionSchema = z.object({
-  label: z.string().trim().min(1),
-  value: z.string().trim().min(1),
+  label: z.string().trim().min(1).max(300),
+  value: z.string().trim().min(1).max(200),
   order: z.number().int().min(0)
 })
 
