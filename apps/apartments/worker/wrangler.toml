@@ -1,6 +1,12 @@
 name = "apartments-api"
 main = "src/index.ts"
-compatibility_date = "2025-05-11"
+compatibility_date = "2026-05-11"
+preview_urls = false
+
+[[routes]]
+pattern = "apartments.da-mr.com"
+zone_name = "da-mr.com"
+custom_domain = true
 
 # Vite client build output (apps/apartments/dist). Same Worker serves SPA + /api — no CORS.
 [assets]
@@ -18,3 +24,10 @@ migrations_dir = "migrations"
 [[r2_buckets]]
 binding = "PHOTOS"
 bucket_name = "apartments-photos"
+jurisdiction = "eu"
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
