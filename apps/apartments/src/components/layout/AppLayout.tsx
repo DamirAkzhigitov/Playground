@@ -14,12 +14,12 @@ const tabs = [
 export function AppLayout() {
   return (
     <div className="min-h-[calc(100dvh_-_var(--global-header-height))] bg-background text-foreground">
-      <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-4 sm:px-6">
+      <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-4 print:max-w-none print:pb-4 sm:px-6">
         <Outlet />
       </main>
       <nav
         aria-label="Primary"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 print:hidden"
       >
         <ul
           className="mx-auto flex max-w-3xl items-stretch justify-around px-2"
@@ -48,7 +48,11 @@ export function AppLayout() {
           })}
         </ul>
       </nav>
-      <Toaster position="top-center" richColors />
+      <Toaster
+        position="top-center"
+        richColors
+        className="toaster group print:hidden"
+      />
     </div>
   )
 }

@@ -124,3 +124,162 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  playground-global-header {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  /* Compare page: A4 landscape, one sheet; layout + typography only (no JS). */
+  @page apartments-compare {
+    size: A4 landscape;
+    margin: 6mm;
+  }
+
+  .compare-print {
+    page: apartments-compare;
+    display: block;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+    padding-bottom: 0;
+  }
+
+  @media (min-width: 640px) {
+    .compare-print {
+      margin-left: -1.5rem;
+      margin-right: -1.5rem;
+      width: calc(100% + 3rem);
+    }
+  }
+
+  .compare-print-screen-only {
+    display: none !important;
+  }
+
+  .compare-print-viewport {
+    position: relative;
+    box-sizing: border-box;
+    width: 285mm;
+    height: 198mm;
+    max-height: 198mm;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border-radius: 0.375rem;
+    box-shadow: none;
+  }
+
+  /* Static scale so more rows fit one sheet; compensating width keeps table usable width. */
+  .compare-print-scale {
+    box-sizing: border-box;
+    transform: scale(0.82);
+    transform-origin: top left;
+    width: 121.95%; /* 100% / 0.82 */
+    max-width: none;
+  }
+
+  .compare-print-table {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 7pt;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  .compare-print-table thead th,
+  .compare-print-table tbody th,
+  .compare-print-table tbody td {
+    position: static !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 0.15rem 0.2rem !important;
+    vertical-align: top;
+  }
+
+  .compare-print-table thead th {
+    font-size: 6.5pt;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .compare-print-table thead th:first-child {
+    width: 18%;
+    text-transform: uppercase;
+  }
+
+  .compare-print-table thead th:not(:first-child) {
+    text-transform: none;
+  }
+
+  .compare-print-table thead th span {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    line-height: 1.15;
+  }
+
+  .compare-print-table tbody th {
+    font-size: 6.5pt;
+    font-weight: 500;
+  }
+
+  .compare-print-table tbody th > div {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    line-height: 1.15;
+  }
+
+  .compare-print-cell-shell {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    min-height: 0 !important;
+    padding: 0.1rem 0.15rem !important;
+    border-radius: 0.125rem;
+  }
+
+  .compare-print-rating-track {
+    margin-top: 0.1rem;
+    height: 1px !important;
+  }
+
+  .compare-print-table tbody td p {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    font-size: inherit;
+    line-height: 1.15;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  .compare-print-table .compare-print-note-indicator {
+    display: none !important;
+  }
+
+  .compare-print-table tbody td svg {
+    width: 0.65rem !important;
+    height: 0.65rem !important;
+  }
+
+  .compare-print-table tbody tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

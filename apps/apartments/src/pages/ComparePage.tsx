@@ -1,26 +1,25 @@
 import { useQueries } from '@tanstack/react-query'
-import { Check, MessageSquare, X } from 'lucide-react'
-import { useCallback, useMemo, useState, type ReactNode } from 'react'
+import { Check, MessageSquare, Printer, X } from 'lucide-react'
+import { useMemo, useState, type ReactNode } from 'react'
 
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
-import { PageHeader } from '@/components/PageHeader'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
+import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
+import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import { useApartments, useQuestions } from '@/hooks'
 import { queryKeys } from '@/hooks/queryKeys'
 import { apiRequest } from '@/lib/api'
-import {
-  formatCompareAnswerLabel,
-  normalizeAnswerForCompare,
-  ratingBarRatio
-} from '@/lib/compareDisplay'
+import { formatCompareAnswerLabel, ratingBarRatio } from '@/lib/compareDisplay'
 import { flattenActiveQuestions } from '@/lib/questions'
-import { cn } from '@/lib/utils'
 import type {
   Apartment,
   ApartmentDetail,
@@ -29,6 +28,10 @@ import type {
 } from '@/types'
 
 const EMPTY_GROUPS: QuestionGroup[] = []
+
+const COMPARE_ALL_VALUE = '__all__'
+const COMPARE_NONE_VALUE = '__none__'
+const COMPARE_MULTI_VALUE = '__multi__'
 
 type AnswerCell = { value: string | null; note: string | null }
 
@@ -48,24 +51,87 @@ function buildAnswerMap(
 export function ComparePage() {
   const apartmentsQuery = useApartments()
   const questionsQuery = useQuestions(false)
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [categoryId, setCategoryId] = useState<string>('all')
-  const [highlightDiffs, setHighlightDiffs] = useState(true)
+  /** `null` means every apartment in `list` is selected (default). */
+  const [selectionOverride, setSelectionOverride] = useState<string[] | null>(
+    null
+  )
 
   const groups = questionsQuery.data ?? EMPTY_GROUPS
   const flatAll = useMemo(() => flattenActiveQuestions(groups), [groups])
 
-  const categoryTabs = useMemo(() => {
-    const sorted = [...groups].sort((a, b) => a.order - b.order)
-    return sorted.map((g) => ({ id: g.id, name: g.name }))
-  }, [groups])
+  const list = useMemo(() => apartmentsQuery.data ?? [], [apartmentsQuery.data])
+  const allIds = useMemo(() => list.map((a) => a.id), [list])
 
-  const flatFiltered = useMemo(() => {
-    if (categoryId === 'all') {
-      return flatAll
+  const selectedIds = useMemo(() => {
+    if (allIds.length === 0) {
+      return []
     }
-    return flatAll.filter((q) => q.categoryId === categoryId)
-  }, [categoryId, flatAll])
+    if (selectionOverride === null) {
+      return allIds
+    }
+    return selectionOverride.filter((id) => allIds.includes(id))
+  }, [allIds, selectionOverride])
+
+  const normalizeToAllWhenComplete = (ids: string[]) => {
+    if (
+      ids.length === allIds.length &&
+      allIds.every((id) => ids.includes(id))
+    ) {
+      return null
+    }
+    return ids
+  }
+
+  const compareSelectValue = useMemo(() => {
+    if (list.length === 0) {
+      return COMPARE_NONE_VALUE
+    }
+    if (selectedIds.length === 0) {
+      return COMPARE_NONE_VALUE
+    }
+    if (
+      selectedIds.length === list.length &&
+      list.every((a) => selectedIds.includes(a.id))
+    ) {
+      return COMPARE_ALL_VALUE
+    }
+    if (selectedIds.length === 1) {
+      return selectedIds[0]
+    }
+    return COMPARE_MULTI_VALUE
+  }, [selectedIds, list])
+
+  const handleCompareSelectChange = (value: string) => {
+    if (value === COMPARE_MULTI_VALUE) {
+      return
+    }
+    if (value === COMPARE_ALL_VALUE) {
+      setSelectionOverride(null)
+      return
+    }
+    if (value === COMPARE_NONE_VALUE) {
+      setSelectionOverride([])
+      return
+    }
+    setSelectionOverride((prevOverride) => {
+      const current =
+        prevOverride === null
+          ? [...allIds]
+          : prevOverride.filter((id) => allIds.includes(id))
+      const isFull =
+        allIds.length > 0 &&
+        current.length === allIds.length &&
+        allIds.every((id) => current.includes(id))
+      if (isFull) {
+        return normalizeToAllWhenComplete(allIds.filter((id) => id !== value))
+      }
+      if (current.includes(value)) {
+        return normalizeToAllWhenComplete(current.filter((id) => id !== value))
+      }
+      const next = new Set([...current, value])
+      return normalizeToAllWhenComplete(allIds.filter((id) => next.has(id)))
+    })
+  }
 
   const detailQueries = useQueries({
     queries: selectedIds.map((id) => ({
@@ -88,7 +154,6 @@ export function ComparePage() {
 
   /** Preserves selection order; `mapIndex` indexes into `answerMaps` / `detailQueries`. */
   const comparisonColumns = useMemo(() => {
-    const list = apartmentsQuery.data ?? []
     return selectedIds
       .map((id, mapIndex) => {
         const apt = list.find((a) => a.id === id)
@@ -98,209 +163,186 @@ export function ComparePage() {
         return { apt, mapIndex }
       })
       .filter((x): x is { apt: Apartment; mapIndex: number } => x !== null)
-  }, [apartmentsQuery.data, selectedIds])
+  }, [list, selectedIds])
 
   const isLoadingDetails =
     selectedIds.length > 0 && detailQueries.some((q) => q.isPending)
 
   const hasDetailError = detailQueries.some((q) => q.isError)
 
-  const toggleApartment = useCallback((id: string, checked: boolean) => {
-    setSelectedIds((prev) => {
-      if (checked) {
-        if (prev.includes(id)) {
-          return prev
-        }
-        return [...prev, id]
-      }
-      return prev.filter((x) => x !== id)
-    })
-  }, [])
-
-  const list = apartmentsQuery.data ?? []
+  const printDisabled =
+    apartmentsQuery.isPending ||
+    apartmentsQuery.isError ||
+    questionsQuery.isPending ||
+    questionsQuery.isError ||
+    selectedIds.length === 0 ||
+    isLoadingDetails ||
+    hasDetailError
 
   return (
-    <section className="space-y-6 pb-8">
-      <PageHeader
-        title="Compare Apartments"
-        description="Pick apartments, then scan answers side by side. Swipe horizontally on small screens."
-      />
-
+    <section className="compare-print space-y-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
       {apartmentsQuery.isPending ? (
-        <LoadingState label="Loading apartments…" />
+        <div className="compare-print-screen-only">
+          <LoadingState label="Loading apartments…" />
+        </div>
       ) : null}
       {apartmentsQuery.isError ? (
-        <ErrorState message={apartmentsQuery.error.message} />
+        <div className="compare-print-screen-only">
+          <ErrorState message={apartmentsQuery.error.message} />
+        </div>
       ) : null}
 
       {!apartmentsQuery.isPending && !apartmentsQuery.isError ? (
         <>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Select apartments</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {list.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No apartments yet. Create one from the Apartments tab.
-                </p>
-              ) : (
-                <ul className="max-h-60 space-y-2 overflow-y-auto pr-1 sm:max-h-72">
-                  {list.map((apt) => {
-                    const checked = selectedIds.includes(apt.id)
-                    const boxId = `compare-apt-${apt.id}`
-                    return (
-                      <li key={apt.id}>
-                        <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
-                          <Checkbox
-                            id={boxId}
-                            checked={checked}
-                            onCheckedChange={(c) =>
-                              toggleApartment(apt.id, c === true)
-                            }
-                            className="mt-0.5"
-                            aria-label={`Include ${apt.title} in comparison`}
-                          />
-                          <div className="min-w-0 flex-1 space-y-0.5">
-                            <Label
-                              htmlFor={boxId}
-                              className="cursor-pointer text-sm font-medium leading-snug"
-                            >
-                              {apt.title}
-                            </Label>
-                            {apt.address ? (
-                              <p className="text-xs text-muted-foreground">
-                                {apt.address}
-                              </p>
-                            ) : null}
-                          </div>
-                        </div>
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
+          {list.length === 0 ? (
+            <p className="text-sm text-muted-foreground compare-print-screen-only">
+              No apartments yet.
+            </p>
+          ) : (
+            <div className="compare-print-screen-only">
+              <Label htmlFor="compare-apartments-select" className="sr-only">
+                Apartments to compare
+              </Label>
+              <Select
+                value={compareSelectValue}
+                onValueChange={handleCompareSelectChange}
+              >
+                <SelectTrigger
+                  id="compare-apartments-select"
+                  className="h-auto min-h-11 w-full py-2 whitespace-normal"
+                  aria-label="Apartments to compare"
+                >
+                  <SelectValue placeholder="Choose apartments" />
+                </SelectTrigger>
+                <SelectContent
+                  position="popper"
+                  className="w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]"
+                >
+                  <SelectItem value={COMPARE_ALL_VALUE}>
+                    All apartments
+                  </SelectItem>
+                  {compareSelectValue === COMPARE_MULTI_VALUE ? (
+                    <SelectItem
+                      value={COMPARE_MULTI_VALUE}
+                      disabled
+                      className="text-muted-foreground"
+                    >
+                      {selectedIds.length} of {list.length} apartments
+                    </SelectItem>
+                  ) : null}
+                  <SelectSeparator />
+                  {list.map((apt) => (
+                    <SelectItem
+                      key={apt.id}
+                      value={apt.id}
+                      textValue={`${apt.title} ${apt.address ?? ''}`}
+                    >
+                      <span className="line-clamp-2 text-left">
+                        {apt.title}
+                      </span>
+                    </SelectItem>
+                  ))}
+                  <SelectSeparator />
+                  <SelectItem value={COMPARE_NONE_VALUE}>
+                    None selected
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {questionsQuery.isPending ? (
-            <LoadingState label="Loading questions…" />
+            <div className="compare-print-screen-only">
+              <LoadingState label="Loading questions…" />
+            </div>
           ) : null}
           {questionsQuery.isError ? (
-            <ErrorState message={questionsQuery.error.message} />
+            <div className="compare-print-screen-only">
+              <ErrorState message={questionsQuery.error.message} />
+            </div>
           ) : null}
 
           {!questionsQuery.isPending && !questionsQuery.isError ? (
             <>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Category</p>
-                  <div className="-mx-1 max-w-full overflow-x-auto px-1 pb-1 sm:max-w-2xl">
-                    <Tabs value={categoryId} onValueChange={setCategoryId}>
-                      <TabsList
-                        variant="line"
-                        className="inline-flex h-auto w-max flex-nowrap justify-start gap-1 bg-transparent p-0"
-                      >
-                        <TabsTrigger value="all" className="shrink-0">
-                          All
-                        </TabsTrigger>
-                        {categoryTabs.map((c) => (
-                          <TabsTrigger
-                            key={c.id}
-                            value={c.id}
-                            className="max-w-[10rem] shrink-0 truncate"
-                            title={c.name}
-                          >
-                            {c.name}
-                          </TabsTrigger>
-                        ))}
-                      </TabsList>
-                    </Tabs>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
-                  <Switch
-                    id="highlight-diffs"
-                    checked={highlightDiffs}
-                    onCheckedChange={(v) => setHighlightDiffs(v === true)}
-                    disabled={comparisonColumns.length < 2}
-                  />
-                  <Label
-                    htmlFor="highlight-diffs"
-                    className={cn(
-                      'cursor-pointer text-sm font-normal',
-                      comparisonColumns.length < 2 && 'text-muted-foreground'
-                    )}
-                  >
-                    Highlight differences
-                  </Label>
-                </div>
-              </div>
-
               {hasDetailError ? (
-                <ErrorState message="Could not load answers for one or more apartments." />
+                <div className="compare-print-screen-only">
+                  <ErrorState message="Could not load answers for one or more apartments." />
+                </div>
               ) : null}
 
               {selectedIds.length === 0 ? (
-                <Card>
-                  <CardContent className="py-6 text-sm text-muted-foreground">
-                    Select at least one apartment to see the comparison table.
-                  </CardContent>
-                </Card>
+                <p className="text-sm text-muted-foreground compare-print-screen-only">
+                  No apartments selected.
+                </p>
               ) : isLoadingDetails ? (
-                <LoadingState label="Loading answers…" />
+                <div className="compare-print-screen-only">
+                  <LoadingState label="Loading answers…" />
+                </div>
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-border shadow-sm">
-                  <table className="w-max min-w-full border-collapse text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/50">
-                        <th
-                          scope="col"
-                          className="sticky left-0 top-0 z-30 min-w-[9rem] max-w-[12rem] border-r border-border bg-muted/95 px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur sm:min-w-[11rem] sm:max-w-[16rem]"
-                        >
-                          Question
-                        </th>
-                        {comparisonColumns.map(({ apt }) => (
+                <div className="compare-print-viewport overflow-x-auto rounded-xl border border-border shadow-sm">
+                  <div className="compare-print-scale w-max min-w-full">
+                    <table className="compare-print-table w-max min-w-full border-collapse text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-border bg-muted/50">
                           <th
-                            key={apt.id}
                             scope="col"
-                            className="sticky top-0 z-20 min-w-[9.5rem] max-w-[11rem] bg-muted/95 px-3 py-3 text-xs font-semibold text-foreground backdrop-blur"
+                            className="sticky left-0 top-0 z-30 min-w-[9rem] max-w-[12rem] border-r border-border bg-muted/95 px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur sm:min-w-[11rem] sm:max-w-[16rem]"
                           >
-                            <span className="line-clamp-2">{apt.title}</span>
+                            Question
                           </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {flatFiltered.length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan={comparisonColumns.length + 1}
-                            className="px-3 py-6 text-center text-muted-foreground"
-                          >
-                            No questions in this category.
-                          </td>
+                          {comparisonColumns.map(({ apt }) => (
+                            <th
+                              key={apt.id}
+                              scope="col"
+                              className="sticky top-0 z-20 min-w-[9.5rem] max-w-[11rem] bg-muted/95 px-3 py-3 text-xs font-semibold text-foreground backdrop-blur"
+                            >
+                              <span className="line-clamp-2">{apt.title}</span>
+                            </th>
+                          ))}
                         </tr>
-                      ) : (
-                        flatFiltered.map((question) => (
-                          <CompareRow
-                            key={question.id}
-                            question={question}
-                            columns={comparisonColumns}
-                            answerMaps={answerMaps}
-                            highlightDiffs={
-                              highlightDiffs && comparisonColumns.length >= 2
-                            }
-                          />
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {flatAll.length === 0 ? (
+                          <tr>
+                            <td
+                              colSpan={comparisonColumns.length + 1}
+                              className="px-3 py-6 text-center text-muted-foreground"
+                            >
+                              No questions yet.
+                            </td>
+                          </tr>
+                        ) : (
+                          flatAll.map((question) => (
+                            <CompareRow
+                              key={question.id}
+                              question={question}
+                              columns={comparisonColumns}
+                              answerMaps={answerMaps}
+                            />
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </>
           ) : null}
         </>
+      ) : null}
+
+      {!apartmentsQuery.isPending && !apartmentsQuery.isError ? (
+        <PinnedActionBar className="compare-print-screen-only">
+          <Button
+            type="button"
+            className="min-h-11 inline-flex flex-1 items-center justify-center gap-1"
+            disabled={printDisabled}
+            onClick={() => window.print()}
+          >
+            <Printer className="size-4 shrink-0" aria-hidden />
+            Print
+          </Button>
+        </PinnedActionBar>
       ) : null}
     </section>
   )
@@ -310,40 +352,17 @@ type CompareRowProps = {
   question: Question
   columns: Array<{ apt: Apartment; mapIndex: number }>
   answerMaps: Array<Map<string, AnswerCell>>
-  highlightDiffs: boolean
 }
 
-function CompareRow({
-  question,
-  columns,
-  answerMaps,
-  highlightDiffs
-}: CompareRowProps) {
-  const keys = columns.map(({ mapIndex }) => {
-    const map = answerMaps[mapIndex] ?? new Map<string, AnswerCell>()
-    const cell = map.get(question.id)
-    return normalizeAnswerForCompare(question, cell?.value)
-  })
-  const divergent = highlightDiffs && keys.length >= 2 && new Set(keys).size > 1
-
+function CompareRow({ question, columns, answerMaps }: CompareRowProps) {
   return (
     <tr className="border-b border-border last:border-b-0">
       <th
         scope="row"
-        className="sticky left-0 z-20 max-w-[12rem] border-r border-border bg-background px-3 py-3 align-top text-xs font-normal text-foreground sm:max-w-[16rem] sm:text-sm"
+        className="sticky left-0 z-20 max-w-[9rem] border-r border-border bg-background px-3 py-3 align-center text-xs font-normal text-foreground sm:max-w-[16rem] sm:text-sm"
       >
         <div className="line-clamp-3 font-medium leading-snug">
           {question.label}
-        </div>
-        <div className="mt-1 flex flex-wrap gap-1">
-          <Badge variant="secondary" className="text-[10px] font-normal">
-            {question.type}
-          </Badge>
-          {question.required ? (
-            <Badge variant="outline" className="text-[10px] font-normal">
-              Required
-            </Badge>
-          ) : null}
         </div>
       </th>
       {columns.map(({ apt, mapIndex }) => {
@@ -359,13 +378,7 @@ function CompareRow({
         const title = titleParts.join(' · ')
 
         return (
-          <td
-            key={apt.id}
-            className={cn(
-              'max-w-[11rem] px-2 py-2 align-top',
-              divergent && 'bg-accent/35'
-            )}
-          >
+          <td key={apt.id} className="max-w-[11rem] px-2 py-2 align-top">
             <CompareCell
               question={question}
               value={value}
@@ -400,13 +413,13 @@ function CompareCell({
 
   const shell = (inner: ReactNode) => (
     <div
-      className="flex min-h-11 flex-col justify-center gap-1 rounded-md border border-border bg-card px-2 py-2"
+      className="compare-print-cell-shell flex min-h-11 flex-col justify-center gap-1 rounded-md border border-border bg-card px-2 py-2"
       title={title}
     >
       {inner}
       {question.type === 'rating' && ratio !== null ? (
         <div
-          className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+          className="compare-print-rating-track h-1.5 w-full overflow-hidden rounded-full bg-muted"
           aria-hidden
         >
           <div
@@ -416,7 +429,7 @@ function CompareCell({
         </div>
       ) : null}
       {showNote ? (
-        <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+        <span className="compare-print-note-indicator inline-flex items-center gap-1 text-[10px] text-muted-foreground">
           <MessageSquare className="size-3 shrink-0" aria-hidden />
           <span className="sr-only">Has note</span>
           <span className="truncate" title={note ?? undefined}>
