@@ -1,19 +1,34 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { apiRequest } from '../lib/api'
-import type { Answer, UpsertAnswerPayload } from '../types'
+import type { UpsertAnswerPayload } from '../types'
 import { queryKeys } from './queryKeys'
+
+type UpsertAnswerResponse = { ok: boolean; updated: number }
+
+const apartmentIdsFromPayload = (payload: UpsertAnswerPayload): string[] => {
+  if ('answer' in payload) {
+    return [payload.answer.apartmentId]
+  }
+  return [...new Set(payload.answers.map((a) => a.apartmentId))]
+}
 
 export const useUpsertAnswer = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: UpsertAnswerPayload) =>
-      apiRequest<Answer | Answer[]>('/api/answers', {
+      apiRequest<UpsertAnswerResponse>('/api/answers', {
         method: 'POST',
         body: payload
       }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.apartments })
+    onSuccess: async (_, payload) => {
+      const ids = apartmentIdsFromPayload(payload)
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.apartments }),
+        ...ids.map((id) =>
+          queryClient.invalidateQueries({ queryKey: queryKeys.apartment(id) })
+        )
+      ])
     }
   })
 }

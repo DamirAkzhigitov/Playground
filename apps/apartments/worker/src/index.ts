@@ -437,24 +437,63 @@ app.get('/api/apartments', async (c) => {
        a.notes,
        a.created_at,
        a.updated_at,
-       COUNT(DISTINCT ans.question_id) AS answered_questions,
-       (SELECT COUNT(*) FROM questions q WHERE q.is_archived = 0) AS total_questions
+       (SELECT COUNT(*) FROM questions q WHERE q.is_archived = 0) AS total_questions,
+       (
+         SELECT COUNT(*)
+         FROM questions q
+         INNER JOIN answers ans
+           ON ans.question_id = q.id AND ans.apartment_id = a.id
+         WHERE q.is_archived = 0
+           AND ans.value IS NOT NULL
+           AND TRIM(ans.value) != ''
+           AND TRIM(ans.value) != '[]'
+           AND (
+             q.type != 'multi-select'
+             OR (
+               json_valid(TRIM(ans.value)) = 1
+               AND json_type(TRIM(ans.value)) = 'array'
+               AND json_array_length(TRIM(ans.value)) > 0
+             )
+           )
+       ) AS answered_questions,
+       (
+         SELECT COUNT(*)
+         FROM questions q
+         LEFT JOIN answers ans
+           ON ans.question_id = q.id AND ans.apartment_id = a.id
+         WHERE q.is_archived = 0
+           AND q.required = 1
+           AND NOT (
+             ans.id IS NOT NULL
+             AND ans.value IS NOT NULL
+             AND TRIM(ans.value) != ''
+             AND TRIM(ans.value) != '[]'
+             AND (
+               q.type != 'multi-select'
+               OR (
+                 json_valid(TRIM(ans.value)) = 1
+                 AND json_type(TRIM(ans.value)) = 'array'
+                 AND json_array_length(TRIM(ans.value)) > 0
+               )
+             )
+           )
+       ) AS critical_missing
      FROM apartments a
-     LEFT JOIN answers ans ON ans.apartment_id = a.id
-     GROUP BY a.id
      ORDER BY a.created_at DESC`
   ).all<Record<string, unknown>>()
 
   const apartments = typedRows(result).map((row) => {
     const answered = Number(row.answered_questions ?? 0)
     const total = Number(row.total_questions ?? 0)
+    const criticalMissing = Number(row.critical_missing ?? 0)
     const percent = total > 0 ? Math.round((answered / total) * 100) : 0
     return {
       ...formatApartment(row),
       completion: {
         answeredQuestions: answered,
         totalQuestions: total,
-        percent
+        percent,
+        criticalMissingCount: criticalMissing
       }
     }
   })

@@ -49,6 +49,7 @@ export type Apartment = {
     answeredQuestions: number
     totalQuestions: number
     percent: number
+    criticalMissingCount: number
   }
 }
 

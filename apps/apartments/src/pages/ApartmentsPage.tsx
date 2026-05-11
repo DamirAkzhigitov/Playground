@@ -1,6 +1,8 @@
-import { MapPin, Plus } from 'lucide-react'
+import { MapPin, Plus, Search } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { ApartmentStatusBadge } from '@/components/ApartmentStatusBadge'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
 import { PageHeader } from '@/components/PageHeader'
@@ -13,40 +15,73 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { useApartments } from '@/hooks'
 
 export function ApartmentsPage() {
   const { data, isPending, isError, error } = useApartments()
+  const [query, setQuery] = useState('')
+
+  const filtered = useMemo(() => {
+    const list = data ?? []
+    const q = query.trim().toLowerCase()
+    if (!q) {
+      return list
+    }
+    return list.filter(
+      (a) =>
+        a.title.toLowerCase().includes(q) ||
+        (a.address?.toLowerCase().includes(q) ?? false)
+    )
+  }, [data, query])
 
   return (
     <section className="space-y-6">
       <PageHeader
         title="Apartments"
-        description="Track every place you visit and how complete the data is."
         actions={
           <Button asChild size="sm">
-            <Link to="/apartments/new">
+            <Link
+              to="/apartments/new"
+              className="inline-flex items-center gap-2"
+              aria-label="New apartment"
+            >
               <Plus aria-hidden="true" />
               <span className="hidden sm:inline">New apartment</span>
-              <span className="sr-only sm:hidden">New apartment</span>
             </Link>
           </Button>
         }
       />
 
-      {isPending ? <LoadingState label="Loading apartments..." /> : null}
+      <div className="relative">
+        <Search
+          aria-hidden
+          className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2"
+        />
+        <Input
+          type="search"
+          placeholder="Search by title or address…"
+          className="pl-9"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          aria-label="Search apartments"
+        />
+      </div>
+
+      {isPending ? <LoadingState label="Loading apartments…" /> : null}
       {isError ? <ErrorState message={error.message} /> : null}
 
       {!isPending && !isError ? (
         <ul className="space-y-3">
-          {(data ?? []).map((apartment) => {
+          {filtered.map((apartment) => {
             const percent = apartment.completion?.percent
+            const critical = apartment.completion?.criticalMissingCount ?? 0
             return (
               <li key={apartment.id}>
                 <Card className="transition-colors hover:bg-accent/40">
-                  <CardHeader className="gap-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <CardTitle className="text-base">
+                  <CardHeader className="gap-2">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <CardTitle className="text-base leading-snug">
                         <Link
                           className="hover:underline focus-visible:underline focus-visible:outline-none"
                           to={`/apartments/${apartment.id}`}
@@ -54,18 +89,32 @@ export function ApartmentsPage() {
                           {apartment.title}
                         </Link>
                       </CardTitle>
-                      {typeof percent === 'number' ? (
-                        <Badge variant="secondary">{percent}%</Badge>
-                      ) : (
-                        <Badge variant="outline">New</Badge>
-                      )}
+                      <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                        <ApartmentStatusBadge
+                          completion={apartment.completion}
+                        />
+                        {typeof percent === 'number' ? (
+                          <Badge variant="secondary">{percent}%</Badge>
+                        ) : (
+                          <Badge variant="outline">New</Badge>
+                        )}
+                      </div>
                     </div>
                     <CardDescription className="flex items-center gap-1.5">
-                      <MapPin aria-hidden="true" className="size-3.5" />
-                      <span className="line-clamp-1">
+                      <MapPin
+                        aria-hidden="true"
+                        className="size-3.5 shrink-0"
+                      />
+                      <span className="line-clamp-2">
                         {apartment.address ?? 'No address yet'}
                       </span>
                     </CardDescription>
+                    {critical > 0 ? (
+                      <p className="text-destructive text-xs font-medium">
+                        {critical} critical question{critical === 1 ? '' : 's'}{' '}
+                        missing
+                      </p>
+                    ) : null}
                   </CardHeader>
                   {apartment.price !== null && apartment.price !== undefined ? (
                     <CardContent className="text-sm text-muted-foreground">
@@ -85,6 +134,15 @@ export function ApartmentsPage() {
                     New apartment
                   </span>{' '}
                   to add one.
+                </CardContent>
+              </Card>
+            </li>
+          ) : null}
+          {(data ?? []).length > 0 && filtered.length === 0 ? (
+            <li>
+              <Card className="border-dashed">
+                <CardContent className="py-6 text-center text-sm text-muted-foreground">
+                  No apartments match “{query.trim()}”.
                 </CardContent>
               </Card>
             </li>

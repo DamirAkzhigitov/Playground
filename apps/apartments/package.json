@@ -16,6 +16,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@playground/global-header": "workspace:*",
     "@hookform/resolvers": "5.2.2",
     "@tanstack/react-query": "^5.90.5",
     "class-variance-authority": "0.7.1",

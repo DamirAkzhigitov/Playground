@@ -183,38 +183,38 @@ loading/error states.
 
 ### 3B — Apartment Management (`/apartments`)
 
-- [ ] **3B.1** Apartment list — cards showing title, address, price,
+- [x] **3B.1** Apartment list — cards showing title, address, price,
       completion %, critical missing count.
-- [ ] **3B.2** Create/edit apartment form — title, address, price, notes.
-- [ ] **3B.3** Status badges: Needs Review / Completed / Missing Critical.
-- [ ] **3B.4** Search/filter apartments by name.
+- [x] **3B.2** Create/edit apartment form — title, address, price, notes.
+- [x] **3B.3** Status badges: Needs Review / Completed / Missing Critical.
+- [x] **3B.4** Search/filter apartments by name.
 
 ### 3C — Inspection Screen (`/apartments/:id/inspect`)
 
 The primary screen used during a viewing.
 
-- [ ] **3C.1** One-question-at-a-time view: question label, input, progress
+- [x] **3C.1** One-question-at-a-time view: question label, input, progress
       indicator (`Question 4 / 25`).
-- [ ] **3C.2** Input components per question type:
+- [x] **3C.2** Input components per question type:
   - `text` → textarea
   - `number` → numeric input with +/- steppers
   - `boolean` → large Yes / No / Skip buttons
   - `select` → radio button list
   - `multi-select` → checkbox list
   - `rating` → 1–5 star/dot selector
-- [ ] **3C.3** Navigation: Next / Previous buttons.
-- [ ] **3C.4** Section jump — drawer listing categories with completion
+- [x] **3C.3** Navigation: Next / Previous buttons.
+- [x] **3C.4** Section jump — drawer listing categories with completion
       indicators (e.g. "Kitchen 3/5").
-- [ ] **3C.5** "Extra note" expandable textarea under every answer.
-- [ ] **3C.6** Autosave — upsert answer via API on every change (debounced).
-- [ ] **3C.7** Summary screen at the end: missing answers count, list of
+- [x] **3C.5** "Extra note" expandable textarea under every answer.
+- [x] **3C.6** Autosave — upsert answer via API on every change (debounced).
+- [x] **3C.7** Summary screen at the end: missing answers count, list of
       unanswered required questions, "Go back to fix" links.
 
 ### 3D — Apartment Detail (`/apartments/:id`)
 
-- [ ] **3D.1** Overview panel: completion %, missing critical list, quick stats.
-- [ ] **3D.2** All answers listed by category — editable inline.
-- [ ] **3D.3** "Start / Resume Inspection" button → navigates to 3C.
+- [x] **3D.1** Overview panel: completion %, missing critical list, quick stats.
+- [x] **3D.2** All answers listed by category — editable inline.
+- [x] **3D.3** "Start / Resume Inspection" button → navigates to 3C.
 
 **Exit criteria:** full question CRUD, apartment CRUD, inspection flow works
 end-to-end on a phone-sized screen with data persisted in D1.
@@ -310,7 +310,7 @@ Tracked but not scheduled. Implement on demand.
 Phase 0  Scaffold             ██░░░░░░░░  (done)
 Phase 1  Backend (D1/Workers) ████░░░░░░  (do next)
 Phase 2  Frontend Shell       ███░░░░░░░
-Phase 3  Core Features (MVP)  ██████░░░░  (largest phase)
+Phase 3  Core Features (MVP)  ██████████  (done)
 Phase 4  Photos (R2)          █░░░░░░░░░
 Phase 5  Export & Comparison  ███░░░░░░░
   ─── MVP complete ───
