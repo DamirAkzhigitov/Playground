@@ -29,6 +29,7 @@ import {
   deriveApartmentStatus
 } from '@/lib/apartmentStatus'
 import { isQuestionAnswerFilled } from '@/lib/answerValue'
+import { questionTypeLabel } from '@/lib/questionTypes'
 import { buildAnswerDraftMap, flattenActiveQuestions } from '@/lib/questions'
 
 const EMPTY_GROUPS: QuestionGroup[] = []
@@ -265,8 +266,8 @@ export function ApartmentDetailPage() {
                           Required
                         </Badge>
                       ) : null}
-                      <Badge variant="secondary" className="text-xs capitalize">
-                        {question.type.replaceAll('-', ' ')}
+                      <Badge variant="secondary" className="text-xs">
+                        {questionTypeLabel(question.type)}
                       </Badge>
                     </div>
                     <AnswerField

@@ -6,6 +6,7 @@ import { typedRows, toQuestion } from '../helpers'
 const questionTypeSchema = z.enum([
   'text',
   'number',
+  'date',
   'boolean',
   'select',
   'multi-select',

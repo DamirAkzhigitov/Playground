@@ -76,16 +76,8 @@ import {
   useUpdateCategory,
   useUpdateQuestion
 } from '@/hooks'
-import type { Question, QuestionType } from '@/types'
-
-const QUESTION_TYPES: QuestionType[] = [
-  'text',
-  'number',
-  'boolean',
-  'select',
-  'multi-select',
-  'rating'
-]
+import { QUESTION_TYPE_ORDER, questionTypeLabel } from '@/lib/questionTypes'
+import type { Question } from '@/types'
 
 const questionFormSchema = z
   .object({
@@ -93,6 +85,7 @@ const questionFormSchema = z
     type: z.enum([
       'text',
       'number',
+      'date',
       'boolean',
       'select',
       'multi-select',
@@ -679,9 +672,9 @@ export function QuestionsPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {QUESTION_TYPES.map((type) => (
+                            {QUESTION_TYPE_ORDER.map((type) => (
                               <SelectItem key={type} value={type}>
-                                {type}
+                                {questionTypeLabel(type)}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -996,7 +989,7 @@ function QuestionRow({
       <div className="min-w-0 flex-1">
         <p className="font-medium text-foreground">{question.label}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <Badge variant="secondary">{question.type}</Badge>
+          <Badge variant="secondary">{questionTypeLabel(question.type)}</Badge>
           <span>{question.required ? 'Required' : 'Optional'}</span>
           <span aria-hidden="true">·</span>
           <span>Order: {question.order}</span>
