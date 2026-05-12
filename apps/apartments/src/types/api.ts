@@ -40,6 +40,9 @@ export type QuestionOption = {
   order: number
 }
 
+/** For number/date: whether lower (cheaper, earlier) or higher (larger, later) values rank better in compare. */
+export type ValuePreference = 'lower' | 'higher'
+
 export type Question = {
   id: string
   label: string
@@ -50,6 +53,7 @@ export type Question = {
   order: number
   ratingMin: number | null
   ratingMax: number | null
+  valuePreference: ValuePreference | null
   options: QuestionOption[]
 }
 
@@ -110,6 +114,7 @@ export type CreateQuestionInput = {
   order?: number
   ratingMin?: number | null
   ratingMax?: number | null
+  valuePreference?: ValuePreference | null
   options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>
 }
 
@@ -124,6 +129,7 @@ export type UpdateQuestionInput = Partial<
     | 'order'
     | 'ratingMin'
     | 'ratingMax'
+    | 'valuePreference'
   >
 > & {
   options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>

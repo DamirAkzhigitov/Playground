@@ -349,7 +349,7 @@ export async function seedDefaultData(
     stmts.push(
       db
         .prepare(
-          'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, user_id) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?)'
+          'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, value_preference, user_id) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)'
         )
         .bind(
           q.id,
@@ -360,6 +360,7 @@ export async function seedDefaultData(
           q.order,
           ratingMin,
           ratingMax,
+          null,
           userId
         )
     )

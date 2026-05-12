@@ -3,6 +3,7 @@ import { Check, MessageSquare, Printer, X } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 
 import { useI18n } from '@/contexts/I18nContext'
+import { isAnswerValueFilled } from '@/lib/answerValue'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
@@ -20,7 +21,10 @@ import { useApartments, useQuestions } from '@/hooks'
 import { queryKeys } from '@/hooks/queryKeys'
 import { apiRequest } from '@/lib/api'
 import {
+  answerStrengthRatio,
+  dateMinMaxAcrossValues,
   formatCompareAnswerLabel,
+  numberMinMaxAcrossValues,
   ratingBarRatio,
   type CompareBooleanLabels
 } from '@/lib/compareDisplay'
@@ -39,6 +43,11 @@ const COMPARE_NONE_VALUE = '__none__'
 const COMPARE_MULTI_VALUE = '__multi__'
 
 type AnswerCell = { value: string | null; note: string | null }
+
+type ScalarRange = {
+  number: { min: number; max: number } | null
+  date: { min: string; max: string } | null
+}
 
 function buildAnswerMap(
   detail: ApartmentDetail | undefined
@@ -185,6 +194,21 @@ export function ComparePage() {
     selectedIds.length > 0 && detailQueries.some((q) => q.isPending)
 
   const hasDetailError = detailQueries.some((q) => q.isError)
+
+  const scalarRangesByQuestionId = useMemo(() => {
+    const m = new Map<string, ScalarRange>()
+    for (const q of flatAll) {
+      if (q.type !== 'number' && q.type !== 'date') {
+        continue
+      }
+      const values = answerMaps.map((am) => am.get(q.id)?.value ?? null)
+      m.set(q.id, {
+        number: q.type === 'number' ? numberMinMaxAcrossValues(values) : null,
+        date: q.type === 'date' ? dateMinMaxAcrossValues(values) : null
+      })
+    }
+    return m
+  }, [answerMaps, flatAll])
 
   const printDisabled =
     apartmentsQuery.isPending ||
@@ -344,6 +368,9 @@ export function ComparePage() {
                               noAnswerSr={t('compare.noAnswer')}
                               noteWord={t('common.note')}
                               question={question}
+                              scalarRangesByQuestionId={
+                                scalarRangesByQuestionId
+                              }
                             />
                           ))
                         )}
@@ -379,6 +406,7 @@ type CompareRowProps = {
   categoryName: string
   columns: Array<{ apt: Apartment; mapIndex: number }>
   answerMaps: Array<Map<string, AnswerCell>>
+  scalarRangesByQuestionId: Map<string, ScalarRange>
   boolLabels: CompareBooleanLabels
   noteWord: string
   hasNoteSr: string
@@ -390,11 +418,16 @@ function CompareRow({
   categoryName,
   columns,
   answerMaps,
+  scalarRangesByQuestionId,
   boolLabels,
   noteWord,
   hasNoteSr,
   noAnswerSr
 }: CompareRowProps) {
+  const scalarRange = scalarRangesByQuestionId.get(question.id) ?? {
+    number: null,
+    date: null
+  }
   return (
     <tr className="border-b border-border last:border-b-0">
       <th
@@ -434,6 +467,7 @@ function CompareRow({
               noAnswerSr={noAnswerSr}
               note={note}
               question={question}
+              scalarRange={scalarRange}
               title={title}
               value={value}
             />
@@ -450,6 +484,7 @@ type CompareCellProps = {
   note: string | null
   label: string
   title: string
+  scalarRange: ScalarRange
   boolLabels: CompareBooleanLabels
   hasNoteLabel: string
   hasNoteSr: string
@@ -462,12 +497,26 @@ function CompareCell({
   note,
   label,
   title,
+  scalarRange,
   boolLabels,
   hasNoteLabel,
   hasNoteSr,
   noAnswerSr
 }: CompareCellProps) {
-  const ratio = ratingBarRatio(question, value)
+  const ratingRatio = ratingBarRatio(question, value)
+  const scalarStrength =
+    question.type === 'number'
+      ? answerStrengthRatio(question, value, scalarRange.number, null)
+      : question.type === 'date'
+        ? answerStrengthRatio(question, value, null, scalarRange.date)
+        : null
+  const barPercent =
+    question.type === 'rating' && ratingRatio !== null
+      ? Math.round(ratingRatio * 100)
+      : (question.type === 'number' || question.type === 'date') &&
+          isAnswerValueFilled(question.type, value)
+        ? Math.round((scalarStrength ?? 0) * 100)
+        : null
   const showNote = Boolean(note?.trim())
 
   const shell = (inner: ReactNode) => (
@@ -476,14 +525,14 @@ function CompareCell({
       title={title}
     >
       {inner}
-      {question.type === 'rating' && ratio !== null ? (
+      {barPercent !== null ? (
         <div
           className="compare-print-rating-track h-1.5 w-full overflow-hidden rounded-full bg-muted"
           aria-hidden
         >
           <div
             className="h-full rounded-full bg-primary transition-[width]"
-            style={{ width: `${Math.round(ratio * 100)}%` }}
+            style={{ width: `${barPercent}%` }}
           />
         </div>
       ) : null}
@@ -526,7 +575,7 @@ function CompareCell({
     )
   }
 
-  if (question.type === 'rating' && ratio !== null) {
+  if (question.type === 'rating' && ratingRatio !== null) {
     return shell(
       <span className="text-base font-semibold tabular-nums text-foreground">
         {label}

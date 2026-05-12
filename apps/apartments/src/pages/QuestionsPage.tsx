@@ -37,6 +37,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -100,6 +101,7 @@ function buildQuestionFormSchema(t: (id: MessageId) => string) {
       order: z.coerce.number().int().nonnegative(),
       ratingMin: z.coerce.number().int().min(1),
       ratingMax: z.coerce.number().int().min(1),
+      valuePreference: z.enum(['lower', 'higher']),
       options: z.array(
         z.object({
           label: z.string(),
@@ -126,6 +128,12 @@ const buildDefaults = (
   order: question?.order ?? 1,
   ratingMin: question?.ratingMin ?? 1,
   ratingMax: question?.ratingMax ?? 5,
+  valuePreference:
+    question?.type === 'date'
+      ? (question.valuePreference ?? 'lower')
+      : question?.type === 'number'
+        ? (question.valuePreference ?? 'higher')
+        : 'higher',
   options:
     question?.options.map((option) => ({
       label: option.label,
@@ -314,6 +322,10 @@ export function QuestionsPage() {
       order: Number(values.order),
       ratingMin: values.type === 'rating' ? Number(values.ratingMin) : null,
       ratingMax: values.type === 'rating' ? Number(values.ratingMax) : null,
+      valuePreference:
+        values.type === 'number' || values.type === 'date'
+          ? values.valuePreference
+          : null,
       options:
         values.type === 'select' || values.type === 'multi-select'
           ? values.options
@@ -691,7 +703,14 @@ export function QuestionsPage() {
                       <FormItem>
                         <FormLabel>{t('questions.type')}</FormLabel>
                         <Select
-                          onValueChange={field.onChange}
+                          onValueChange={(v) => {
+                            field.onChange(v)
+                            if (v === 'date') {
+                              form.setValue('valuePreference', 'lower')
+                            } else if (v === 'number') {
+                              form.setValue('valuePreference', 'higher')
+                            }
+                          }}
                           value={field.value}
                         >
                           <FormControl>
@@ -744,6 +763,40 @@ export function QuestionsPage() {
                     )}
                   />
                 </div>
+
+                {selectedType === 'number' || selectedType === 'date' ? (
+                  <FormField
+                    control={form.control}
+                    name="valuePreference"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('questions.valuePreference')}</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="lower">
+                              {t('questions.valueBetterLower')}
+                            </SelectItem>
+                            <SelectItem value="higher">
+                              {t('questions.valueBetterHigher')}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          {t('questions.valuePreferenceHint')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : null}
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
