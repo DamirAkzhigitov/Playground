@@ -27,6 +27,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { useDeletePhoto, useUploadPhoto } from '@/hooks'
+import { compressImageForUpload } from '@/lib/compressImage'
 import { photoPublicUrl } from '@/lib/photoUrl'
 import { cn } from '@/lib/utils'
 import type { Photo } from '@/types'
@@ -75,10 +76,11 @@ export function QuestionPhotosSection({
         return
       }
       try {
+        const prepared = await compressImageForUpload(file)
         await upload.mutateAsync({
           apartmentId,
           questionId,
-          file
+          file: prepared
         })
         toast.success(t('photos.added'))
       } catch (e) {
