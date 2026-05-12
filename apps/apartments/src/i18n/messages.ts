@@ -188,6 +188,15 @@ const EN = {
   'compare.noQuestions': 'No questions yet.',
   'compare.hasNote': 'Has note',
   'compare.noAnswer': 'No answer',
+  'compare.questionProgress': 'Question {current} / {total}',
+  'compare.resultsTitle': 'Overall results',
+  'compare.resultsDescription':
+    'Average answer strength across all questions. Higher is better; the list is ordered from best to worst.',
+  'compare.answerStrength': 'Answer strength {percent}%',
+  'compare.totalScore': 'Total {percent}%',
+  'compare.showResults': 'Results',
+  'compare.backToQuestions': 'Back to last question',
+  'compare.restartWalk': 'Start over',
 
   'questionType.text': 'Text',
   'questionType.number': 'Number',
@@ -461,6 +470,15 @@ const RU: Record<MessageId, string> = {
   'compare.noQuestions': 'Пока нет вопросов.',
   'compare.hasNote': 'Есть заметка',
   'compare.noAnswer': 'Нет ответа',
+  'compare.questionProgress': 'Вопрос {current} / {total}',
+  'compare.resultsTitle': 'Общий результат',
+  'compare.resultsDescription':
+    'Средняя «сила» ответов по всем вопросам. Чем выше, тем лучше; список от лучшего к худшему.',
+  'compare.answerStrength': 'Сила ответа {percent}%',
+  'compare.totalScore': 'Итого {percent}%',
+  'compare.showResults': 'Итоги',
+  'compare.backToQuestions': 'К последнему вопросу',
+  'compare.restartWalk': 'Сначала',
 
   'questionType.text': 'Текст',
   'questionType.number': 'Число',
@@ -733,6 +751,15 @@ const EL: Record<MessageId, string> = {
   'compare.noQuestions': 'Δεν υπάρχουν ερωτήσεις ακόμη.',
   'compare.hasNote': 'Έχει σημείωση',
   'compare.noAnswer': 'Χωρίς απάντηση',
+  'compare.questionProgress': 'Ερώτηση {current} / {total}',
+  'compare.resultsTitle': 'Συνολικά αποτελέσματα',
+  'compare.resultsDescription':
+    'Μέση ισχύς απαντήσεων σε όλες τις ερωτήσεις. Υψηλότερη τιμή είναι καλύτερη· η λίστα είναι από την καλύτερη προς τη χειρότερη.',
+  'compare.answerStrength': 'Ισχύς απάντησης {percent}%',
+  'compare.totalScore': 'Σύνολο {percent}%',
+  'compare.showResults': 'Αποτελέσματα',
+  'compare.backToQuestions': 'Πίσω στην τελευταία ερώτηση',
+  'compare.restartWalk': 'Από την αρχή',
 
   'questionType.text': 'Κείμενο',
   'questionType.number': 'Αριθμός',

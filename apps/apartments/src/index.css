@@ -311,4 +311,9 @@
     break-inside: avoid;
     page-break-inside: avoid;
   }
+
+  .compare-print-wizard-row {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }
