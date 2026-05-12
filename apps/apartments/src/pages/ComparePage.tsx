@@ -24,7 +24,7 @@ import {
   ratingBarRatio,
   type CompareBooleanLabels
 } from '@/lib/compareDisplay'
-import { flattenActiveQuestions } from '@/lib/questions'
+import { categoryNameById, flattenActiveQuestions } from '@/lib/questions'
 import type {
   Apartment,
   ApartmentDetail,
@@ -73,6 +73,7 @@ export function ComparePage() {
 
   const groups = questionsQuery.data ?? EMPTY_GROUPS
   const flatAll = useMemo(() => flattenActiveQuestions(groups), [groups])
+  const categoryNames = useMemo(() => categoryNameById(groups), [groups])
 
   const list = useMemo(() => apartmentsQuery.data ?? [], [apartmentsQuery.data])
   const allIds = useMemo(() => list.map((a) => a.id), [list])
@@ -335,6 +336,9 @@ export function ComparePage() {
                               key={question.id}
                               answerMaps={answerMaps}
                               boolLabels={boolLabels}
+                              categoryName={
+                                categoryNames.get(question.categoryId) ?? ''
+                              }
                               columns={comparisonColumns}
                               hasNoteSr={t('compare.hasNote')}
                               noAnswerSr={t('compare.noAnswer')}
@@ -372,6 +376,7 @@ export function ComparePage() {
 
 type CompareRowProps = {
   question: Question
+  categoryName: string
   columns: Array<{ apt: Apartment; mapIndex: number }>
   answerMaps: Array<Map<string, AnswerCell>>
   boolLabels: CompareBooleanLabels
@@ -382,6 +387,7 @@ type CompareRowProps = {
 
 function CompareRow({
   question,
+  categoryName,
   columns,
   answerMaps,
   boolLabels,
@@ -393,10 +399,17 @@ function CompareRow({
     <tr className="border-b border-border last:border-b-0">
       <th
         scope="row"
-        className="sticky left-0 z-20 max-w-[9rem] border-r border-border bg-background px-3 py-3 align-center text-xs font-normal text-foreground sm:max-w-[16rem] sm:text-sm"
+        className="sticky left-0 z-20 max-w-[9rem] border-r border-border bg-background px-3 py-3 align-top text-xs font-normal text-foreground sm:max-w-[16rem] sm:text-sm"
       >
-        <div className="line-clamp-3 font-medium leading-snug">
-          {question.label}
+        <div className="flex flex-col gap-1.5">
+          {categoryName ? (
+            <div className="line-clamp-2 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+              {categoryName}
+            </div>
+          ) : null}
+          <div className="line-clamp-3 font-medium leading-snug text-foreground">
+            {question.label}
+          </div>
         </div>
       </th>
       {columns.map(({ apt, mapIndex }) => {

@@ -31,6 +31,11 @@ export function flattenActiveQuestions(groups: QuestionGroup[]): Question[] {
   )
 }
 
+/** Maps category id → display name for the active question groups. */
+export function categoryNameById(groups: QuestionGroup[]): Map<string, string> {
+  return new Map(groups.map((g) => [g.id, g.name]))
+}
+
 export function questionIndexInFlatList(
   flat: Question[],
   questionId: string

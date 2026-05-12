@@ -262,11 +262,14 @@ export function ApartmentDetailPage() {
             <CardHeader>
               <CardTitle className="text-base">{group.name}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="flex flex-col gap-4">
               {active.map((question) => {
                 const draft = answers[question.id]
                 return (
-                  <div key={question.id} className="space-y-2">
+                  <div
+                    key={question.id}
+                    className="space-y-2 rounded-xl border border-border/80 bg-muted/20 p-4 shadow-sm"
+                  >
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-medium leading-snug">
                         {question.label}

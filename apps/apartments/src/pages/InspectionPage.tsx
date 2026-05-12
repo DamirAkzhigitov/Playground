@@ -33,12 +33,13 @@ import { useDebouncedAnswerSave } from '@/hooks/useDebouncedAnswerSave'
 import { isQuestionAnswerFilled } from '@/lib/answerValue'
 import { cn } from '@/lib/utils'
 import {
-  type AnswerDraft,
   buildAnswerDraftMap,
+  categoryNameById,
   firstQuestionIndexForCategory,
   firstUnfilledQuestionIndex,
   flattenActiveQuestions,
-  questionIndexInFlatList
+  questionIndexInFlatList,
+  type AnswerDraft
 } from '@/lib/questions'
 import type { QuestionGroup } from '@/types'
 
@@ -170,6 +171,10 @@ export function InspectionPage() {
 
   const current = flat[index]
   const draft = current ? answers[current.id] : undefined
+  const categoryNames = useMemo(() => categoryNameById(groups), [groups])
+  const currentCategoryName = current
+    ? (categoryNames.get(current.categoryId) ?? null)
+    : null
 
   const updateDraft = useCallback(
     (questionId: string, patch: Partial<AnswerDraft>) => {
@@ -435,7 +440,12 @@ export function InspectionPage() {
           <div className="min-h-0 flex-1 overflow-y-auto pb-page-pinned">
             {current ? (
               <Card>
-                <CardHeader>
+                <CardHeader className="space-y-1">
+                  {currentCategoryName ? (
+                    <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                      {currentCategoryName}
+                    </p>
+                  ) : null}
                   <CardTitle className="text-base leading-snug sm:text-lg">
                     {current.label}
                   </CardTitle>
