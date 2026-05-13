@@ -14,10 +14,46 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  detect-changes:
+    name: Detect changed apps
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      main: ${{ steps.filter.outputs.main }}
+      resume: ${{ steps.filter.outputs.resume }}
+      apartments: ${{ steps.filter.outputs.apartments }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            main:
+              - 'apps/main/**'
+              - 'packages/global-header/**'
+              - 'pnpm-lock.yaml'
+              - 'turbo.json'
+              - '.github/workflows/deploy.yml'
+            resume:
+              - 'apps/resume/**'
+              - 'packages/global-header/**'
+              - 'pnpm-lock.yaml'
+              - 'turbo.json'
+              - '.github/workflows/deploy.yml'
+            apartments:
+              - 'apps/apartments/**'
+              - 'packages/global-header/**'
+              - 'pnpm-lock.yaml'
+              - 'turbo.json'
+              - '.github/workflows/deploy.yml'
+
   deploy-main:
     name: Deploy apps/main to Cloudflare Pages
+    needs: [detect-changes]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && needs.detect-changes.outputs.main == 'true'
     environment:
       name: production
       url: https://da-mr.com
@@ -59,8 +95,9 @@ jobs:
 
   deploy-main-dev:
     name: Deploy apps/main to Cloudflare Pages (dev)
+    needs: [detect-changes]
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.detect-changes.outputs.main == 'true'
     environment:
       name: development
       url: https://dev.da-mr.com
@@ -104,8 +141,9 @@ jobs:
 
   deploy-resume:
     name: Deploy apps/resume to Cloudflare Pages
+    needs: [detect-changes]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && needs.detect-changes.outputs.resume == 'true'
     environment:
       name: production
       url: https://resume.da-mr.com
@@ -145,8 +183,9 @@ jobs:
 
   deploy-resume-dev:
     name: Deploy apps/resume to Cloudflare Pages (dev)
+    needs: [detect-changes]
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.detect-changes.outputs.resume == 'true'
     environment:
       name: development
       url: https://dev-resume.da-mr.com
@@ -188,8 +227,9 @@ jobs:
 
   deploy-apartments:
     name: Deploy apps/apartments (Worker + SPA)
+    needs: [detect-changes]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && needs.detect-changes.outputs.apartments == 'true'
     environment:
       name: production
       url: https://apartments.da-mr.com
@@ -223,8 +263,9 @@ jobs:
 
   deploy-apartments-dev:
     name: Deploy apps/apartments (Worker + SPA, dev)
+    needs: [detect-changes]
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.detect-changes.outputs.apartments == 'true'
     environment:
       name: development
       url: https://dev-apartments.da-mr.com
