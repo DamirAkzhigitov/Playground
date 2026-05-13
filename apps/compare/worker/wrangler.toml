@@ -4,11 +4,11 @@ compatibility_date = "2026-05-11"
 preview_urls = false
 
 [[routes]]
-pattern = "apartments.da-mr.com"
+pattern = "compare.da-mr.com"
 zone_name = "da-mr.com"
 custom_domain = true
 
-# Vite client build output (apps/apartments/dist). Same Worker serves SPA + /api — no CORS.
+# Vite client build output (apps/compare/dist). Same Worker serves SPA + /api — no CORS.
 [assets]
 directory = "../dist"
 not_found_handling = "single-page-application"
@@ -33,12 +33,12 @@ enabled = true
 enabled = true
 
 # Production deploy: wrangler deploy. Dev deploy: wrangler deploy --env dev
-# Dev: R2 `apartments-photos-dev`, Worker `apartments-api-dev`, domain dev-apartments.da-mr.com.
+# Dev: R2 `apartments-photos-dev`, Worker `apartments-api-dev`, domain dev-compare.da-mr.com.
 [env.dev]
 name = "apartments-api-dev"
 
 [[env.dev.routes]]
-pattern = "dev-apartments.da-mr.com"
+pattern = "dev-compare.da-mr.com"
 zone_name = "da-mr.com"
 custom_domain = true
 
