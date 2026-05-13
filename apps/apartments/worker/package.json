@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "deploy:dev": "wrangler deploy --env dev",
     "db:migrate:local": "wrangler d1 migrations apply apartments-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply apartments-db --remote",
+    "db:migrate:remote:dev": "wrangler d1 migrations apply apartments-db-dev --remote --env dev",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

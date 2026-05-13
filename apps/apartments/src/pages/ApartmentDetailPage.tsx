@@ -32,6 +32,7 @@ import {
 import { isQuestionAnswerFilled } from '@/lib/answerValue'
 import { questionTypeMessageId } from '@/lib/questionTypeMessageId'
 import { buildAnswerDraftMap, flattenActiveQuestions } from '@/lib/questions'
+import { cn } from '@/lib/utils'
 
 const EMPTY_GROUPS: QuestionGroup[] = []
 
@@ -250,69 +251,77 @@ export function ApartmentDetailPage() {
         </CardContent>
       </Card>
 
-      {groups.map((group) => {
-        const active = group.questions
-          .filter((q) => !q.isArchived)
-          .sort((a, b) => a.order - b.order)
-        if (active.length === 0) {
-          return null
-        }
-        return (
-          <Card key={group.id}>
-            <CardHeader>
-              <CardTitle className="text-base">{group.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {active.map((question) => {
-                const draft = answers[question.id]
-                return (
-                  <div key={question.id} className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-medium leading-snug">
-                        {question.label}
-                      </p>
-                      {question.required ? (
-                        <Badge variant="outline" className="text-xs">
-                          {t('common.required')}
+      <div className="-mx-4 flex flex-col gap-4 sm:-mx-6">
+        {groups.map((group) => {
+          const active = group.questions
+            .filter((q) => !q.isArchived)
+            .sort((a, b) => a.order - b.order)
+          if (active.length === 0) {
+            return null
+          }
+          return (
+            <Card key={group.id} className="overflow-hidden">
+              <CardHeader className="border-b border-border pb-4">
+                <CardTitle className="text-base">{group.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-0 px-0 pb-0">
+                {active.map((question, qIndex) => {
+                  const draft = answers[question.id]
+                  return (
+                    <div
+                      key={question.id}
+                      className={cn(
+                        'space-y-3 px-4 py-3 sm:px-6',
+                        qIndex > 0 && 'border-t border-border'
+                      )}
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-medium leading-snug">
+                          {question.label}
+                        </p>
+                        {question.required ? (
+                          <Badge variant="outline" className="text-xs">
+                            {t('common.required')}
+                          </Badge>
+                        ) : null}
+                        <Badge variant="secondary" className="text-xs">
+                          {t(questionTypeMessageId(question.type))}
                         </Badge>
-                      ) : null}
-                      <Badge variant="secondary" className="text-xs">
-                        {t(questionTypeMessageId(question.type))}
-                      </Badge>
+                      </div>
+                      <AnswerField
+                        question={question}
+                        value={draft?.value ?? null}
+                        note={draft?.note ?? null}
+                        onValueChange={(v) =>
+                          updateAnswer(question.id, { value: v })
+                        }
+                        onNoteChange={(n) =>
+                          updateAnswer(question.id, { note: n })
+                        }
+                        noteExpanded={Boolean(noteExpanded[question.id])}
+                        onToggleNote={() =>
+                          setNoteExpanded((prev) => ({
+                            ...prev,
+                            [question.id]: !prev[question.id]
+                          }))
+                        }
+                        density="compact"
+                      />
+                      <QuestionPhotosSection
+                        apartmentId={data.id}
+                        questionId={question.id}
+                        questionLabel={question.label}
+                        allPhotos={data.photos}
+                        density="compact"
+                      />
                     </div>
-                    <AnswerField
-                      question={question}
-                      value={draft?.value ?? null}
-                      note={draft?.note ?? null}
-                      onValueChange={(v) =>
-                        updateAnswer(question.id, { value: v })
-                      }
-                      onNoteChange={(n) =>
-                        updateAnswer(question.id, { note: n })
-                      }
-                      noteExpanded={Boolean(noteExpanded[question.id])}
-                      onToggleNote={() =>
-                        setNoteExpanded((prev) => ({
-                          ...prev,
-                          [question.id]: !prev[question.id]
-                        }))
-                      }
-                      density="compact"
-                    />
-                    <QuestionPhotosSection
-                      apartmentId={data.id}
-                      questionId={question.id}
-                      questionLabel={question.label}
-                      allPhotos={data.photos}
-                      density="compact"
-                    />
-                  </div>
-                )
-              })}
-            </CardContent>
-          </Card>
-        )
-      })}
+                  )
+                })}
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
 
       <PinnedActionBar>
         <Button variant="outline" asChild className="min-h-11 flex-1">

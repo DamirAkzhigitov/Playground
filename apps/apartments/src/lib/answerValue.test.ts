@@ -13,6 +13,7 @@ const baseQuestion = (type: Question['type']): Question => ({
   order: 0,
   ratingMin: null,
   ratingMax: null,
+  valuePreference: null,
   options: []
 })
 

@@ -27,6 +27,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { useDeletePhoto, useUploadPhoto } from '@/hooks'
+import { compressImageForUpload } from '@/lib/compressImage'
 import { photoPublicUrl } from '@/lib/photoUrl'
 import { cn } from '@/lib/utils'
 import type { Photo } from '@/types'
@@ -75,10 +76,11 @@ export function QuestionPhotosSection({
         return
       }
       try {
+        const prepared = await compressImageForUpload(file)
         await upload.mutateAsync({
           apartmentId,
           questionId,
-          file
+          file: prepared
         })
         toast.success(t('photos.added'))
       } catch (e) {
@@ -151,9 +153,6 @@ export function QuestionPhotosSection({
   return (
     <div className={cn('space-y-3', compact ? 'pt-1' : 'pt-2')}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-foreground">
-          {t('common.photos')}
-        </p>
         <div className="flex flex-wrap gap-2">
           <input
             ref={cameraInputRef}
@@ -199,7 +198,7 @@ export function QuestionPhotosSection({
         </div>
       </div>
 
-      {photos.length > 0 ? (
+      {photos.length > 0 && (
         <ul
           className={cn(
             'grid gap-2',
@@ -244,8 +243,6 @@ export function QuestionPhotosSection({
             </li>
           ))}
         </ul>
-      ) : (
-        <p className="text-xs text-muted-foreground">{t('photos.empty')}</p>
       )}
 
       <Dialog

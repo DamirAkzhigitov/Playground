@@ -13,11 +13,26 @@ const questionTypeSchema = z.enum([
   'rating'
 ])
 
+const valuePreferenceSchema = z.enum(['higher', 'lower'])
+
 const questionOptionSchema = z.object({
   label: z.string().trim().min(1).max(300),
   value: z.string().trim().min(1).max(200),
   order: z.number().int().min(0)
 })
+
+function valuePreferenceForCreate(
+  type: z.infer<typeof questionTypeSchema>,
+  pref: z.infer<typeof valuePreferenceSchema> | undefined
+): z.infer<typeof valuePreferenceSchema> | null {
+  if (type === 'number') {
+    return pref ?? 'higher'
+  }
+  if (type === 'date') {
+    return pref ?? 'lower'
+  }
+  return null
+}
 
 const questionSchema = z.object({
   label: z.string().trim().min(1).max(300),
@@ -27,6 +42,7 @@ const questionSchema = z.object({
   order: z.number().int().min(0).optional(),
   ratingMin: z.number().int().nullable().optional(),
   ratingMax: z.number().int().nullable().optional(),
+  valuePreference: valuePreferenceSchema.optional(),
   options: z.array(questionOptionSchema).optional()
 })
 
@@ -40,6 +56,7 @@ const questionPatchSchema = z
     order: z.number().int().min(0).optional(),
     ratingMin: z.number().int().nullable().optional(),
     ratingMax: z.number().int().nullable().optional(),
+    valuePreference: valuePreferenceSchema.optional(),
     options: z.array(questionOptionSchema).optional()
   })
   .refine((payload) => Object.keys(payload).length > 0, {
@@ -72,7 +89,7 @@ questions.get('/', async (c) => {
     ? 'WHERE user_id = ?'
     : 'WHERE is_archived = 0 AND user_id = ?'
   const questionResult = await c.env.DB.prepare(
-    `SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max FROM questions ${archiveClause} ORDER BY category_id ASC, "order" ASC`
+    `SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, value_preference FROM questions ${archiveClause} ORDER BY category_id ASC, "order" ASC`
   )
     .bind(userId)
     .all()
@@ -130,9 +147,14 @@ questions.post('/', async (c) => {
         .first<{ value: number }>()
     )?.value ?? 0) + 1
 
+  const storedPreference = valuePreferenceForCreate(
+    payload.type,
+    payload.valuePreference
+  )
+
   const statements: D1PreparedStatement[] = [
     c.env.DB.prepare(
-      'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, user_id) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?)'
+      'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, value_preference, user_id) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)'
     ).bind(
       id,
       payload.label,
@@ -142,6 +164,7 @@ questions.post('/', async (c) => {
       order,
       payload.type === 'rating' ? (payload.ratingMin ?? 1) : null,
       payload.type === 'rating' ? (payload.ratingMax ?? 5) : null,
+      storedPreference,
       userId
     )
   ]
@@ -155,7 +178,16 @@ questions.post('/', async (c) => {
   }
 
   await c.env.DB.batch(statements)
-  return c.json({ id, ...payload, order, isArchived: false }, 201)
+  return c.json(
+    {
+      id,
+      ...payload,
+      order,
+      isArchived: false,
+      valuePreference: storedPreference
+    },
+    201
+  )
 })
 
 questions.patch('/reorder', async (c) => {
@@ -174,35 +206,91 @@ questions.patch('/:id', async (c) => {
   const userId = c.get('userId')
   const id = c.req.param('id')
   const payload = questionPatchSchema.parse(await c.req.json())
+
+  const existing = await c.env.DB.prepare(
+    'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, value_preference FROM questions WHERE id = ? AND user_id = ?'
+  )
+    .bind(id, userId)
+    .first<Record<string, unknown>>()
+
+  if (!existing) {
+    return c.json({ error: 'Question not found' }, 404)
+  }
+
+  const prevType = String(existing.type)
+  const nextType = payload.type ?? prevType
+  const nextLabel = payload.label ?? String(existing.label)
+  const nextCategoryId = payload.categoryId ?? String(existing.category_id)
+  const nextRequired =
+    payload.required !== undefined
+      ? payload.required
+      : Boolean(existing.required)
+  const nextArchived =
+    payload.isArchived !== undefined
+      ? payload.isArchived
+      : Boolean(existing.is_archived)
+  const nextOrder =
+    payload.order !== undefined ? payload.order : Number(existing.order)
+
+  let nextRatingMin: number | null
+  let nextRatingMax: number | null
+  if (nextType === 'rating') {
+    nextRatingMin =
+      payload.ratingMin !== undefined
+        ? payload.ratingMin
+        : existing.rating_min !== null && existing.rating_min !== undefined
+          ? Number(existing.rating_min)
+          : 1
+    nextRatingMax =
+      payload.ratingMax !== undefined
+        ? payload.ratingMax
+        : existing.rating_max !== null && existing.rating_max !== undefined
+          ? Number(existing.rating_max)
+          : 5
+  } else {
+    nextRatingMin = null
+    nextRatingMax = null
+  }
+
+  let nextValuePreference: string | null
+  if (nextType !== 'number' && nextType !== 'date') {
+    nextValuePreference = null
+  } else if (payload.valuePreference !== undefined) {
+    nextValuePreference = payload.valuePreference
+  } else if (payload.type !== undefined && payload.type !== prevType) {
+    nextValuePreference = nextType === 'number' ? 'higher' : 'lower'
+  } else if (
+    existing.value_preference === 'higher' ||
+    existing.value_preference === 'lower'
+  ) {
+    nextValuePreference = String(existing.value_preference)
+  } else {
+    nextValuePreference = null
+  }
+
   await c.env.DB.prepare(
     `UPDATE questions
-     SET label = COALESCE(?, label),
-         type = COALESCE(?, type),
-         category_id = COALESCE(?, category_id),
-         required = COALESCE(?, required),
-         is_archived = COALESCE(?, is_archived),
-         "order" = COALESCE(?, "order"),
-         rating_min = CASE
-           WHEN COALESCE(?, type) = 'rating' THEN COALESCE(?, rating_min, 1)
-           ELSE NULL
-         END,
-         rating_max = CASE
-           WHEN COALESCE(?, type) = 'rating' THEN COALESCE(?, rating_max, 5)
-           ELSE NULL
-         END
+     SET label = ?,
+         type = ?,
+         category_id = ?,
+         required = ?,
+         is_archived = ?,
+         "order" = ?,
+         rating_min = ?,
+         rating_max = ?,
+         value_preference = ?
      WHERE id = ? AND user_id = ?`
   )
     .bind(
-      payload.label ?? null,
-      payload.type ?? null,
-      payload.categoryId ?? null,
-      payload.required === undefined ? null : payload.required ? 1 : 0,
-      payload.isArchived === undefined ? null : payload.isArchived ? 1 : 0,
-      payload.order ?? null,
-      payload.type ?? null,
-      payload.ratingMin ?? null,
-      payload.type ?? null,
-      payload.ratingMax ?? null,
+      nextLabel,
+      nextType,
+      nextCategoryId,
+      nextRequired ? 1 : 0,
+      nextArchived ? 1 : 0,
+      nextOrder,
+      nextRatingMin,
+      nextRatingMax,
+      nextValuePreference,
       id,
       userId
     )
@@ -231,7 +319,7 @@ questions.patch('/:id', async (c) => {
   }
 
   const question = await c.env.DB.prepare(
-    'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max FROM questions WHERE id = ? AND user_id = ?'
+    'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, value_preference FROM questions WHERE id = ? AND user_id = ?'
   )
     .bind(id, userId)
     .first<Record<string, unknown>>()

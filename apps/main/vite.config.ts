@@ -1,13 +1,48 @@
-import { defineConfig } from 'vite'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { defineConfig, loadEnv } from 'vite'
 
-export default defineConfig({
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    sourcemap: false
-  },
-  server: {
-    port: 3000,
-    open: true
+const appDir = path.dirname(fileURLToPath(import.meta.url))
+
+const ORIGIN_DEFAULTS = {
+  MAIN_ORIGIN: 'https://da-mr.com',
+  RESUME_ORIGIN: 'https://resume.da-mr.com',
+  APARTMENTS_ORIGIN: 'https://apartments.da-mr.com'
+} as const
+
+function resolveOrigins(mode: string) {
+  const env = loadEnv(mode, appDir, '')
+  return {
+    MAIN_ORIGIN: env.VITE_MAIN_ORIGIN || ORIGIN_DEFAULTS.MAIN_ORIGIN,
+    RESUME_ORIGIN: env.VITE_RESUME_ORIGIN || ORIGIN_DEFAULTS.RESUME_ORIGIN,
+    APARTMENTS_ORIGIN:
+      env.VITE_APARTMENTS_ORIGIN || ORIGIN_DEFAULTS.APARTMENTS_ORIGIN
+  }
+}
+
+export default defineConfig(({ mode }) => {
+  const origins = resolveOrigins(mode)
+
+  return {
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
+      sourcemap: false
+    },
+    server: {
+      port: 3000,
+      open: true
+    },
+    plugins: [
+      {
+        name: 'playground-main-html-origins',
+        transformIndexHtml(html) {
+          return (Object.entries(origins) as [string, string][]).reduce(
+            (acc, [key, value]) => acc.replaceAll(`__${key}__`, value),
+            html
+          )
+        }
+      }
+    ]
   }
 })
