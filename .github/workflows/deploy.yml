@@ -4,16 +4,20 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
 
 concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('deploy-dev-pr-{0}', github.event.pull_request.number) || format('deploy-prod-{0}', github.sha) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   deploy-main:
     name: Deploy apps/main to Cloudflare Pages
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     environment:
       name: production
       url: https://da-mr.com
@@ -49,9 +53,51 @@ jobs:
           workingDirectory: '.'
           packageManager: pnpm
 
+  deploy-main-dev:
+    name: Deploy apps/main to Cloudflare Pages (dev)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    environment:
+      name: development
+      url: https://dev.da-mr.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @playground/main
+        run: pnpm turbo run build --filter=@playground/main
+
+      - name: Install Wrangler for workspace root
+        run: pnpm add -Dw wrangler@3.90.0
+
+      - name: Deploy to Cloudflare Pages (dev)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/main/dist --project-name=playground-dev --branch=main --commit-dirty=true
+          workingDirectory: '.'
+          packageManager: pnpm
+
   deploy-resume:
     name: Deploy apps/resume to Cloudflare Pages
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     environment:
       name: production
       url: https://resume.da-mr.com
@@ -87,9 +133,51 @@ jobs:
           workingDirectory: '.'
           packageManager: pnpm
 
+  deploy-resume-dev:
+    name: Deploy apps/resume to Cloudflare Pages (dev)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    environment:
+      name: development
+      url: https://dev-resume.da-mr.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @playground/resume
+        run: pnpm turbo run build --filter=@playground/resume
+
+      - name: Install Wrangler for workspace root
+        run: pnpm add -Dw wrangler@3.90.0
+
+      - name: Deploy to Cloudflare Pages (dev)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/resume/dist --project-name=resume-dev --branch=main --commit-dirty=true
+          workingDirectory: '.'
+          packageManager: pnpm
+
   deploy-apartments:
     name: Deploy apps/apartments (Worker + SPA)
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     environment:
       name: production
       url: https://apartments.da-mr.com
@@ -115,6 +203,41 @@ jobs:
 
       - name: Deploy Worker (static assets + /api)
         run: pnpm --filter @playground/apartments-api exec wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  deploy-apartments-dev:
+    name: Deploy apps/apartments (Worker + SPA, dev)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    environment:
+      name: development
+      url: https://dev-apartments.da-mr.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @playground/apartments (client → dist/)
+        run: pnpm turbo run build --filter=@playground/apartments
+
+      - name: Deploy Worker (static assets + /api, dev)
+        run: pnpm --filter @playground/apartments-api run deploy:dev
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
