@@ -2,32 +2,32 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { apiRequest } from '../lib/api'
 import type {
-  Apartment,
-  ApartmentDetail,
-  CreateApartmentInput,
-  UpdateApartmentInput
+  Listing,
+  ListingDetail,
+  CreateListingInput,
+  UpdateListingInput
 } from '../types'
 import { queryKeys } from './queryKeys'
 
 export const useListings = () =>
   useQuery({
     queryKey: queryKeys.listings,
-    queryFn: () => apiRequest<Apartment[]>('/api/listings'),
-    select: (data): Apartment[] => (Array.isArray(data) ? data : [])
+    queryFn: () => apiRequest<Listing[]>('/api/listings'),
+    select: (data): Listing[] => (Array.isArray(data) ? data : [])
   })
 
-export const useApartment = (id?: string) =>
+export const useListing = (id?: string) =>
   useQuery({
     queryKey: id ? queryKeys.listing(id) : queryKeys.listing('unknown'),
-    queryFn: () => apiRequest<ApartmentDetail>(`/api/listings/${id}`),
+    queryFn: () => apiRequest<ListingDetail>(`/api/listings/${id}`),
     enabled: Boolean(id)
   })
 
-export const useCreateApartment = () => {
+export const useCreateListing = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: CreateApartmentInput) =>
-      apiRequest<Apartment>('/api/listings', {
+    mutationFn: (payload: CreateListingInput) =>
+      apiRequest<Listing>('/api/listings', {
         method: 'POST',
         body: payload
       }),
@@ -37,7 +37,7 @@ export const useCreateApartment = () => {
   })
 }
 
-export const useUpdateApartment = () => {
+export const useUpdateListing = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({
@@ -45,9 +45,9 @@ export const useUpdateApartment = () => {
       payload
     }: {
       id: string
-      payload: UpdateApartmentInput
+      payload: UpdateListingInput
     }) =>
-      apiRequest<Apartment>(`/api/listings/${id}`, {
+      apiRequest<Listing>(`/api/listings/${id}`, {
         method: 'PATCH',
         body: payload
       }),
@@ -62,7 +62,7 @@ export const useUpdateApartment = () => {
   })
 }
 
-export const useDeleteApartment = () => {
+export const useDeleteListing = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: string) =>

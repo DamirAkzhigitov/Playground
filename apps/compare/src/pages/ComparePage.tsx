@@ -35,12 +35,7 @@ import {
 } from '@/lib/compareDisplay'
 import { cn } from '@/lib/utils'
 import { categoryNameById, flattenActiveQuestions } from '@/lib/questions'
-import type {
-  Apartment,
-  ApartmentDetail,
-  Question,
-  QuestionGroup
-} from '@/types'
+import type { Listing, ListingDetail, Question, QuestionGroup } from '@/types'
 
 const EMPTY_GROUPS: QuestionGroup[] = []
 
@@ -51,7 +46,7 @@ const COMPARE_MULTI_VALUE = '__multi__'
 type AnswerCell = { value: string | null; note: string | null }
 
 function buildAnswerMap(
-  detail: ApartmentDetail | undefined
+  detail: ListingDetail | undefined
 ): Map<string, AnswerCell> {
   const map = new Map<string, AnswerCell>()
   if (!detail?.answers) {
@@ -63,12 +58,12 @@ function buildAnswerMap(
   return map
 }
 
-type RankRow = { apt: Apartment; mapIndex: number; score: number }
+type RankRow = { apt: Listing; mapIndex: number; score: number }
 
 type CompareWizardShellProps = {
   flatAll: Question[]
   answerMaps: Array<Map<string, AnswerCell>>
-  comparisonColumns: Array<{ apt: Apartment; mapIndex: number }>
+  comparisonColumns: Array<{ apt: Listing; mapIndex: number }>
   categoryNames: Map<string, string>
   boolLabels: CompareBooleanLabels
   rankings: RankRow[]
@@ -450,7 +445,7 @@ export function ComparePage() {
   const detailQueries = useQueries({
     queries: selectedIds.map((id) => ({
       queryKey: queryKeys.listing(id),
-      queryFn: () => apiRequest<ApartmentDetail>(`/api/listings/${id}`),
+      queryFn: () => apiRequest<ListingDetail>(`/api/listings/${id}`),
       staleTime: 60_000
     }))
   })
@@ -475,7 +470,7 @@ export function ComparePage() {
         }
         return { apt, mapIndex }
       })
-      .filter((x): x is { apt: Apartment; mapIndex: number } => x !== null)
+      .filter((x): x is { apt: Listing; mapIndex: number } => x !== null)
   }, [list, selectedIds])
 
   const isLoadingDetails =
@@ -562,7 +557,7 @@ export function ComparePage() {
             </p>
           ) : (
             <div>
-              <Label htmlFor="compare-apartments-select" className="sr-only">
+              <Label htmlFor="compare-listings-select" className="sr-only">
                 {t('compare.selectLabel')}
               </Label>
               <Select
@@ -570,7 +565,7 @@ export function ComparePage() {
                 onValueChange={handleCompareSelectChange}
               >
                 <SelectTrigger
-                  id="compare-apartments-select"
+                  id="compare-listings-select"
                   className="h-auto min-h-11 w-full py-2 whitespace-normal"
                   aria-label={t('compare.selectLabel')}
                 >

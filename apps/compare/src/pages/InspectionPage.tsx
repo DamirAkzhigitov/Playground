@@ -28,7 +28,7 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet'
-import { useApartment, useQuestions, useUpsertAnswer } from '@/hooks'
+import { useListing, useQuestions, useUpsertAnswer } from '@/hooks'
 import { useDebouncedAnswerSave } from '@/hooks/useDebouncedAnswerSave'
 import { isQuestionAnswerFilled } from '@/lib/answerValue'
 import { cn } from '@/lib/utils'
@@ -45,10 +45,10 @@ import type { QuestionGroup } from '@/types'
 
 const EMPTY_GROUPS: QuestionGroup[] = []
 
-const sessionIndexKey = (apartmentId: string) =>
-  `listings.inspect.${apartmentId}.index`
-const sessionPhaseKey = (apartmentId: string) =>
-  `listings.inspect.${apartmentId}.phase`
+const sessionIndexKey = (listingId: string) =>
+  `listings.inspect.${listingId}.index`
+const sessionPhaseKey = (listingId: string) =>
+  `listings.inspect.${listingId}.phase`
 
 function categoryProgressList(
   groups: QuestionGroup[],
@@ -76,7 +76,7 @@ export function InspectionPage() {
   const { id } = useParams<{ id: string }>()
   const location = useLocation()
   const navigate = useNavigate()
-  const apartmentQuery = useApartment(id)
+  const listingQuery = useListing(id)
   const questionsQuery = useQuestions(false)
   const upsert = useUpsertAnswer()
   const { queueSave, flushSave } = useDebouncedAnswerSave(upsert.mutateAsync)
@@ -98,14 +98,14 @@ export function InspectionPage() {
   }, [id])
 
   useEffect(() => {
-    const apt = apartmentQuery.data
+    const apt = listingQuery.data
     const gr = questionsQuery.data
     if (!apt || !gr || seededRef.current) {
       return
     }
     seededRef.current = true
     setAnswers(buildAnswerDraftMap(gr, apt.answers))
-  }, [apartmentQuery.data, questionsQuery.data])
+  }, [listingQuery.data, questionsQuery.data])
 
   useLayoutEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- restore saved progress once lists load */
@@ -114,7 +114,7 @@ export function InspectionPage() {
     if (!id || flatList.length === 0) {
       return
     }
-    const apt = apartmentQuery.data
+    const apt = listingQuery.data
     const resume = new URLSearchParams(location.search).get('resume') === '1'
     if (resume && apt && questionsQuery.data) {
       const drafts = buildAnswerDraftMap(questionsQuery.data, apt.answers)
@@ -146,7 +146,7 @@ export function InspectionPage() {
     }
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [
-    apartmentQuery.data,
+    listingQuery.data,
     flat.length,
     id,
     location.pathname,
@@ -186,7 +186,7 @@ export function InspectionPage() {
         const next = { ...cur, ...patch }
         try {
           queueSave({
-            apartmentId: id,
+            listingId: id,
             questionId,
             value: next.value,
             note: next.note
@@ -268,9 +268,9 @@ export function InspectionPage() {
     [groups, answers]
   )
 
-  const isLoading = apartmentQuery.isPending || questionsQuery.isPending
-  const isErr = apartmentQuery.isError || questionsQuery.isError
-  const errMsg = apartmentQuery.error?.message ?? questionsQuery.error?.message
+  const isLoading = listingQuery.isPending || questionsQuery.isPending
+  const isErr = listingQuery.isError || questionsQuery.isError
+  const errMsg = listingQuery.error?.message ?? questionsQuery.error?.message
 
   if (isLoading) {
     return <LoadingState label={t('inspection.loading')} />
@@ -278,7 +278,7 @@ export function InspectionPage() {
   if (isErr) {
     return <ErrorState message={errMsg ?? t('errors.generic')} />
   }
-  if (!id || !apartmentQuery.data) {
+  if (!id || !listingQuery.data) {
     return <ErrorState message={t('errors.notFound')} />
   }
   if (flat.length === 0) {
@@ -286,7 +286,7 @@ export function InspectionPage() {
       <section className="space-y-4">
         <PageHeader
           title={t('inspection.title')}
-          description={apartmentQuery.data.title}
+          description={listingQuery.data.title}
         />
         <Card>
           <CardContent className="py-6 text-sm text-muted-foreground">
@@ -308,10 +308,10 @@ export function InspectionPage() {
       <PageHeader
         className="shrink-0"
         title={t('inspection.title')}
-        description={apartmentQuery.data.title}
+        description={listingQuery.data.title}
         actions={
           <Button variant="outline" size="sm" asChild>
-            <Link to={`/listings/${id}`}>{t('inspection.apartment')}</Link>
+            <Link to={`/listings/${id}`}>{t('inspection.listing')}</Link>
           </Button>
         }
       />
@@ -462,10 +462,10 @@ export function InspectionPage() {
                     density="comfortable"
                   />
                   <QuestionPhotosSection
-                    apartmentId={id}
+                    listingId={id}
                     questionId={current.id}
                     questionLabel={current.label}
-                    allPhotos={apartmentQuery.data.photos}
+                    allPhotos={listingQuery.data.photos}
                     density="comfortable"
                   />
                 </CardContent>

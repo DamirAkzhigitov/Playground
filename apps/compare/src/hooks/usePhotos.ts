@@ -10,7 +10,7 @@ export const useUploadPhoto = () => {
   return useMutation({
     mutationFn: async (payload: UploadPhotoInput) => {
       const formData = new FormData()
-      formData.append('apartmentId', payload.apartmentId)
+      formData.append('listingId', payload.listingId)
       if (payload.questionId) {
         formData.append('questionId', payload.questionId)
       }
@@ -24,7 +24,7 @@ export const useUploadPhoto = () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.listings }),
         queryClient.invalidateQueries({
-          queryKey: queryKeys.listing(variables.apartmentId)
+          queryKey: queryKeys.listing(variables.listingId)
         })
       ])
     }
@@ -41,7 +41,7 @@ export const useDeletePhoto = () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.listings }),
         queryClient.invalidateQueries({
-          queryKey: queryKeys.listing(variables.apartmentId)
+          queryKey: queryKeys.listing(variables.listingId)
         })
       ])
     }

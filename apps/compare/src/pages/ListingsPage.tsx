@@ -59,25 +59,23 @@ export function ListingsPage() {
 
       {!isPending && !isError ? (
         <ul className="space-y-3">
-          {filtered.map((apartment) => {
-            const percent = apartment.completion?.percent
-            const critical = apartment.completion?.criticalMissingCount ?? 0
+          {filtered.map((listing) => {
+            const percent = listing.completion?.percent
+            const critical = listing.completion?.criticalMissingCount ?? 0
             return (
-              <li key={apartment.id}>
+              <li key={listing.id}>
                 <Link
-                  to={`/listings/${apartment.id}`}
+                  to={`/listings/${listing.id}`}
                   className="group block rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <Card className="transition-colors group-hover:bg-accent/40">
                     <CardHeader className="gap-2">
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <CardTitle className="text-base leading-snug group-hover:underline">
-                          {apartment.title}
+                          {listing.title}
                         </CardTitle>
                         <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-                          <ListingStatusBadge
-                            completion={apartment.completion}
-                          />
+                          <ListingStatusBadge completion={listing.completion} />
                           {typeof percent === 'number' ? (
                             <Badge variant="secondary">{percent}%</Badge>
                           ) : (
@@ -91,7 +89,7 @@ export function ListingsPage() {
                           className="size-3.5 shrink-0"
                         />
                         <span className="line-clamp-2">
-                          {apartment.address ?? t('listings.noAddress')}
+                          {listing.address ?? t('listings.noAddress')}
                         </span>
                       </CardDescription>
                       {critical > 0 ? (
@@ -106,10 +104,9 @@ export function ListingsPage() {
                         </p>
                       ) : null}
                     </CardHeader>
-                    {apartment.price !== null &&
-                    apartment.price !== undefined ? (
+                    {listing.price !== null && listing.price !== undefined ? (
                       <CardContent className="text-sm text-muted-foreground">
-                        €{apartment.price.toLocaleString()}
+                        €{listing.price.toLocaleString()}
                       </CardContent>
                     ) : null}
                   </Card>

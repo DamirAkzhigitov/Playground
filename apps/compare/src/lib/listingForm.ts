@@ -2,23 +2,23 @@ import { z } from 'zod'
 
 import type { MessageId } from '@/i18n/messages'
 
-export function createApartmentFormSchema(t: (id: MessageId) => string) {
+export function createListingFormSchema(t: (id: MessageId) => string) {
   return z.object({
-    title: z.string().trim().min(1, t('apartmentForm.titleRequired')).max(200),
+    title: z.string().trim().min(1, t('listingForm.titleRequired')).max(200),
     address: z.string().max(500).optional(),
     notes: z.string().max(5000).optional(),
     price: z.string().optional()
   })
 }
 
-export const apartmentFormSchema = z.object({
+export const listingFormSchema = z.object({
   title: z.string().trim().min(1, 'Title is required.').max(200),
   address: z.string().max(500).optional(),
   notes: z.string().max(5000).optional(),
   price: z.string().optional()
 })
 
-export type ApartmentFormValues = z.infer<typeof apartmentFormSchema>
+export type ListingFormValues = z.infer<typeof listingFormSchema>
 
 export function parsePriceField(raw: string | undefined): number | null {
   const t = raw?.trim() ?? ''
@@ -29,12 +29,12 @@ export function parsePriceField(raw: string | undefined): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-export function apartmentFormDefaults(input: {
+export function listingFormDefaults(input: {
   title: string
   address: string | null
   price: number | null
   notes: string | null
-}): ApartmentFormValues {
+}): ListingFormValues {
   return {
     title: input.title,
     address: input.address ?? '',

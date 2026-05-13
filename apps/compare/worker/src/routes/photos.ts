@@ -9,7 +9,7 @@ import {
 } from '../photoSecurity'
 
 const uploadPhotoSchema = z.object({
-  apartmentId: z.string().trim().min(1),
+  listingId: z.string().trim().min(1),
   questionId: z.string().trim().min(1).optional()
 })
 
@@ -38,16 +38,16 @@ photos.post('/upload', async (c) => {
   }
 
   const payload = uploadPhotoSchema.parse({
-    apartmentId: formData.get('apartmentId'),
+    listingId: formData.get('listingId'),
     questionId: formData.get('questionId') ?? undefined
   })
 
   const owns = await c.env.DB.prepare(
-    'SELECT 1 FROM apartments WHERE id = ? AND user_id = ?'
+    'SELECT 1 FROM listings WHERE id = ? AND user_id = ?'
   )
-    .bind(payload.apartmentId, userId)
+    .bind(payload.listingId, userId)
     .first()
-  if (!owns) return c.json({ error: 'Apartment not found' }, 404)
+  if (!owns) return c.json({ error: 'Listing not found' }, 404)
 
   const buffer = await file.arrayBuffer()
   if (buffer.byteLength > MAX_PHOTO_BYTES) {
@@ -67,7 +67,7 @@ photos.post('/upload', async (c) => {
 
   const id = crypto.randomUUID()
   const safeName = safePhotoFilename(file.name)
-  const key = `${payload.apartmentId}-${Date.now()}-${id}-${safeName}`
+  const key = `${payload.listingId}-${Date.now()}-${id}-${safeName}`
 
   await c.env.PHOTOS.put(key, buffer, {
     httpMetadata: {
@@ -77,15 +77,15 @@ photos.post('/upload', async (c) => {
 
   const createdAt = nowIso()
   await c.env.DB.prepare(
-    'INSERT INTO photos (id, apartment_id, question_id, r2_key, created_at) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO photos (id, listing_id, question_id, r2_key, created_at) VALUES (?, ?, ?, ?, ?)'
   )
-    .bind(id, payload.apartmentId, payload.questionId ?? null, key, createdAt)
+    .bind(id, payload.listingId, payload.questionId ?? null, key, createdAt)
     .run()
 
   return c.json(
     {
       id,
-      apartmentId: payload.apartmentId,
+      listingId: payload.listingId,
       questionId: payload.questionId ?? null,
       r2Key: key,
       createdAt
@@ -101,7 +101,7 @@ photos.get('/:key', async (c) => {
 
   const row = await c.env.DB.prepare(
     `SELECT p.r2_key FROM photos p
-     INNER JOIN apartments a ON a.id = p.apartment_id
+     INNER JOIN listings a ON a.id = p.listing_id
      WHERE p.r2_key = ? AND a.user_id = ?`
   )
     .bind(key, userId)
@@ -137,7 +137,7 @@ photos.delete('/:id', async (c) => {
   const id = c.req.param('id')
   const photo = await c.env.DB.prepare(
     `SELECT p.r2_key FROM photos p
-     INNER JOIN apartments a ON a.id = p.apartment_id
+     INNER JOIN listings a ON a.id = p.listing_id
      WHERE p.id = ? AND a.user_id = ?`
   )
     .bind(id, userId)

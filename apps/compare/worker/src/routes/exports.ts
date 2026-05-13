@@ -42,27 +42,27 @@ exports_.get('/json', async (c) => {
 
   dump.listings = typedRows(
     await c.env.DB.prepare(
-      'SELECT id, title, address, price, notes, created_at, updated_at FROM apartments WHERE user_id = ?'
+      'SELECT id, title, address, price, notes, created_at, updated_at FROM listings WHERE user_id = ?'
     )
       .bind(userId)
       .all()
   )
 
-  const apartmentIds = (dump.listings as { id: string }[]).map((a) => a.id)
-  if (apartmentIds.length > 0) {
-    const ph = apartmentIds.map(() => '?').join(',')
+  const listingIds = (dump.listings as { id: string }[]).map((a) => a.id)
+  if (listingIds.length > 0) {
+    const ph = listingIds.map(() => '?').join(',')
     dump.answers = typedRows(
       await c.env.DB.prepare(
-        `SELECT id, apartment_id, question_id, value, note, updated_at FROM answers WHERE apartment_id IN (${ph})`
+        `SELECT id, listing_id, question_id, value, note, updated_at FROM answers WHERE listing_id IN (${ph})`
       )
-        .bind(...apartmentIds)
+        .bind(...listingIds)
         .all()
     )
     dump.photos = typedRows(
       await c.env.DB.prepare(
-        `SELECT id, apartment_id, question_id, r2_key, created_at FROM photos WHERE apartment_id IN (${ph})`
+        `SELECT id, listing_id, question_id, r2_key, created_at FROM photos WHERE listing_id IN (${ph})`
       )
-        .bind(...apartmentIds)
+        .bind(...listingIds)
         .all()
     )
   } else {
@@ -75,9 +75,9 @@ exports_.get('/json', async (c) => {
 
 exports_.get('/xlsx', async (c) => {
   const userId = c.get('userId')
-  const apartmentRows = typedRows(
+  const listingRows = typedRows(
     await c.env.DB.prepare(
-      'SELECT id, title, address, price, notes FROM apartments WHERE user_id = ? ORDER BY created_at DESC'
+      'SELECT id, title, address, price, notes FROM listings WHERE user_id = ? ORDER BY created_at DESC'
     )
       .bind(userId)
       .all()
@@ -90,48 +90,48 @@ exports_.get('/xlsx', async (c) => {
       .all()
   )
 
-  const apartmentIds = apartmentRows.map((a) => String(a.id))
+  const listingIds = listingRows.map((a) => String(a.id))
   let answerRows: Record<string, unknown>[] = []
-  if (apartmentIds.length > 0) {
-    const ph = apartmentIds.map(() => '?').join(',')
+  if (listingIds.length > 0) {
+    const ph = listingIds.map(() => '?').join(',')
     answerRows = typedRows(
       await c.env.DB.prepare(
-        `SELECT apartment_id, question_id, value FROM answers WHERE apartment_id IN (${ph})`
+        `SELECT listing_id, question_id, value FROM answers WHERE listing_id IN (${ph})`
       )
-        .bind(...apartmentIds)
+        .bind(...listingIds)
         .all()
     )
   }
 
-  const answersByApartment = new Map<string, Map<string, string | null>>()
+  const answersByListing = new Map<string, Map<string, string | null>>()
   for (const answerRow of answerRows) {
-    const apartmentId = String(answerRow.apartment_id)
+    const listingId = String(answerRow.listing_id)
     const questionId = String(answerRow.question_id)
-    const apartmentAnswers =
-      answersByApartment.get(apartmentId) ?? new Map<string, string | null>()
-    apartmentAnswers.set(questionId, (answerRow.value as string | null) ?? null)
-    answersByApartment.set(apartmentId, apartmentAnswers)
+    const listingAnswers =
+      answersByListing.get(listingId) ?? new Map<string, string | null>()
+    listingAnswers.set(questionId, (answerRow.value as string | null) ?? null)
+    answersByListing.set(listingId, listingAnswers)
   }
 
-  const records = apartmentRows.map((apartmentRow) => {
+  const records = listingRows.map((listingRow) => {
     const baseRecord: Record<string, string | number | null> = {
-      apartmentId: neutralizeSpreadsheetCell(String(apartmentRow.id)),
-      title: neutralizeSpreadsheetCell(String(apartmentRow.title)),
+      listingId: neutralizeSpreadsheetCell(String(listingRow.id)),
+      title: neutralizeSpreadsheetCell(String(listingRow.title)),
       address: neutralizeSpreadsheetCell(
-        (apartmentRow.address as string | null) ?? null
+        (listingRow.address as string | null) ?? null
       ),
-      price: (apartmentRow.price as number | null) ?? null,
+      price: (listingRow.price as number | null) ?? null,
       notes: neutralizeSpreadsheetCell(
-        (apartmentRow.notes as string | null) ?? null
+        (listingRow.notes as string | null) ?? null
       )
     }
-    const apartmentAnswers =
-      answersByApartment.get(String(apartmentRow.id)) ?? new Map()
+    const listingAnswers =
+      answersByListing.get(String(listingRow.id)) ?? new Map()
     for (const questionRow of questionRows) {
       const labelKey = neutralizeSpreadsheetCell(String(questionRow.label))
       if (typeof labelKey !== 'string') continue
       baseRecord[labelKey] = neutralizeSpreadsheetCell(
-        apartmentAnswers.get(String(questionRow.id)) ?? null
+        listingAnswers.get(String(questionRow.id)) ?? null
       )
     }
     return baseRecord
@@ -139,14 +139,14 @@ exports_.get('/xlsx', async (c) => {
 
   const workbook = XLSX.utils.book_new()
   const worksheet = XLSX.utils.json_to_sheet(records)
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Apartments')
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Listings')
   const buffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' })
 
   return new Response(buffer, {
     headers: {
       'Content-Type':
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': `attachment; filename="apartments_export_${new Date().toISOString().slice(0, 10)}.xlsx"`
+      'Content-Disposition': `attachment; filename="listings_export_${new Date().toISOString().slice(0, 10)}.xlsx"`
     }
   })
 })

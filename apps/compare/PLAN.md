@@ -1,7 +1,7 @@
 # Compare App — Implementation Plan
 
 Mobile-first web app for apartment viewings: prepare checklists, answer
-questions on-site, compare apartments, export data.
+questions on-site, compare listings, export data.
 
 **Subdomain:** `compare.da-mr.com`
 **API:** `compare-api.da-mr.com`
@@ -59,12 +59,12 @@ questions on-site, compare apartments, export data.
     `required` BOOL, `is_archived` BOOL DEFAULT false, `order` INT)
   - `question_options` (`id` TEXT PK, `question_id` TEXT FK, `label` TEXT,
     `value` TEXT, `order` INT)
-  - `apartments` (`id` TEXT PK, `title` TEXT, `address` TEXT, `price` REAL,
+  - `listings` (`id` TEXT PK, `title` TEXT, `address` TEXT, `price` REAL,
     `notes` TEXT, `created_at` TEXT, `updated_at` TEXT)
-  - `answers` (`id` TEXT PK, `apartment_id` TEXT FK, `question_id` TEXT FK,
+  - `answers` (`id` TEXT PK, `listing_id` TEXT FK, `question_id` TEXT FK,
     `value` TEXT, `note` TEXT, `updated_at` TEXT,
-    UNIQUE(`apartment_id`, `question_id`))
-  - `photos` (`id` TEXT PK, `apartment_id` TEXT FK, `question_id` TEXT FK,
+    UNIQUE(`listing_id`, `question_id`))
+  - `photos` (`id` TEXT PK, `listing_id` TEXT FK, `question_id` TEXT FK,
     `r2_key` TEXT, `created_at` TEXT)
 - [x] **1B.2** Write initial migration (`migrations/0001_init.sql`).
 - [x] **1B.3** Seed script — default categories and ~25 questions
@@ -87,14 +87,14 @@ questions on-site, compare apartments, export data.
       | POST | `/api/questions` | Create question + options |
       | PATCH | `/api/questions/:id` | Update / archive question |
       | PATCH | `/api/questions/reorder` | Bulk update order values |
-- [x] **1C.4** Apartment endpoints:
+- [x] **1C.4** Listing endpoints:
       | Method | Path | Description |
       |--------|------|-------------|
-      | GET | `/api/apartments` | List apartments with completion stats |
-      | POST | `/api/apartments` | Create apartment |
-      | PATCH | `/api/apartments/:id` | Update apartment |
-      | GET | `/api/apartments/:id` | Detail + all answers |
-      | DELETE | `/api/apartments/:id` | Delete apartment + cascade answers/photos |
+      | GET | `/api/listings` | List listings with completion stats |
+      | POST | `/api/listings` | Create listing |
+      | PATCH | `/api/listings/:id` | Update listing |
+      | GET | `/api/listings/:id` | Detail + all answers |
+      | DELETE | `/api/listings/:id` | Delete listing + cascade answers/photos |
 - [x] **1C.5** Answer endpoints:
       | Method | Path | Description |
       |--------|------|-------------|
@@ -131,11 +131,11 @@ Tested manually or with a simple script.
 - [x] **2A.1** Create typed API client (`src/lib/api.ts`) — thin fetch wrapper
       with base URL from env var, JSON parsing, error handling.
 - [x] **2A.2** Define TypeScript types in `src/types/` matching API responses:
-  - `Category`, `Question`, `QuestionOption`, `Apartment`, `Answer`, `Photo`.
+  - `Category`, `Question`, `QuestionOption`, `Listing`, `Answer`, `Photo`.
 - [x] **2A.3** TanStack Query hooks (`src/hooks/`):
   - `useCategories`, `useCreateCategory`, `useUpdateCategory`, `useDeleteCategory`
   - `useQuestions`, `useCreateQuestion`, `useUpdateQuestion`, `useReorderQuestions`
-  - `useListings`, `useApartment`, `useCreateApartment`, `useUpdateApartment`, `useDeleteApartment`
+  - `useListings`, `useListing`, `useCreateListing`, `useUpdateListing`, `useDeleteListing`
   - `useUpsertAnswer`
   - `useUploadPhoto`, `useDeletePhoto`
 - [x] **2A.4** Configure `QueryClient` with sensible defaults (stale time,
@@ -146,15 +146,16 @@ Tested manually or with a simple script.
 - [x] **2B.1** Set up `react-router` with routes:
       | Path | Page |
       |------|------|
-      | `/` | Dashboard (redirects to `/apartments`) |
-      | `/apartments` | Apartment List |
-      | `/apartments/new` | Create Apartment |
-      | `/apartments/:id` | Apartment Detail |
-      | `/apartments/:id/inspect` | Inspection Screen |
+      | `/` | Dashboard (redirects to `/listings`) |
+      | `/listings` | Listing List |
+      | `/listings/new` | Create Listing |
+      | `/listings/:id` | Listing Detail |
+      | `/listings/:id/edit` | Edit Listing |
+      | `/listings/:id/inspect` | Inspection Screen |
       | `/questions` | Question Management |
       | `/compare` | Comparison Table |
       | `/export` | Export Page |
-- [x] **2B.2** Mobile bottom tab bar: Apartments, Questions, Compare, Export.
+- [x] **2B.2** Mobile bottom tab bar: Listings, Questions, Compare, Export.
 - [x] **2B.3** Loading and error boundary components.
 
 **Exit criteria:** routes render stubs, API hooks fetch data and display
@@ -164,7 +165,7 @@ loading/error states.
 
 ## Phase 3 — Core Features (MVP)
 
-> The main functionality: manage questions, inspect apartments, view details.
+> The main functionality: manage questions, inspect listings, view details.
 
 ### 3A — Question Management (`/questions`)
 
@@ -181,15 +182,15 @@ loading/error states.
 - [x] **3A.6** Select option management — add/remove/reorder options inline
       on the question form.
 
-### 3B — Apartment Management (`/apartments`)
+### 3B — Listing Management (`/listings`)
 
-- [x] **3B.1** Apartment list — cards showing title, address, price,
+- [x] **3B.1** Listing list — cards showing title, address, price,
       completion %, critical missing count.
-- [x] **3B.2** Create/edit apartment form — title, address, price, notes.
+- [x] **3B.2** Create/edit listing form — title, address, price, notes.
 - [x] **3B.3** Status badges: Needs Review / Completed / Missing Critical.
-- [x] **3B.4** Search/filter apartments by name.
+- [x] **3B.4** Search/filter listings by name.
 
-### 3C — Inspection Screen (`/apartments/:id/inspect`)
+### 3C — Inspection Screen (`/listings/:id/inspect`)
 
 The primary screen used during a viewing.
 
@@ -210,13 +211,13 @@ The primary screen used during a viewing.
 - [x] **3C.7** Summary screen at the end: missing answers count, list of
       unanswered required questions, "Go back to fix" links.
 
-### 3D — Apartment Detail (`/apartments/:id`)
+### 3D — Listing Detail (`/listings/:id`)
 
 - [x] **3D.1** Overview panel: completion %, missing critical list, quick stats.
 - [x] **3D.2** All answers listed by category — editable inline.
 - [x] **3D.3** "Start / Resume Inspection" button → navigates to 3C.
 
-**Exit criteria:** full question CRUD, apartment CRUD, inspection flow works
+**Exit criteria:** full question CRUD, listing CRUD, inspection flow works
 end-to-end on a phone-sized screen with data persisted in D1.
 
 ---
@@ -225,14 +226,14 @@ end-to-end on a phone-sized screen with data persisted in D1.
 
 - [x] **4.1** Photo capture component — camera or file picker, uploads
       directly to R2 via the API.
-- [x] **4.2** Attach photos to a specific `(apartmentId, questionId)` pair.
+- [x] **4.2** Attach photos to a specific `(listingId, questionId)` pair.
 - [x] **4.3** Photo gallery per question in the inspection screen and
-      apartment detail page.
+      listing detail page.
 - [x] **4.4** Lightbox viewer for full-size photos.
 - [x] **4.5** Delete photos.
 
 **Exit criteria:** photos captured during inspection appear linked to the
-correct question and apartment, stored in R2.
+correct question and listing, stored in R2.
 
 ---
 
@@ -243,19 +244,19 @@ correct question and apartment, stored in R2.
 - [ ] **5A.1** JSON export — calls `/api/export/json`, downloads file.
 - [ ] **5A.2** JSON import — upload JSON, API restores data.
 - [ ] **5A.3** Excel export — calls `/api/export/xlsx`, downloads
-      `apartments_export_YYYY-MM-DD.xlsx`.
-      One row per apartment, columns from active questions, grouped by category.
+      `listings_export_YYYY-MM-DD.xlsx`.
+      One row per listing, columns from active questions, grouped by category.
 
 ### 5B — Comparison Table (`/compare`)
 
-- [x] **5B.1** Select apartments to compare (checkbox list).
-- [x] **5B.2** Comparison table: rows = questions, columns = apartments.
+- [x] **5B.1** Select listings to compare (checkbox list).
+- [x] **5B.2** Comparison table: rows = questions, columns = listings.
 - [x] **5B.3** Color coding: green/red for boolean, gradient for ratings.
 - [x] **5B.4** Filter by category.
 - [x] **5B.5** Highlight differences — cells where values diverge.
 - [x] **5B.6** Responsive: horizontal scroll on mobile, sticky first column.
 
-**Exit criteria:** export downloads correct files; comparison of 3+ apartments
+**Exit criteria:** export downloads correct files; comparison of 3+ listings
 renders correctly on mobile and desktop.
 
 ---
@@ -293,7 +294,7 @@ Tracked but not scheduled. Implement on demand.
 
 - [ ] PWA manifest + service worker for offline support.
 - [ ] Templates — different question sets for Apartment / House / New Build.
-- [ ] Scoring — weighted evaluation producing a final score per apartment.
+- [ ] Scoring — weighted evaluation producing a final score per listing.
 - [ ] Timeline tracking — Visited → Negotiating → Lawyer Review → Rejected / Purchased.
 - [ ] PDF export — formatted report for sharing.
 - [ ] Google Drive export.
@@ -335,7 +336,7 @@ Phase 6+ handles production deployment and UX refinements.
    recalculated in real-time so adding new questions doesn't break old data.
 4. **Never delete, always archive.** Questions use `is_archived` flag to
    preserve referential integrity with historical answers.
-5. **Answers are a separate flat table.** `(apartmentId, questionId) → value`
+5. **Answers are a separate flat table.** `(listing_id, question_id) → value`
    decouples the inspection data from the schema.
 6. **Hono for the API.** Lightweight, TypeScript-native, built for Workers.
    Avoids boilerplate of raw `fetch` handler while staying minimal.

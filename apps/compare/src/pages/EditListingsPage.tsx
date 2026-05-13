@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { useI18n } from '@/contexts/I18nContext'
 import { ListingForm } from '@/components/ListingForm.tsx'
 import { PinnedActionBar } from '@/components/layout/PinnedActionBar'
-import { apartmentFormDefaults } from '@/lib/apartmentForm'
+import { listingFormDefaults } from '@/lib/listingForm.ts'
 import { ErrorState } from '@/components/ErrorState'
 import { LoadingState } from '@/components/LoadingState'
 import { PageHeader } from '@/components/PageHeader'
@@ -21,22 +21,22 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { useApartment, useDeleteApartment, useUpdateApartment } from '@/hooks'
+import { useListing, useDeleteListing, useUpdateListing } from '@/hooks'
 
 export function EditListingsPage() {
   const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { data, isPending, isError, error } = useApartment(id)
-  const updateMutation = useUpdateApartment()
-  const deleteMutation = useDeleteApartment()
+  const { data, isPending, isError, error } = useListing(id)
+  const updateMutation = useUpdateListing()
+  const deleteMutation = useDeleteListing()
   const [removeOpen, setRemoveOpen] = useState(false)
 
   const defaults = useMemo(() => {
     if (!data) {
       return null
     }
-    return apartmentFormDefaults(data)
+    return listingFormDefaults(data)
   }, [data])
 
   const showForm = !isPending && !isError && data && defaults
@@ -151,7 +151,7 @@ export function EditListingsPage() {
             <Button
               className="min-h-11 inline-flex flex-1 items-center justify-center gap-1"
               disabled={updateMutation.isPending}
-              form="apartment-form"
+              form="listing-form"
               type="submit"
             >
               {t('editApartment.saveChanges')}

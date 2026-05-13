@@ -1,0 +1,11 @@
+PRAGMA foreign_keys = OFF;
+ALTER TABLE apartments RENAME TO listings;
+ALTER TABLE answers   RENAME COLUMN apartment_id TO listing_id;
+ALTER TABLE photos    RENAME COLUMN apartment_id TO listing_id;
+DROP INDEX IF EXISTS idx_apartments_user;
+DROP INDEX IF EXISTS idx_answers_apartment;
+DROP INDEX IF EXISTS idx_photos_apartment;
+CREATE INDEX IF NOT EXISTS idx_listings_user     ON listings(user_id);
+CREATE INDEX IF NOT EXISTS idx_answers_listing   ON answers(listing_id);
+CREATE INDEX IF NOT EXISTS idx_photos_listing    ON photos(listing_id);
+PRAGMA foreign_keys = ON;

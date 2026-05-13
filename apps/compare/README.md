@@ -1,4 +1,4 @@
-# Apartments
+# Compare
 
 Mobile-first web app for apartment viewings: reusable checklists, quick answers during visits, local save, and exports for comparing places later.
 
@@ -9,7 +9,7 @@ Mobile-first web app for apartment viewings: reusable checklists, quick answers 
 - Switch between sections fast
 - Save everything locally
 - Export to JSON / Excel / Google Drive (planned)
-- Compare multiple apartments later (Phase 2)
+- Compare multiple listings later (Phase 2)
 
 ## Local development
 
@@ -43,7 +43,7 @@ Does apartment have solar panels?
 | Type         | Example             |
 | ------------ | ------------------- |
 | text         | Notes               |
-| number       | Apartment size      |
+| number       | Listing size        |
 | boolean      | Solar panels        |
 | select       | Heating type        |
 | multi-select | Included appliances |
@@ -69,7 +69,7 @@ Example copy:
 
 ## Phase 2 — Comparison
 
-Highest long-term value: a comparison table across apartments (price, m², solar, parking, condition, etc.). Especially useful after many viewings.
+Highest long-term value: a comparison table across listings (price, m², solar, parking, condition, etc.). Especially useful after many viewings.
 
 ---
 
@@ -77,7 +77,7 @@ Highest long-term value: a comparison table across apartments (price, m², solar
 
 - **Mobile-first** — used while walking; large, thumb-friendly controls
 - **Autosave** and offline-friendly behavior where possible
-- **Photos** attached to questions (cracks, boiler, panel, parking); store locally first
+- **Photos** attached to questions (cracks, boiler, panel, parking); store on R2 with per-listing keys
 
 ---
 
@@ -95,11 +95,11 @@ _(This repo’s app may differ slightly from the original sketch; see `package.j
 
 **Cloudflare Workers + D1 + R2**
 
-| Piece       | Role                                                  |
-| ----------- | ----------------------------------------------------- |
-| **D1**      | questions, templates, apartments, answers, categories |
-| **R2**      | apartment photos, exports, PDFs later                 |
-| **Workers** | API layer — cheap and simple                          |
+| Piece       | Role                                                |
+| ----------- |-----------------------------------------------------|
+| **D1**      | questions, templates, listings, answers, categories |
+| **R2**      | listing photos, exports, PDFs later                 |
+| **Workers** | API layer — cheap and simple                        |
 
 **Optional later:** Durable Objects only if you need real-time collaboration, live editing, or multi-user sync — not required initially.
 
@@ -155,10 +155,10 @@ Heating Type:
 - Underfloor
 ```
 
-### 3. Apartments
+### 3. Listings
 
 ```ts
-type Apartment = {
+type Listing = {
   id: string
   title: string
   address?: string
@@ -173,14 +173,14 @@ Answers reference questions by **ID** (supports a changing question set over tim
 
 ```ts
 type Answer = {
-  apartmentId: string
+  listingId: string
   questionId: string
   value: unknown
   note?: string
 }
 ```
 
-**Why this helps:** if you add a question after ten inspections, every apartment shows the new question with a missing answer — no destructive migration.
+**Why this helps:** if you add a question after ten inspections, every listing shows the new question with a missing answer — no destructive migration.
 
 **Select options:** adding “Underfloor” to heating applies everywhere; old answers stay valid.
 
@@ -200,8 +200,8 @@ answeredQuestions / totalQuestions
 
 | Area                | Purpose                                            |
 | ------------------- | -------------------------------------------------- |
-| Dashboard           | Apartments, templates, questions, export, settings |
-| Apartment list      | Filters: needs review, completed, missing critical |
+| Dashboard           | Listings, templates, questions, export, settings   |
+| Listing list        | Filters: needs review, completed, missing critical |
 | Inspection screen   | Main workflow during a visit                       |
 | Question management | Admin-style CRUD for the checklist                 |
 
@@ -221,19 +221,19 @@ answeredQuestions / totalQuestions
 
 ## Suggested database tables
 
-| Table              | Key columns (idea)               |
-| ------------------ | -------------------------------- |
-| `questions`        | id, label, type, category_id     |
-| `question_options` | id, question_id, value           |
-| `apartments`       | id, title, price                 |
-| `answers`          | apartment_id, question_id, value |
-| `categories`       | id, name, order                  |
+| Table              | Key columns (idea)             |
+| ------------------ | ------------------------------ |
+| `questions`        | id, label, type, category_id   |
+| `question_options` | id, question_id, value         |
+| `listings`         | id, title, price               |
+| `answers`          | listing_id, question_id, value |
+| `categories`       | id, name, order                |
 
 ---
 
 ## UX details
 
-### Apartment overview
+### Listing overview
 
 Show completion % and **missing critical** items (e.g. title deeds, common expenses).
 
@@ -252,7 +252,7 @@ Normalized answers make a comparison grid straightforward (Solar, Parking, Crack
 | Format | Notes                                         |
 | ------ | --------------------------------------------- |
 | JSON   | Full backup                                   |
-| Excel  | One row per apartment; columns from questions |
+| Excel  | One row per listing; columns from questions   |
 | PDF    | Later — useful with family / realtor          |
 
 ---
@@ -275,9 +275,9 @@ GET    /questions
 POST   /questions
 PATCH  /questions/:id
 
-GET    /apartments
-POST   /apartments
-GET    /apartments/:id
+GET    /listings
+POST   /listings
+GET    /listings/:id
 POST   /answers
 
 GET    /export/xlsx
@@ -290,7 +290,7 @@ GET    /export/xlsx
 ### Must have
 
 - **Questions:** create / edit / archive, options, categories, ordering
-- **Apartments:** create / edit, dynamic completion, notes, critical missing indicators
+- **Listings:** create / edit, dynamic completion, notes, critical missing indicators
 - **Exports:** JSON, Excel
 - **Photos:** optional for MVP but high value
 

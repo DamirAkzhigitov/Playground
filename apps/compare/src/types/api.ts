@@ -61,7 +61,7 @@ export type QuestionGroup = Category & {
   questions: Question[]
 }
 
-export type Apartment = {
+export type Listing = {
   id: string
   title: string
   address: string | null
@@ -79,7 +79,7 @@ export type Apartment = {
 
 export type Answer = {
   id: string
-  apartmentId: string
+  listingId: string
   questionId: string
   value: string | null
   note: string | null
@@ -88,13 +88,13 @@ export type Answer = {
 
 export type Photo = {
   id: string
-  apartmentId: string
+  listingId: string
   questionId: string | null
   r2Key: string
   createdAt: string
 }
 
-export type ApartmentDetail = Apartment & {
+export type ListingDetail = Listing & {
   answers: Answer[]
   photos: Photo[]
 }
@@ -140,17 +140,17 @@ export type ReorderQuestionInput = {
   order: number
 }
 
-export type CreateApartmentInput = {
+export type CreateListingInput = {
   title: string
   address?: string | null
   price?: number | null
   notes?: string | null
 }
 
-export type UpdateApartmentInput = Partial<CreateApartmentInput>
+export type UpdateListingInput = Partial<CreateListingInput>
 
 export type UpsertAnswerInput = {
-  apartmentId: string
+  listingId: string
   questionId: string
   value: string | null
   note?: string | null
@@ -165,12 +165,12 @@ export type UpsertAnswerPayload =
     }
 
 export type UploadPhotoInput = {
-  apartmentId: string
+  listingId: string
   questionId?: string
   file: File
 }
 
 export type DeletePhotoInput = {
   id: string
-  apartmentId: string
+  listingId: string
 }

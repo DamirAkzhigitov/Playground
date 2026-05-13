@@ -1,15 +1,15 @@
-import type { Apartment, QuestionType } from '@/types'
+import type { Listing, QuestionType } from '@/types'
 
 import { isAnswerValueFilled } from './answerValue'
 
-export type ApartmentStatusKind =
+export type ListingStatusKind =
   | 'completed'
   | 'missing-critical'
   | 'needs-review'
 
-export function deriveApartmentStatus(
-  completion?: Apartment['completion']
-): ApartmentStatusKind {
+export function deriveListingStatus(
+  completion?: Listing['completion']
+): ListingStatusKind {
   if (!completion || completion.totalQuestions === 0) {
     return 'needs-review'
   }

@@ -14,13 +14,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
-  createApartmentFormSchema,
+  createListingFormSchema,
   parsePriceField,
-  type ApartmentFormValues
-} from '@/lib/apartmentForm'
+  type ListingFormValues
+} from '@/lib/listingForm.ts'
 
-type ApartmentFormProps = {
-  defaultValues: ApartmentFormValues
+type ListingFormProps = {
+  defaultValues: ListingFormValues
   onSubmit: (values: {
     title: string
     address: string | null
@@ -29,12 +29,12 @@ type ApartmentFormProps = {
   }) => void | Promise<void>
 }
 
-export function ListingForm({ defaultValues, onSubmit }: ApartmentFormProps) {
+export function ListingForm({ defaultValues, onSubmit }: ListingFormProps) {
   const { t } = useI18n()
-  const schema = useMemo(() => createApartmentFormSchema(t), [t])
+  const schema = useMemo(() => createListingFormSchema(t), [t])
   const resolver = useMemo(() => zodResolver(schema), [schema])
 
-  const form = useForm<ApartmentFormValues>({
+  const form = useForm<ListingFormValues>({
     resolver,
     defaultValues
   })
@@ -42,7 +42,7 @@ export function ListingForm({ defaultValues, onSubmit }: ApartmentFormProps) {
   const handleSubmit = form.handleSubmit(async (values) => {
     const price = parsePriceField(values.price)
     if (values.price?.trim() && price === null) {
-      form.setError('price', { message: t('apartmentForm.validNumber') })
+      form.setError('price', { message: t('listingForm.validNumber') })
       return
     }
     await onSubmit({
@@ -55,16 +55,16 @@ export function ListingForm({ defaultValues, onSubmit }: ApartmentFormProps) {
 
   return (
     <Form {...form}>
-      <form id="apartment-form" onSubmit={handleSubmit} className="space-y-4">
+      <form id="listing-form" onSubmit={handleSubmit} className="space-y-4">
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('apartmentForm.title')}</FormLabel>
+              <FormLabel>{t('listingForm.title')}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder={t('apartmentForm.titlePlaceholder')}
+                  placeholder={t('listingForm.titlePlaceholder')}
                   autoComplete="off"
                   {...field}
                 />
@@ -78,10 +78,10 @@ export function ListingForm({ defaultValues, onSubmit }: ApartmentFormProps) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('apartmentForm.address')}</FormLabel>
+              <FormLabel>{t('listingForm.address')}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder={t('apartmentForm.addressPlaceholder')}
+                  placeholder={t('listingForm.addressPlaceholder')}
                   autoComplete="street-address"
                   {...field}
                 />
@@ -95,11 +95,11 @@ export function ListingForm({ defaultValues, onSubmit }: ApartmentFormProps) {
           name="price"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('apartmentForm.price')}</FormLabel>
+              <FormLabel>{t('listingForm.price')}</FormLabel>
               <FormControl>
                 <Input
                   inputMode="decimal"
-                  placeholder={t('apartmentForm.priceOptional')}
+                  placeholder={t('listingForm.priceOptional')}
                   autoComplete="off"
                   {...field}
                 />
@@ -113,10 +113,10 @@ export function ListingForm({ defaultValues, onSubmit }: ApartmentFormProps) {
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('apartmentForm.notes')}</FormLabel>
+              <FormLabel>{t('listingForm.notes')}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder={t('apartmentForm.notesPlaceholder')}
+                  placeholder={t('listingForm.notesPlaceholder')}
                   rows={4}
                   className="resize-none"
                   {...field}

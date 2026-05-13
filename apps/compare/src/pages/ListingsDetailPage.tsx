@@ -23,12 +23,12 @@ import {
 import { Separator } from '@/components/ui/separator'
 import type { QuestionGroup, UpsertAnswerInput } from '@/types'
 
-import { useApartment, useQuestions, useUpsertAnswer } from '@/hooks'
+import { useListing, useQuestions, useUpsertAnswer } from '@/hooks'
 import { useKeyedDebouncedAnswerSave } from '@/hooks/useDebouncedAnswerSave'
 import {
   computeCompletionFromQuestions,
-  deriveApartmentStatus
-} from '@/lib/apartmentStatus'
+  deriveListingStatus
+} from '@/lib/listingStatus.ts'
 import { isQuestionAnswerFilled } from '@/lib/answerValue'
 import { questionTypeMessageId } from '@/lib/questionTypeMessageId'
 import { buildAnswerDraftMap, flattenActiveQuestions } from '@/lib/questions'
@@ -39,7 +39,7 @@ const EMPTY_GROUPS: QuestionGroup[] = []
 export function ListingsDetailPage() {
   const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
-  const apartmentQuery = useApartment(id)
+  const apartmentQuery = useListing(id)
   const questionsQuery = useQuestions(false)
   const upsert = useUpsertAnswer()
   const dirtyQuestionIdsRef = useRef(new Set<string>())
@@ -130,7 +130,7 @@ export function ListingsDetailPage() {
       dirtyQuestionIdsRef.current.add(questionId)
       try {
         queueSave({
-          apartmentId: id,
+          listingId: id,
           questionId,
           value: next.value,
           note: next.note
@@ -157,7 +157,7 @@ export function ListingsDetailPage() {
   }
 
   const data = apartmentQuery.data
-  const status = deriveApartmentStatus(completion ?? undefined)
+  const status = deriveListingStatus(completion ?? undefined)
   const inspectLabel =
     status === 'completed'
       ? t('detail.reviewInspection')
@@ -308,7 +308,7 @@ export function ListingsDetailPage() {
                         density="compact"
                       />
                       <QuestionPhotosSection
-                        apartmentId={data.id}
+                        listingId={data.id}
                         questionId={question.id}
                         questionLabel={question.label}
                         allPhotos={data.photos}
@@ -325,7 +325,7 @@ export function ListingsDetailPage() {
 
       <PinnedActionBar>
         <Button variant="outline" asChild className="min-h-11 flex-1">
-          <Link to="/listings">{t('detail.allApartments')}</Link>
+          <Link to="/listings">{t('detail.allListings')}</Link>
         </Button>
         <Button
           asChild

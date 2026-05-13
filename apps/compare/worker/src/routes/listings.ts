@@ -34,7 +34,7 @@ listings.get('/', async (c) => {
          SELECT COUNT(*)
          FROM questions q
          INNER JOIN answers ans
-           ON ans.question_id = q.id AND ans.apartment_id = a.id
+           ON ans.question_id = q.id AND ans.listing_id = a.id
          WHERE q.is_archived = 0
            AND q.user_id = ?
            AND ans.value IS NOT NULL
@@ -53,7 +53,7 @@ listings.get('/', async (c) => {
          SELECT COUNT(*)
          FROM questions q
          LEFT JOIN answers ans
-           ON ans.question_id = q.id AND ans.apartment_id = a.id
+           ON ans.question_id = q.id AND ans.listing_id = a.id
          WHERE q.is_archived = 0
            AND q.user_id = ?
            AND q.required = 1
@@ -72,7 +72,7 @@ listings.get('/', async (c) => {
              )
            )
        ) AS critical_missing
-     FROM apartments a
+     FROM listings a
      WHERE a.user_id = ?
      ORDER BY a.created_at DESC`
   )
@@ -103,7 +103,7 @@ listings.post('/', async (c) => {
   const id = crypto.randomUUID()
   const timestamp = nowIso()
   await c.env.DB.prepare(
-    'INSERT INTO apartments (id, title, address, price, notes, created_at, updated_at, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    'INSERT INTO listings (id, title, address, price, notes, created_at, updated_at, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
   )
     .bind(
       id,
@@ -136,7 +136,7 @@ listings.patch('/:id', async (c) => {
   const payload = listingPatchSchema.parse(await c.req.json())
   const timestamp = nowIso()
   const result = await c.env.DB.prepare(
-    `UPDATE apartments
+    `UPDATE listings
      SET title = COALESCE(?, title),
          address = COALESCE(?, address),
          price = COALESCE(?, price),
@@ -156,11 +156,11 @@ listings.patch('/:id', async (c) => {
     .run()
 
   if ((result.meta.changes ?? 0) === 0) {
-    return c.json({ error: 'Apartment not found' }, 404)
+    return c.json({ error: 'Listing not found' }, 404)
   }
 
   const listing = await c.env.DB.prepare(
-    'SELECT id, title, address, price, notes, created_at, updated_at FROM apartments WHERE id = ? AND user_id = ?'
+    'SELECT id, title, address, price, notes, created_at, updated_at FROM listings WHERE id = ? AND user_id = ?'
   )
     .bind(id, userId)
     .first<Record<string, unknown>>()
@@ -171,21 +171,21 @@ listings.get('/:id', async (c) => {
   const userId = c.get('userId')
   const id = c.req.param('id')
   const listing = await c.env.DB.prepare(
-    'SELECT id, title, address, price, notes, created_at, updated_at FROM apartments WHERE id = ? AND user_id = ?'
+    'SELECT id, title, address, price, notes, created_at, updated_at FROM listings WHERE id = ? AND user_id = ?'
   )
     .bind(id, userId)
     .first<Record<string, unknown>>()
   if (!listing) {
-    return c.json({ error: 'Apartment not found' }, 404)
+    return c.json({ error: 'Listing not found' }, 404)
   }
 
   const answersResult = await c.env.DB.prepare(
-    'SELECT id, apartment_id, question_id, value, note, updated_at FROM answers WHERE apartment_id = ? ORDER BY updated_at DESC'
+    'SELECT id, listing_id, question_id, value, note, updated_at FROM answers WHERE listing_id = ? ORDER BY updated_at DESC'
   )
     .bind(id)
     .all<Record<string, unknown>>()
   const photosResult = await c.env.DB.prepare(
-    'SELECT id, apartment_id, question_id, r2_key, created_at FROM photos WHERE apartment_id = ? ORDER BY created_at DESC'
+    'SELECT id, listing_id, question_id, r2_key, created_at FROM photos WHERE listing_id = ? ORDER BY created_at DESC'
   )
     .bind(id)
     .all<Record<string, unknown>>()
@@ -194,7 +194,7 @@ listings.get('/:id', async (c) => {
     ...formatListing(listing),
     answers: typedRows(answersResult).map((row) => ({
       id: row.id,
-      apartmentId: row.apartment_id,
+      listingId: row.listing_id,
       questionId: row.question_id,
       value: row.value,
       note: row.note,
@@ -202,7 +202,7 @@ listings.get('/:id', async (c) => {
     })),
     photos: typedRows(photosResult).map((row) => ({
       id: row.id,
-      apartmentId: row.apartment_id,
+      listingId: row.listing_id,
       questionId: row.question_id,
       r2Key: row.r2_key,
       createdAt: row.created_at
@@ -214,7 +214,7 @@ listings.delete('/:id', async (c) => {
   const userId = c.get('userId')
   const id = c.req.param('id')
   const photos = await c.env.DB.prepare(
-    'SELECT p.r2_key FROM photos p INNER JOIN apartments a ON a.id = p.apartment_id WHERE a.id = ? AND a.user_id = ?'
+    'SELECT p.r2_key FROM photos p INNER JOIN listings a ON a.id = p.listing_id WHERE a.id = ? AND a.user_id = ?'
   )
     .bind(id, userId)
     .all<{ r2_key: string }>()
@@ -222,12 +222,12 @@ listings.delete('/:id', async (c) => {
     typedRows(photos).map((photo) => c.env.PHOTOS.delete(photo.r2_key))
   )
   const result = await c.env.DB.prepare(
-    'DELETE FROM apartments WHERE id = ? AND user_id = ?'
+    'DELETE FROM listings WHERE id = ? AND user_id = ?'
   )
     .bind(id, userId)
     .run()
   if ((result.meta.changes ?? 0) === 0) {
-    return c.json({ error: 'Apartment not found' }, 404)
+    return c.json({ error: 'Listing not found' }, 404)
   }
   return c.body(null, 204)
 })

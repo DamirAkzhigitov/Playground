@@ -1,16 +1,16 @@
 import { Badge } from '@/components/ui/badge'
 import { useI18n } from '@/contexts/I18nContext'
-import { deriveApartmentStatus } from '@/lib/apartmentStatus'
-import type { Apartment } from '@/types'
+import { deriveListingStatus } from '@/lib/listingStatus.ts'
+import type { Listing } from '@/types'
 
 type Props = {
-  completion?: Apartment['completion']
+  completion?: Listing['completion']
   className?: string
 }
 
 export function ListingStatusBadge({ completion, className }: Props) {
   const { t } = useI18n()
-  const status = deriveApartmentStatus(completion)
+  const status = deriveListingStatus(completion)
   if (status === 'missing-critical') {
     return (
       <Badge variant="destructive" className={className}>

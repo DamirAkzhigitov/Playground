@@ -6,11 +6,11 @@ import { queryKeys } from './queryKeys'
 
 type UpsertAnswerResponse = { ok: boolean; updated: number }
 
-const apartmentIdsFromPayload = (payload: UpsertAnswerPayload): string[] => {
+const listingIdsFromPayload = (payload: UpsertAnswerPayload): string[] => {
   if ('answer' in payload) {
-    return [payload.answer.apartmentId]
+    return [payload.answer.listingId]
   }
-  return [...new Set(payload.answers.map((a) => a.apartmentId))]
+  return [...new Set(payload.answers.map((a) => a.listingId))]
 }
 
 export const useUpsertAnswer = () => {
@@ -22,7 +22,7 @@ export const useUpsertAnswer = () => {
         body: payload
       }),
     onSuccess: async (_, payload) => {
-      const ids = apartmentIdsFromPayload(payload)
+      const ids = listingIdsFromPayload(payload)
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.listings }),
         ...ids.map((id) =>

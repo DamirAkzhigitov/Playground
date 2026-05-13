@@ -33,7 +33,7 @@ import { cn } from '@/lib/utils'
 import type { Photo } from '@/types'
 
 type QuestionPhotosSectionProps = {
-  apartmentId: string
+  listingId: string
   questionId: string
   questionLabel: string
   allPhotos: Photo[]
@@ -41,7 +41,7 @@ type QuestionPhotosSectionProps = {
 }
 
 export function QuestionPhotosSection({
-  apartmentId,
+  listingId,
   questionId,
   questionLabel,
   allPhotos,
@@ -78,7 +78,7 @@ export function QuestionPhotosSection({
       try {
         const prepared = await compressImageForUpload(file)
         await upload.mutateAsync({
-          apartmentId,
+          listingId: listingId,
           questionId,
           file: prepared
         })
@@ -87,7 +87,7 @@ export function QuestionPhotosSection({
         toast.error(e instanceof Error ? e.message : t('photos.uploadFailed'))
       }
     },
-    [apartmentId, questionId, upload, t]
+    [listingId, questionId, upload, t]
   )
 
   const onFileInputChange = useCallback(
@@ -107,7 +107,7 @@ export function QuestionPhotosSection({
     const snapshot = photos
     const deletedIndex = snapshot.findIndex((p) => p.id === targetId)
     try {
-      await del.mutateAsync({ id: targetId, apartmentId })
+      await del.mutateAsync({ id: targetId, listingId: listingId })
       toast.success(t('photos.removed'))
       setDeleteTarget(null)
       setLightboxIndex((current) => {
@@ -134,7 +134,7 @@ export function QuestionPhotosSection({
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('photos.deleteFailed'))
     }
-  }, [apartmentId, del, deleteTarget, photos, t])
+  }, [listingId, del, deleteTarget, photos, t])
 
   const openLightbox = (index: number) => setLightboxIndex(index)
   const closeLightbox = () => setLightboxIndex(null)
