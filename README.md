@@ -134,6 +134,11 @@ user count is fetched from `https://compare.da-mr.com/api/stats`. For the
 `playground-dev` Pages project, run the same `wrangler pages secret put` commands
 with `--project-name playground-dev`.
 
+Optional secret **`COMPARE_STATS_URL`**: base URL for Compare’s stats JSON
+(default `https://compare.da-mr.com/api/stats`). Set on **`playground-dev`**
+to your dev Worker if it should read user counts from there, for example
+`https://dev-compare.da-mr.com/api/stats`.
+
 ### Compare (`apps/compare`)
 
 Production ships as **one Worker** (`apps/compare/worker`): static files from

@@ -1,5 +1,5 @@
 const CF_GRAPHQL = 'https://api.cloudflare.com/client/v4/graphql'
-const COMPARE_STATS = 'https://compare.da-mr.com/api/stats'
+const COMPARE_STATS_DEFAULT = 'https://compare.da-mr.com/api/stats'
 
 const HOSTS = {
   resume: 'resume.da-mr.com',
@@ -32,7 +32,7 @@ async function fetchHostVisits(
     query HostVisits($zoneTag: string!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
-          httpRequestsAdaptiveGroups(limit: 1, filter: $filter) {
+          httpRequestsAdaptiveGroups(limit: 10000, filter: $filter) {
             sum {
               visits
             }
@@ -63,37 +63,101 @@ async function fetchHostVisits(
     })
   })
 
-  if (!res.ok) return null
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '')
+    console.error(
+      '[stats] GraphQL HTTP error',
+      hostname,
+      res.status,
+      errText.slice(0, 500)
+    )
+    return null
+  }
 
   const payload = (await res.json()) as {
-    errors?: unknown
+    errors?: Array<{ message?: string }>
     data?: {
       viewer?: {
         zones?: Array<{
-          httpRequestsAdaptiveGroups?: Array<{ sum?: { visits?: number } }>
+          httpRequestsAdaptiveGroups?: Array<{
+            sum?: { visits?: number | null }
+          }>
         }>
       }
     }
   }
 
-  if (Array.isArray(payload.errors) && payload.errors.length > 0) return null
+  if (Array.isArray(payload.errors) && payload.errors.length > 0) {
+    console.error(
+      '[stats] GraphQL errors',
+      hostname,
+      payload.errors.map((e) => e.message).join('; ')
+    )
+    return null
+  }
 
-  const visits =
-    payload.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups?.[0]?.sum
-      ?.visits
+  const zones = payload.data?.viewer?.zones
+  if (!zones || zones.length === 0) {
+    console.error(
+      '[stats] no zones returned — check CF_ZONE_ID matches the da-mr.com zone'
+    )
+    return null
+  }
 
-  return typeof visits === 'number' ? visits : null
+  const groups = zones[0]?.httpRequestsAdaptiveGroups ?? []
+  let total = 0
+  for (const g of groups) {
+    const v = g.sum?.visits
+    if (typeof v === 'number' && Number.isFinite(v)) total += v
+  }
+  return total
 }
 
-async function fetchCompareUserCount(): Promise<number | null> {
+/** Zone analytics GraphQL often allows at most a 1d window per query; sum several sub-1d slices. */
+async function fetchHostVisitsRolling(
+  token: string,
+  zoneId: string,
+  hostname: string,
+  sliceHours: number,
+  sliceCount: number
+): Promise<number | null> {
+  const sliceMs = sliceHours * 60 * 60 * 1000
+  const now = Date.now()
+  const windows = Array.from({ length: sliceCount }, (_, i) => ({
+    datetimeGte: new Date(now - (i + 1) * sliceMs).toISOString(),
+    datetimeLt: new Date(now - i * sliceMs).toISOString()
+  }))
+
+  const results = await Promise.all(
+    windows.map((w) =>
+      fetchHostVisits(token, zoneId, hostname, w.datetimeGte, w.datetimeLt)
+    )
+  )
+
+  if (results.some((r) => r === null)) return null
+  const visits = results as number[]
+  return visits.reduce((sum, r) => sum + r, 0)
+}
+
+function parseUserCount(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim() !== '') {
+    const n = Number.parseInt(value, 10)
+    return Number.isNaN(n) ? null : n
+  }
+  return null
+}
+
+async function fetchCompareUserCount(
+  compareStatsUrl: string
+): Promise<number | null> {
   try {
-    const res = await fetch(COMPARE_STATS, {
+    const res = await fetch(compareStatsUrl, {
       headers: { Accept: 'application/json' }
     })
     if (!res.ok) return null
     const body = (await res.json()) as { userCount?: unknown }
-    const n = body.userCount
-    return typeof n === 'number' ? n : null
+    return parseUserCount(body.userCount)
   } catch {
     return null
   }
@@ -102,24 +166,39 @@ async function fetchCompareUserCount(): Promise<number | null> {
 export const onRequestGet: PagesFunction<{
   CF_API_TOKEN?: string
   CF_ZONE_ID?: string
+  /** Override default production URL (e.g. https://dev-compare.da-mr.com/api/stats for dev Pages). */
+  COMPARE_STATS_URL?: string
 }> = async (context) => {
   const token = context.env.CF_API_TOKEN
   const zoneId = context.env.CF_ZONE_ID
+  const compareStatsUrl =
+    context.env.COMPARE_STATS_URL?.trim() || COMPARE_STATS_DEFAULT
 
-  const now = new Date()
-  const datetimeLt = now.toISOString()
-  const datetimeGte = new Date(
-    now.getTime() - 10 * 365 * 24 * 60 * 60 * 1000
-  ).toISOString()
+  // Each GraphQL request must stay within Cloudflare's max window (often 1d);
+  // sum several back-to-back sub-1d slices for a rolling ~week of visits.
+  const sliceHours = 23
+  const sliceCount = 7
 
   const [resumeViews, compareViews, userCount] = await Promise.all([
     token && zoneId
-      ? fetchHostVisits(token, zoneId, HOSTS.resume, datetimeGte, datetimeLt)
+      ? fetchHostVisitsRolling(
+          token,
+          zoneId,
+          HOSTS.resume,
+          sliceHours,
+          sliceCount
+        )
       : Promise.resolve(null),
     token && zoneId
-      ? fetchHostVisits(token, zoneId, HOSTS.compare, datetimeGte, datetimeLt)
+      ? fetchHostVisitsRolling(
+          token,
+          zoneId,
+          HOSTS.compare,
+          sliceHours,
+          sliceCount
+        )
       : Promise.resolve(null),
-    fetchCompareUserCount()
+    fetchCompareUserCount(compareStatsUrl)
   ])
 
   return jsonResponse({
