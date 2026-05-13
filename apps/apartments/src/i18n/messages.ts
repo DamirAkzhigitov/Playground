@@ -125,6 +125,26 @@ const EN = {
   'apartmentForm.notesPlaceholder':
     'Anything you want to remember before the visit…',
 
+  'apartmentAi.cardTitle': 'Fill from listing',
+  'apartmentAi.cardDescription':
+    'Paste listing text, enter an HTTPS URL to a listing page, or upload a small text file. The server reads the text and fills fields that are clearly present; anything not found stays empty. Review before saving.',
+  'apartmentAi.tabPaste': 'Paste text',
+  'apartmentAi.tabUrl': 'URL',
+  'apartmentAi.tabFile': 'File',
+  'apartmentAi.pasteLabel': 'Listing or ad text',
+  'apartmentAi.pastePlaceholder': 'Paste the full listing description…',
+  'apartmentAi.urlLabel': 'HTTPS listing page',
+  'apartmentAi.urlPlaceholder': 'https://…',
+  'apartmentAi.fileLabel': 'Plain text file',
+  'apartmentAi.fileHint': '.txt, .md, or .json up to 128 KB.',
+  'apartmentAi.extract': 'Analyze and fill form',
+  'apartmentAi.extracting': 'Analyzing…',
+  'apartmentAi.applied': 'Form updated from the listing text.',
+  'apartmentAi.failed': 'Could not analyze the listing.',
+  'apartmentAi.needSource': 'Add text, a URL, or a file first.',
+  'apartmentAi.unavailable':
+    'This feature is not configured on the server yet.',
+
   'photos.takePhoto': 'Take photo',
   'photos.addFromLibrary': 'Add from library',
   'photos.empty':
@@ -411,6 +431,25 @@ const RU: Record<MessageId, string> = {
   'apartmentForm.notes': 'Заметки',
   'apartmentForm.notesPlaceholder': 'Что вспомнить перед визитом…',
 
+  'apartmentAi.cardTitle': 'Заполнить из объявления',
+  'apartmentAi.cardDescription':
+    'Вставьте текст объявления, укажите HTTPS-ссылку на страницу или загрузите небольшой текстовый файл. Сервер извлекает данные и заполняет только явно найденные поля; остальные остаются пустыми. Проверьте перед сохранением.',
+  'apartmentAi.tabPaste': 'Текст',
+  'apartmentAi.tabUrl': 'Ссылка',
+  'apartmentAi.tabFile': 'Файл',
+  'apartmentAi.pasteLabel': 'Текст объявления',
+  'apartmentAi.pastePlaceholder': 'Вставьте полное описание…',
+  'apartmentAi.urlLabel': 'HTTPS-страница объявления',
+  'apartmentAi.urlPlaceholder': 'https://…',
+  'apartmentAi.fileLabel': 'Текстовый файл',
+  'apartmentAi.fileHint': '.txt, .md или .json до 128 КБ.',
+  'apartmentAi.extract': 'Разобрать и заполнить',
+  'apartmentAi.extracting': 'Анализ…',
+  'apartmentAi.applied': 'Поля обновлены по тексту объявления.',
+  'apartmentAi.failed': 'Не удалось разобрать объявление.',
+  'apartmentAi.needSource': 'Сначала добавьте текст, ссылку или файл.',
+  'apartmentAi.unavailable': 'Функция не настроена на сервере.',
+
   'photos.takePhoto': 'Снять фото',
   'photos.addFromLibrary': 'Из галереи',
   'photos.empty':
@@ -693,6 +732,26 @@ const EL: Record<MessageId, string> = {
   'apartmentForm.validNumber': 'Εισάγετε έγκυρο αριθμό.',
   'apartmentForm.notes': 'Σημειώσεις',
   'apartmentForm.notesPlaceholder': 'Ό,τι θέλετε να θυμάστε πριν την επίσκεψη…',
+
+  'apartmentAi.cardTitle': 'Συμπλήρωση από αγγελία',
+  'apartmentAi.cardDescription':
+    'Επικολλήστε κείμενο αγγελίας, εισάγετε HTTPS URL σελίδας αγγελίας ή ανεβάστε μικρό αρχείο κειμένου. Ο διακομιστής εξάγει στοιχεία και συμπληρώνει μόνο όσα πεδία εντοπίζονται σαφώς· τα υπόλοιπα μένουν κενά. Ελέγξτε πριν αποθηκεύσετε.',
+  'apartmentAi.tabPaste': 'Κείμενο',
+  'apartmentAi.tabUrl': 'URL',
+  'apartmentAi.tabFile': 'Αρχείο',
+  'apartmentAi.pasteLabel': 'Κείμενο αγγελίας',
+  'apartmentAi.pastePlaceholder': 'Επικολλήστε την πλήρη περιγραφή…',
+  'apartmentAi.urlLabel': 'Σελίδα αγγελίας (HTTPS)',
+  'apartmentAi.urlPlaceholder': 'https://…',
+  'apartmentAi.fileLabel': 'Αρχείο απλού κειμένου',
+  'apartmentAi.fileHint': '.txt, .md ή .json έως 128 KB.',
+  'apartmentAi.extract': 'Ανάλυση και συμπλήρωση',
+  'apartmentAi.extracting': 'Ανάλυση…',
+  'apartmentAi.applied': 'Η φόρμα ενημερώθηκε από το κείμενο αγγελίας.',
+  'apartmentAi.failed': 'Δεν ήταν δυνατή η ανάλυση της αγγελίας.',
+  'apartmentAi.needSource': 'Προσθέστε πρώτα κείμενο, URL ή αρχείο.',
+  'apartmentAi.unavailable':
+    'Η λειτουργία δεν είναι ρυθμισμένη στον διακομιστή.',
 
   'photos.takePhoto': 'Λήψη φωτογραφίας',
   'photos.addFromLibrary': 'Από βιβλιοθήκη',

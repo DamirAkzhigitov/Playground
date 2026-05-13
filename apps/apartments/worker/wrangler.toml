@@ -26,6 +26,10 @@ binding = "PHOTOS"
 bucket_name = "apartments-photos"
 jurisdiction = "eu"
 
+[vars]
+# Override model if needed; API key is a secret: `wrangler secret put OPENAI_API_KEY`
+OPENAI_LISTING_MODEL = "gpt-4o-mini"
+
 [observability]
 enabled = true
 
