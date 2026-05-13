@@ -1,6 +1,6 @@
 ---
-name: apartments-developer
-description: Implements and maintains the Apartments tool in apps/apartments following its design system and Cloudflare Worker API. Use when editing apps/apartments, apartments UI, inspection flows, the Hono worker, D1, wrangler for apartments, or when the user attaches or names this skill for apartments work.
+name: compare-developer
+description: Implements and maintains the Apartments tool in apps/compare following its design system and Cloudflare Worker API. Use when editing apps/compare, compare UI, inspection flows, the Hono worker, D1, wrangler for compare, or when the user attaches or names this skill for compare work.
 disable-model-invocation: true
 ---
 
@@ -12,8 +12,8 @@ Work lives under `apps/apartments/` (Vite + React package `@playground/apartment
 
 ## UI and product references
 
-- **Visual and interaction rules** — Read and follow [DESIGN.md](../../../apps/apartments/DESIGN.md) for every UI change (layout, components, tokens, forms, motion, accessibility). It is the source of truth; do not contradict it without an explicit decision to update the doc first.
-- **What we are building** — Use [PLAN.md](../../../apps/apartments/PLAN.md) for product scope and priorities when choosing what to implement.
+- **Visual and interaction rules** — Read and follow [DESIGN.md](../../../apps/compare/DESIGN.md) for every UI change (layout, components, tokens, forms, motion, accessibility). It is the source of truth; do not contradict it without an explicit decision to update the doc first.
+- **What we are building** — Use [PLAN.md](../../../apps/compare/PLAN.md) for product scope and priorities when choosing what to implement.
 
 Before inventing a new primitive or pattern, check `DESIGN.md` and existing `src/components/` (including shadcn-owned `src/components/ui/`).
 

@@ -1,6 +1,6 @@
 packages:
   - apps/*
-  - apps/apartments/worker
+  - apps/compare/worker
   - packages/*
 
 onlyBuiltDependencies:

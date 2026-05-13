@@ -42,10 +42,10 @@ the Cloudflare deploy flow.
   using `cloudflare/wrangler-action@v3` against the `playground` Cloudflare
   Pages project. Git auto-build on the Cloudflare side must stay
   **disabled** for this project so deploys don't double-fire.
-- **`apps/apartments`** is deployed as a **single Cloudflare Worker** (`wrangler
-deploy` from `apps/apartments/worker`) that serves the Vite `dist/` as static
-  assets and Hono `/api/*` on the same origin — attach **`apartments.da-mr.com`**
-  to that Worker (Workers & Pages → `apartments-api` → Custom domains). Remove
+- **`apps/compare`** is deployed as a **single Cloudflare Worker** (`wrangler
+deploy` from `apps/compare/worker`) that serves the Vite `dist/` as static
+  assets and Hono `/api/*` on the same origin — attach **`compare.da-mr.com`**
+  to that Worker (Workers & Pages → `compare-api` → Custom domains). Remove
   or repoint the old **Pages** project for that hostname so only the Worker
   answers. Local dev still uses Vite proxy to `wrangler dev` on port 8787.
 - `apps/main` calls the public TheMealDB API at runtime for random recipes;
