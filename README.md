@@ -113,24 +113,24 @@ pnpm turbo run build --filter=@playground/main
 pnpm dlx wrangler pages deploy apps/main/dist --project-name=playground --branch=preview
 ```
 
-### Apartments (`apps/apartments`)
+### Compare (`apps/compare`)
 
-Production ships as **one Worker** (`apps/apartments/worker`): static files from
-`apps/apartments/dist` plus the Hono API under `/api/*` (see `wrangler.toml`
+Production ships as **one Worker** (`apps/compare/worker`): static files from
+`apps/compare/dist` plus the Hono API under `/api/*` (see `wrangler.toml`
 `[assets]` and `run_worker_first`). The browser uses relative `/api` URLs (no
 `VITE_API_BASE_URL` in CI).
 
-After deploy, attach **`apartments.da-mr.com`** to that Worker and turn off or
+After deploy, attach **`compare.da-mr.com`** to that Worker and turn off or
 unlink the hostname from a separate **Pages** project so traffic is not split.
 
 ```bash
-pnpm turbo run build --filter=@playground/apartments
-pnpm --filter @playground/apartments-api exec wrangler deploy
+pnpm turbo run build --filter=@playground/compare
+pnpm --filter @playground/compare-api exec wrangler deploy
 ```
 
 #### Authentication
 
-The apartments app uses **cookie-based session auth** — fully self-contained
+The compare app uses **cookie-based session auth** — fully self-contained
 in the Worker with no external auth services.
 
 - Passwords are hashed with PBKDF2 (Web Crypto API, 100k iterations, SHA-256).
@@ -150,10 +150,10 @@ in the Worker with no external auth services.
 | POST   | `/api/auth/logout`   | Destroy session + clear cookie|
 | GET    | `/api/auth/me`       | Return current user           |
 
-**D1 migrations** live in `apps/apartments/worker/migrations/`. Run locally:
+**D1 migrations** live in `apps/compare/worker/migrations/`. Run locally:
 
 ```bash
-pnpm --filter @playground/apartments-api run db:migrate:local
+pnpm --filter @playground/compare-api run db:migrate:local
 ```
 
 ## Adding a new tool (subdomain)

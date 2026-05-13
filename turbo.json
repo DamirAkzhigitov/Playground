@@ -5,11 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"],
-      "env": [
-        "VITE_MAIN_ORIGIN",
-        "VITE_RESUME_ORIGIN",
-        "VITE_APARTMENTS_ORIGIN"
-      ]
+      "env": ["VITE_MAIN_ORIGIN", "VITE_RESUME_ORIGIN", "VITE_COMPARE_ORIGIN"]
     },
     "dev": {
       "cache": false,
