@@ -40,6 +40,10 @@ jobs:
 
       - name: Build @playground/main
         run: pnpm turbo run build --filter=@playground/main
+        env:
+          VITE_MAIN_ORIGIN: https://da-mr.com
+          VITE_RESUME_ORIGIN: https://resume.da-mr.com
+          VITE_APARTMENTS_ORIGIN: https://apartments.da-mr.com
 
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
@@ -81,6 +85,10 @@ jobs:
 
       - name: Build @playground/main
         run: pnpm turbo run build --filter=@playground/main
+        env:
+          VITE_MAIN_ORIGIN: https://dev.da-mr.com
+          VITE_RESUME_ORIGIN: https://dev-resume.da-mr.com
+          VITE_APARTMENTS_ORIGIN: https://dev-apartments.da-mr.com
 
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
@@ -120,6 +128,8 @@ jobs:
 
       - name: Build @playground/resume
         run: pnpm turbo run build --filter=@playground/resume
+        env:
+          VITE_MAIN_ORIGIN: https://da-mr.com
 
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
@@ -161,6 +171,8 @@ jobs:
 
       - name: Build @playground/resume
         run: pnpm turbo run build --filter=@playground/resume
+        env:
+          VITE_MAIN_ORIGIN: https://dev.da-mr.com
 
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
@@ -200,6 +212,8 @@ jobs:
 
       - name: Build @playground/apartments (client → dist/)
         run: pnpm turbo run build --filter=@playground/apartments
+        env:
+          VITE_MAIN_ORIGIN: https://da-mr.com
 
       - name: Deploy Worker (static assets + /api)
         run: pnpm --filter @playground/apartments-api exec wrangler deploy
@@ -235,6 +249,8 @@ jobs:
 
       - name: Build @playground/apartments (client → dist/)
         run: pnpm turbo run build --filter=@playground/apartments
+        env:
+          VITE_MAIN_ORIGIN: https://dev.da-mr.com
 
       - name: Deploy Worker (static assets + /api, dev)
         run: pnpm --filter @playground/apartments-api run deploy:dev
