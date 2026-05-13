@@ -4,6 +4,7 @@ import {
   COMPARE_EMPTY,
   normalizeAnswerForCompare,
   answerStrengthRatio,
+  dateMinMaxAcrossValues,
   numberMinMaxAcrossValues
 } from '@/lib/compareDisplay'
 import type { Question } from '@/types'
@@ -18,6 +19,7 @@ const baseQuestion = (overrides: Partial<Question>): Question => ({
   order: 0,
   ratingMin: null,
   ratingMax: null,
+  valuePreference: null,
   options: [],
   ...overrides
 })
@@ -74,6 +76,19 @@ describe('numberMinMaxAcrossValues', () => {
   })
 })
 
+describe('dateMinMaxAcrossValues', () => {
+  it('returns null when no valid dates', () => {
+    expect(dateMinMaxAcrossValues([null, 'bad', '2024-02-30'])).toBeNull()
+  })
+
+  it('returns UTC ms min and max', () => {
+    expect(dateMinMaxAcrossValues(['2024-01-10', null, '2024-06-01'])).toEqual({
+      min: Date.UTC(2024, 0, 10),
+      max: Date.UTC(2024, 5, 1)
+    })
+  })
+})
+
 describe('answerStrengthRatio', () => {
   it('maps boolean answers', () => {
     const q = baseQuestion({ type: 'boolean' })
@@ -96,6 +111,41 @@ describe('answerStrengthRatio', () => {
     expect(answerStrengthRatio(q, '100', { min: 0, max: 100 })).toBe(1)
   })
 
+  it('inverts number strength when lower is better (e.g. price)', () => {
+    const q = baseQuestion({ type: 'number', valuePreference: 'lower' })
+    const r = { min: 100_000, max: 150_000 }
+    expect(answerStrengthRatio(q, '100000', r)).toBeCloseTo(1)
+    expect(answerStrengthRatio(q, '125000', r)).toBeCloseTo(0.5)
+    expect(answerStrengthRatio(q, '150000', r)).toBeCloseTo(0)
+  })
+
+  it('treats legacy null valuePreference on number as higher-is-better', () => {
+    const q = baseQuestion({ type: 'number', valuePreference: null })
+    expect(answerStrengthRatio(q, '0', { min: 0, max: 100 })).toBe(0)
+    expect(answerStrengthRatio(q, '100', { min: 0, max: 100 })).toBe(1)
+  })
+
+  it('normalizes date by range with lower default (earlier is better)', () => {
+    const q = baseQuestion({ type: 'date', valuePreference: null })
+    const r = {
+      min: Date.UTC(2024, 0, 1),
+      max: Date.UTC(2024, 0, 3)
+    }
+    expect(answerStrengthRatio(q, '2024-01-01', r)).toBeCloseTo(1)
+    expect(answerStrengthRatio(q, '2024-01-02', r)).toBeCloseTo(0.5)
+    expect(answerStrengthRatio(q, '2024-01-03', r)).toBeCloseTo(0)
+  })
+
+  it('date higher-is-better inverts the scale', () => {
+    const q = baseQuestion({ type: 'date', valuePreference: 'higher' })
+    const r = {
+      min: Date.UTC(2024, 0, 1),
+      max: Date.UTC(2024, 0, 3)
+    }
+    expect(answerStrengthRatio(q, '2024-01-01', r)).toBeCloseTo(0)
+    expect(answerStrengthRatio(q, '2024-01-03', r)).toBeCloseTo(1)
+  })
+
   it('treats single number value as full strength', () => {
     const q = baseQuestion({ type: 'number' })
     expect(answerStrengthRatio(q, '42', { min: 42, max: 42 })).toBe(1)
@@ -113,7 +163,7 @@ describe('answerStrengthRatio', () => {
     expect(answerStrengthRatio(q, 'high', null)).toBe(1)
   })
 
-  it('rates text and date as binary', () => {
+  it('rates text as binary; date without range is full strength', () => {
     const textQ = baseQuestion({ type: 'text' })
     expect(answerStrengthRatio(textQ, 'hello', null)).toBe(1)
     expect(answerStrengthRatio(textQ, '  ', null)).toBe(0)

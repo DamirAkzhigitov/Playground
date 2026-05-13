@@ -1,5 +1,10 @@
 import { useQueries } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, MessageSquare, Printer } from 'lucide-react'
+import {
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  MessageSquare
+} from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { useI18n } from '@/contexts/I18nContext'
@@ -23,10 +28,12 @@ import { queryKeys } from '@/hooks/queryKeys'
 import { apiRequest } from '@/lib/api'
 import {
   answerStrengthRatio,
+  dateMinMaxAcrossValues,
   formatCompareAnswerLabel,
   numberMinMaxAcrossValues,
   type CompareBooleanLabels
 } from '@/lib/compareDisplay'
+import { cn } from '@/lib/utils'
 import { categoryNameById, flattenActiveQuestions } from '@/lib/questions'
 import type {
   Apartment,
@@ -65,8 +72,47 @@ type CompareWizardShellProps = {
   categoryNames: Map<string, string>
   boolLabels: CompareBooleanLabels
   rankings: RankRow[]
-  printDisabled: boolean
+  walkActionsDisabled: boolean
   t: (id: MessageId, vars?: Record<string, string | number>) => string
+}
+
+/** Filled portion clips a track-wide red → brand gradient so low scores read as mostly red. */
+function CompareStrengthBar({
+  pct,
+  className,
+  'aria-valuenow': ariaValueNow,
+  'aria-label': ariaLabel
+}: {
+  pct: number
+  className?: string
+  'aria-valuenow': number
+  'aria-label': string
+}) {
+  return (
+    <div
+      className={cn(
+        'relative w-full overflow-hidden rounded-full bg-muted',
+        className
+      )}
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={ariaValueNow}
+      aria-label={ariaLabel}
+    >
+      {pct > 0 ? (
+        <div
+          className="absolute inset-y-0 left-0 overflow-hidden rounded-full transition-[width] duration-300 ease-out"
+          style={{ width: `${pct}%` }}
+        >
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-destructive to-primary"
+            style={{ width: `${(100 / pct) * 100}%` }}
+          />
+        </div>
+      ) : null}
+    </div>
+  )
 }
 
 function CompareWizardShell({
@@ -76,7 +122,7 @@ function CompareWizardShell({
   categoryNames,
   boolLabels,
   rankings,
-  printDisabled,
+  walkActionsDisabled,
   t
 }: CompareWizardShellProps) {
   const [compareStep, setCompareStep] = useState(0)
@@ -91,21 +137,27 @@ function CompareWizardShell({
   const currentQuestion =
     compareStep < flatAll.length ? flatAll[compareStep] : null
 
-  const currentNumberRange = useMemo(() => {
-    if (!currentQuestion || currentQuestion.type !== 'number') {
+  const currentScalarRange = useMemo(() => {
+    if (!currentQuestion) {
       return null
     }
     const values = answerMaps.map(
       (m) => m.get(currentQuestion.id)?.value ?? null
     )
-    return numberMinMaxAcrossValues(values)
+    if (currentQuestion.type === 'number') {
+      return numberMinMaxAcrossValues(values)
+    }
+    if (currentQuestion.type === 'date') {
+      return dateMinMaxAcrossValues(values)
+    }
+    return null
   }, [answerMaps, currentQuestion])
 
   return (
     <>
       {currentQuestion ? (
-        <div className="compare-print-viewport overflow-hidden rounded-xl border border-border shadow-sm">
-          <div className="compare-print-scale space-y-4 p-4 sm:p-5">
+        <div className="overflow-hidden">
+          <div className="space-y-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="tabular-nums">
                 {t('compare.questionProgress', {
@@ -122,7 +174,7 @@ function CompareWizardShell({
             <h2 className="text-base font-semibold leading-snug text-foreground">
               {currentQuestion.label}
             </h2>
-            <ul className="compare-print-wizard-list space-y-3">
+            <ul className="space-y-3">
               {sortedColumnsForQuestion.map(({ apt, mapIndex }) => {
                 const map =
                   answerMaps[mapIndex] ?? new Map<string, AnswerCell>()
@@ -137,7 +189,7 @@ function CompareWizardShell({
                 const ratio = answerStrengthRatio(
                   currentQuestion,
                   value,
-                  currentNumberRange
+                  currentScalarRange
                 )
                 const pct = Math.round(ratio * 100)
                 const titleParts = [label]
@@ -149,7 +201,7 @@ function CompareWizardShell({
                 return (
                   <li
                     key={apt.id}
-                    className="compare-print-wizard-row rounded-lg border border-border bg-card px-3 py-3 shadow-sm"
+                    className="rounded-lg border border-border bg-card px-3 py-3 shadow-sm"
                   >
                     <div className="flex min-w-0 items-start justify-between gap-2">
                       <span className="min-w-0 truncate font-medium text-foreground">
@@ -159,21 +211,14 @@ function CompareWizardShell({
                         {pct}%
                       </span>
                     </div>
-                    <div
-                      className="compare-print-rating-track mt-2 h-2 w-full overflow-hidden rounded-full bg-muted"
-                      role="progressbar"
-                      aria-valuemin={0}
-                      aria-valuemax={100}
+                    <CompareStrengthBar
+                      className="mt-2 h-2"
+                      pct={pct}
                       aria-valuenow={pct}
                       aria-label={t('compare.answerStrength', {
                         percent: pct
                       })}
-                    >
-                      <div
-                        className="h-full rounded-full bg-primary transition-[width]"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
+                    />
                     <div className="mt-1.5 flex min-h-5 items-center gap-1.5 text-xs text-muted-foreground">
                       {showNote ? (
                         <MessageSquare
@@ -192,21 +237,21 @@ function CompareWizardShell({
           </div>
         </div>
       ) : isResultsStep ? (
-        <div className="compare-print-viewport overflow-hidden rounded-xl border border-border shadow-sm">
-          <div className="compare-print-scale space-y-3 p-4 sm:p-5">
+        <div className="overflow-hidden">
+          <div className="space-y-3 sm:p-5">
             <h2 className="text-lg font-semibold text-foreground">
               {t('compare.resultsTitle')}
             </h2>
             <p className="text-sm text-muted-foreground">
               {t('compare.resultsDescription')}
             </p>
-            <ol className="compare-print-wizard-list m-0 list-decimal space-y-3 p-0 pl-5 marker:text-muted-foreground">
+            <ul className="m-0 space-y-3 p-0 marker:text-muted-foreground">
               {rankings.map(({ apt, score }) => {
                 const pct = Math.round(score * 100)
                 return (
                   <li
                     key={apt.id}
-                    className="compare-print-wizard-row rounded-lg border border-border bg-card px-3 py-3 pl-3 shadow-sm"
+                    className="rounded-lg border border-border bg-card px-3 py-3 pl-3 shadow-sm"
                   >
                     <div className="flex min-w-0 items-start justify-between gap-2">
                       <span className="min-w-0 truncate font-medium text-foreground">
@@ -216,31 +261,36 @@ function CompareWizardShell({
                         {t('compare.totalScore', { percent: pct })}
                       </span>
                     </div>
-                    <div
-                      className="compare-print-rating-track mt-2 h-2.5 w-full overflow-hidden rounded-full bg-muted"
-                      role="progressbar"
-                      aria-valuemin={0}
-                      aria-valuemax={100}
+                    <CompareStrengthBar
+                      className="mt-2 h-2.5"
+                      pct={pct}
                       aria-valuenow={pct}
                       aria-label={t('compare.totalScore', {
                         percent: pct
                       })}
-                    >
-                      <div
-                        className="h-full rounded-full bg-primary transition-[width]"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
+                    />
                   </li>
                 )
               })}
-            </ol>
+            </ul>
           </div>
         </div>
       ) : null}
 
-      <PinnedActionBar className="compare-print-screen-only">
+      <PinnedActionBar>
         <div className="flex w-full flex-col gap-2">
+          {!isResultsStep ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 inline-flex w-full items-center justify-center gap-1"
+              disabled={walkActionsDisabled}
+              onClick={() => setCompareStep(flatAll.length)}
+            >
+              <BarChart3 className="size-4 shrink-0" aria-hidden />
+              {t('compare.viewResults')}
+            </Button>
+          ) : null}
           <div className="flex w-full gap-2">
             {isResultsStep ? (
               <>
@@ -291,15 +341,6 @@ function CompareWizardShell({
               </>
             )}
           </div>
-          <Button
-            type="button"
-            className="min-h-11 inline-flex w-full items-center justify-center gap-1"
-            disabled={printDisabled}
-            onClick={() => window.print()}
-          >
-            <Printer className="size-4 shrink-0" aria-hidden />
-            {t('common.print')}
-          </Button>
         </div>
       </PinnedActionBar>
     </>
@@ -442,14 +483,19 @@ export function ComparePage() {
 
   const hasDetailError = detailQueries.some((q) => q.isError)
 
-  const numberRangesByQuestionId = useMemo(() => {
+  const scalarRangesByQuestionId = useMemo(() => {
     const m = new Map<string, { min: number; max: number } | null>()
     for (const q of flatAll) {
-      if (q.type !== 'number') {
+      if (q.type !== 'number' && q.type !== 'date') {
         continue
       }
       const values = answerMaps.map((am) => am.get(q.id)?.value ?? null)
-      m.set(q.id, numberMinMaxAcrossValues(values))
+      m.set(
+        q.id,
+        q.type === 'number'
+          ? numberMinMaxAcrossValues(values)
+          : dateMinMaxAcrossValues(values)
+      )
     }
     return m
   }, [flatAll, answerMaps])
@@ -463,11 +509,11 @@ export function ComparePage() {
       let sum = 0
       for (const q of flatAll) {
         const v = map.get(q.id)?.value ?? null
-        const nr =
-          q.type === 'number'
-            ? (numberRangesByQuestionId.get(q.id) ?? null)
+        const scalarRange =
+          q.type === 'number' || q.type === 'date'
+            ? (scalarRangesByQuestionId.get(q.id) ?? null)
             : null
-        sum += answerStrengthRatio(q, v, nr)
+        sum += answerStrengthRatio(q, v, scalarRange)
       }
       return { apt, mapIndex, score: sum / flatAll.length }
     })
@@ -478,7 +524,7 @@ export function ComparePage() {
           sensitivity: 'base'
         })
     )
-  }, [answerMaps, comparisonColumns, flatAll, numberRangesByQuestionId])
+  }, [answerMaps, comparisonColumns, flatAll, scalarRangesByQuestionId])
 
   const showWalk =
     selectedIds.length > 0 &&
@@ -486,7 +532,7 @@ export function ComparePage() {
     !hasDetailError &&
     flatAll.length > 0
 
-  const printDisabled =
+  const walkActionsDisabled =
     apartmentsQuery.isPending ||
     apartmentsQuery.isError ||
     questionsQuery.isPending ||
@@ -496,14 +542,14 @@ export function ComparePage() {
     hasDetailError
 
   return (
-    <section className="compare-print pb-page-pinned space-y-4">
+    <section className="pb-page-pinned space-y-4">
       {apartmentsQuery.isPending ? (
-        <div className="compare-print-screen-only">
+        <div>
           <LoadingState label={t('compare.loadingApts')} />
         </div>
       ) : null}
       {apartmentsQuery.isError ? (
-        <div className="compare-print-screen-only">
+        <div>
           <ErrorState message={apartmentsQuery.error.message} />
         </div>
       ) : null}
@@ -511,11 +557,11 @@ export function ComparePage() {
       {!apartmentsQuery.isPending && !apartmentsQuery.isError ? (
         <>
           {list.length === 0 ? (
-            <p className="text-sm text-muted-foreground compare-print-screen-only">
+            <p className="text-sm text-muted-foreground">
               {t('compare.noApts')}
             </p>
           ) : (
-            <div className="compare-print-screen-only">
+            <div>
               <Label htmlFor="compare-apartments-select" className="sr-only">
                 {t('compare.selectLabel')}
               </Label>
@@ -571,12 +617,12 @@ export function ComparePage() {
           )}
 
           {questionsQuery.isPending ? (
-            <div className="compare-print-screen-only">
+            <div>
               <LoadingState label={t('compare.loadingQs')} />
             </div>
           ) : null}
           {questionsQuery.isError ? (
-            <div className="compare-print-screen-only">
+            <div>
               <ErrorState message={questionsQuery.error.message} />
             </div>
           ) : null}
@@ -584,17 +630,17 @@ export function ComparePage() {
           {!questionsQuery.isPending && !questionsQuery.isError ? (
             <>
               {hasDetailError ? (
-                <div className="compare-print-screen-only">
+                <div>
                   <ErrorState message={t('compare.loadFailed')} />
                 </div>
               ) : null}
 
               {selectedIds.length === 0 ? (
-                <p className="text-sm text-muted-foreground compare-print-screen-only">
+                <p className="text-sm text-muted-foreground">
                   {t('compare.noneSelected')}
                 </p>
               ) : isLoadingDetails ? (
-                <div className="compare-print-screen-only">
+                <div>
                   <LoadingState label={t('compare.loadingAnswers')} />
                 </div>
               ) : flatAll.length === 0 ? (
@@ -610,29 +656,13 @@ export function ComparePage() {
                   categoryNames={categoryNames}
                   boolLabels={boolLabels}
                   rankings={rankings}
-                  printDisabled={printDisabled}
+                  walkActionsDisabled={walkActionsDisabled}
                   t={t}
                 />
               ) : null}
             </>
           ) : null}
         </>
-      ) : null}
-
-      {!apartmentsQuery.isPending && !apartmentsQuery.isError ? (
-        showWalk ? null : (
-          <PinnedActionBar className="compare-print-screen-only">
-            <Button
-              type="button"
-              className="min-h-11 inline-flex w-full flex-1 items-center justify-center gap-1"
-              disabled={printDisabled}
-              onClick={() => window.print()}
-            >
-              <Printer className="size-4 shrink-0" aria-hidden />
-              {t('common.print')}
-            </Button>
-          </PinnedActionBar>
-        )
       ) : null}
     </section>
   )

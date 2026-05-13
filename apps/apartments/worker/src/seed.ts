@@ -17,7 +17,17 @@ export async function seedDefaultData(
   }
 
   const qPrefix = `${userId.slice(0, 8)}-q`
-  const questions = [
+  type SeedQ = {
+    id: string
+    label: string
+    type: string
+    catId: string
+    required: number
+    order: number
+    /** Overrides POST default (`number` → higher, `date` → lower). */
+    valuePreference?: 'higher' | 'lower'
+  }
+  const questions: SeedQ[] = [
     {
       id: `${qPrefix}-general-title`,
       label: 'Apartment title matches listing?',
@@ -64,7 +74,8 @@ export async function seedDefaultData(
       type: 'number',
       catId: cats.financial,
       required: 1,
-      order: 1
+      order: 1,
+      valuePreference: 'lower'
     },
     {
       id: `${qPrefix}-financial-fees`,
@@ -72,7 +83,8 @@ export async function seedDefaultData(
       type: 'number',
       catId: cats.financial,
       required: 1,
-      order: 2
+      order: 2,
+      valuePreference: 'lower'
     },
     {
       id: `${qPrefix}-financial-negotiable`,
@@ -104,7 +116,8 @@ export async function seedDefaultData(
       type: 'number',
       catId: cats.building,
       required: 0,
-      order: 1
+      order: 1,
+      valuePreference: 'lower'
     },
     {
       id: `${qPrefix}-building-elevator`,
@@ -346,10 +359,16 @@ export async function seedDefaultData(
   for (const q of questions) {
     const ratingMin = q.type === 'rating' ? 1 : null
     const ratingMax = q.type === 'rating' ? 5 : null
+    const valuePref =
+      q.type === 'number'
+        ? (q.valuePreference ?? 'higher')
+        : q.type === 'date'
+          ? (q.valuePreference ?? 'lower')
+          : null
     stmts.push(
       db
         .prepare(
-          'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, user_id) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?)'
+          'INSERT INTO questions (id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, value_preference, user_id) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)'
         )
         .bind(
           q.id,
@@ -360,6 +379,7 @@ export async function seedDefaultData(
           q.order,
           ratingMin,
           ratingMax,
+          valuePref,
           userId
         )
     )

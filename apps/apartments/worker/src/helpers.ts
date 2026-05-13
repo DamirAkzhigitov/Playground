@@ -15,6 +15,10 @@ export const toQuestion = (
   order: row.order,
   ratingMin: row.rating_min === null ? null : Number(row.rating_min),
   ratingMax: row.rating_max === null ? null : Number(row.rating_max),
+  valuePreference:
+    row.value_preference === 'higher' || row.value_preference === 'lower'
+      ? row.value_preference
+      : null,
   options: options.map((option) => ({
     id: option.id,
     questionId: option.question_id,
