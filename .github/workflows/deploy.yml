@@ -26,28 +26,31 @@ jobs:
       compare: ${{ steps.filter.outputs.compare }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Enough history for dorny/paths-filter to diff push.before..HEAD reliably.
+          fetch-depth: 0
       - uses: dorny/paths-filter@v3
         id: filter
         with:
+          # Same branch as the push: compare only against the previous tip (paths-filter README).
+          # Omit deploy.yml from filters below: one workflow edit matches every app otherwise.
+          base: ${{ github.ref }}
           filters: |
             main:
               - 'apps/main/**'
               - 'packages/global-header/**'
               - 'pnpm-lock.yaml'
               - 'turbo.json'
-              - '.github/workflows/deploy.yml'
             resume:
               - 'apps/resume/**'
               - 'packages/global-header/**'
               - 'pnpm-lock.yaml'
               - 'turbo.json'
-              - '.github/workflows/deploy.yml'
             compare:
               - 'apps/compare/**'
               - 'packages/global-header/**'
               - 'pnpm-lock.yaml'
               - 'turbo.json'
-              - '.github/workflows/deploy.yml'
 
   deploy-main:
     name: Deploy apps/main to Cloudflare Pages
