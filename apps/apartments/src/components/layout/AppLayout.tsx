@@ -4,7 +4,6 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { Button } from '@/components/ui/button'
-import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 
 export function AppLayout() {
@@ -85,11 +84,6 @@ export function AppLayout() {
           </ul>
         </div>
       </nav>
-      <Toaster
-        position="top-center"
-        richColors
-        className="toaster group print:hidden"
-      />
     </div>
   )
 }

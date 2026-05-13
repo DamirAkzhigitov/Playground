@@ -415,7 +415,7 @@ apps/apartments/src/
 │   │   ├── sheet.tsx
 │   │   └── ...
 │   ├── layout/
-│   │   ├── AppLayout.tsx    # bottom-tab shell, Toaster mount
+│   │   ├── AppLayout.tsx    # bottom-tab shell
 │   │   └── PinnedActionBar.tsx  # fixed CTA strip above tabs (required pattern)
 │   ├── PageHeader.tsx       # shared page heading
 │   ├── ErrorState.tsx
@@ -428,7 +428,7 @@ apps/apartments/src/
 ├── pages/                   # route components
 ├── types/                   # API response types
 ├── router.tsx
-├── App.tsx
+├── App.tsx                  # RouterProvider + global `sonner` Toaster (all routes)
 ├── main.tsx
 └── index.css                # Tailwind + shadcn theme tokens
 ```

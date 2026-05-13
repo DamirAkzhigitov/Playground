@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
 
+import { AuthFormError } from '@/components/AuthFormError'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { ApiError } from '@/lib/api'
@@ -18,11 +18,13 @@ export function RegisterPage() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [isPending, setIsPending] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setFormError(null)
     if (password !== confirm) {
-      toast.error(t('register.passwordsMismatch'))
+      setFormError(t('register.passwordsMismatch'))
       return
     }
     setIsPending(true)
@@ -32,7 +34,7 @@ export function RegisterPage() {
     } catch (err) {
       const message =
         err instanceof ApiError ? err.message : t('register.failedGeneric')
-      toast.error(message)
+      setFormError(message)
     } finally {
       setIsPending(false)
     }
@@ -52,6 +54,8 @@ export function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <AuthFormError message={formError} />
+
             <div className="space-y-2">
               <Label htmlFor="email">{t('login.email')}</Label>
               <Input
@@ -61,7 +65,10 @@ export function RegisterPage() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setFormError(null)
+                }}
               />
             </div>
 
@@ -75,7 +82,10 @@ export function RegisterPage() {
                 required
                 minLength={8}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setFormError(null)
+                }}
               />
             </div>
 
@@ -89,7 +99,10 @@ export function RegisterPage() {
                 required
                 minLength={8}
                 value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
+                onChange={(e) => {
+                  setConfirm(e.target.value)
+                  setFormError(null)
+                }}
               />
             </div>
 
