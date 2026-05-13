@@ -26,6 +26,9 @@ export type QuestionType =
   | 'multi-select'
   | 'rating'
 
+/** For compare: whether larger raw values score higher, or smaller (e.g. price). */
+export type QuestionValuePreference = 'higher' | 'lower'
+
 export type Category = {
   id: string
   name: string
@@ -50,6 +53,7 @@ export type Question = {
   order: number
   ratingMin: number | null
   ratingMax: number | null
+  valuePreference: QuestionValuePreference | null
   options: QuestionOption[]
 }
 
@@ -110,6 +114,7 @@ export type CreateQuestionInput = {
   order?: number
   ratingMin?: number | null
   ratingMax?: number | null
+  valuePreference?: QuestionValuePreference
   options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>
 }
 
@@ -124,6 +129,7 @@ export type UpdateQuestionInput = Partial<
     | 'order'
     | 'ratingMin'
     | 'ratingMax'
+    | 'valuePreference'
   >
 > & {
   options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>

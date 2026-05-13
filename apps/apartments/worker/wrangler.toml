@@ -31,3 +31,31 @@ enabled = true
 
 [observability.logs]
 enabled = true
+
+# Production deploy: wrangler deploy. Dev deploy: wrangler deploy --env dev
+# Dev: R2 `apartments-photos-dev`, Worker `apartments-api-dev`, domain dev-apartments.da-mr.com.
+[env.dev]
+name = "apartments-api-dev"
+
+[[env.dev.routes]]
+pattern = "dev-apartments.da-mr.com"
+zone_name = "da-mr.com"
+custom_domain = true
+
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "apartments-db-dev"
+database_id = "bac8f817-afe9-475b-9165-34a926e9bd40"
+migrations_dir = "migrations"
+
+[[env.dev.r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "apartments-photos-dev"
+jurisdiction = "eu"
+
+# Same SPA + /api layout as prod; required on `wrangler deploy --env dev` so ASSETS is provisioned.
+[env.dev.assets]
+directory = "../dist"
+not_found_handling = "single-page-application"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]

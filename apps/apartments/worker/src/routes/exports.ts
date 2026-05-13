@@ -19,7 +19,7 @@ exports_.get('/json', async (c) => {
 
   dump.questions = typedRows(
     await c.env.DB.prepare(
-      'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max FROM questions WHERE user_id = ?'
+      'SELECT id, label, type, category_id, required, is_archived, "order", rating_min, rating_max, value_preference FROM questions WHERE user_id = ?'
     )
       .bind(userId)
       .all()

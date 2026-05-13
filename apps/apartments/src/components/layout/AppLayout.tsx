@@ -1,11 +1,4 @@
-import {
-  BarChart2,
-  Download,
-  Home,
-  ListChecks,
-  LogOut,
-  Settings
-} from 'lucide-react'
+import { BarChart2, Home, ListChecks, LogOut, Settings } from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/contexts/AuthContext'
@@ -23,7 +16,8 @@ export function AppLayout() {
     { to: '/apartments', labelKey: 'nav.apartments' as const, icon: Home },
     { to: '/questions', labelKey: 'nav.questions' as const, icon: ListChecks },
     { to: '/compare', labelKey: 'nav.compare' as const, icon: BarChart2 },
-    { to: '/export', labelKey: 'nav.export' as const, icon: Download },
+    // TODO: not ready yet
+    // { to: '/export', labelKey: 'nav.export' as const, icon: Download },
     { to: '/settings', labelKey: 'nav.settings' as const, icon: Settings }
   ] as const
 
