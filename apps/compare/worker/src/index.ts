@@ -9,6 +9,7 @@ import { listings } from './routes/listings'
 import { answers } from './routes/answers'
 import { photos } from './routes/photos'
 import { exports_ } from './routes/exports'
+import { stats } from './routes/stats'
 
 const app = new Hono<AppEnv>()
 
@@ -17,12 +18,18 @@ app.get('/api/health', (c) => c.json({ ok: true }))
 app.route('/api/auth', auth)
 
 app.use('/api/*', async (c, next) => {
-  if (c.req.path.startsWith('/api/auth') || c.req.path === '/api/health') {
+  if (
+    c.req.path.startsWith('/api/auth') ||
+    c.req.path === '/api/health' ||
+    c.req.path === '/api/stats' ||
+    c.req.path === '/api/stats/'
+  ) {
     return next()
   }
   return requireAuth(c, next)
 })
 
+app.route('/api/stats', stats)
 app.route('/api/categories', categories)
 app.route('/api/questions', questions)
 app.route('/api/listings', listings)

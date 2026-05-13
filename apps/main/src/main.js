@@ -27,7 +27,49 @@ function initLocalProjectLinks() {
   }
 }
 
+/**
+ * @param {HTMLElement | null} el
+ * @param {unknown} value
+ * @param {string} suffix
+ */
+function setStatText(el, value, suffix) {
+  if (!el) return
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    el.textContent = '--'
+    return
+  }
+  el.textContent = `${value.toLocaleString()} ${suffix}`
+}
+
+async function fetchStats() {
+  try {
+    const res = await fetch('/api/stats')
+    if (!res.ok) return
+
+    const data = await res.json()
+
+    setStatText(
+      document.querySelector('[data-project="resume"] [data-stat="views"]'),
+      data.views?.resume,
+      'views'
+    )
+    setStatText(
+      document.querySelector('[data-project="compare"] [data-stat="views"]'),
+      data.views?.compare,
+      'views'
+    )
+    setStatText(
+      document.querySelector('[data-project="compare"] [data-stat="users"]'),
+      data.users?.compare,
+      'users'
+    )
+  } catch {
+    /* leave placeholders */
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initYear()
   initLocalProjectLinks()
+  void fetchStats()
 })
