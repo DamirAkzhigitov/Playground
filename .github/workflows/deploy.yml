@@ -92,8 +92,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/main/dist --project-name=playground --branch=main --commit-dirty=true
-          workingDirectory: '.'
+          command: pages deploy dist --project-name=playground --branch=main --commit-dirty=true
+          workingDirectory: 'apps/main'
           packageManager: pnpm
 
   deploy-main-dev:
@@ -138,8 +138,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/main/dist --project-name=playground-dev --branch=main --commit-dirty=true
-          workingDirectory: '.'
+          command: pages deploy dist --project-name=playground-dev --branch=main --commit-dirty=true
+          workingDirectory: 'apps/main'
           packageManager: pnpm
 
   deploy-resume:

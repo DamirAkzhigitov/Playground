@@ -103,15 +103,41 @@ as-is):
 1. `.github/workflows/deploy.yml` checks out, sets up pnpm + Node 22.
 2. `pnpm install --frozen-lockfile`.
 3. `pnpm turbo run build --filter=@playground/main` → `apps/main/dist/`.
-4. `cloudflare/wrangler-action@v3` runs `wrangler pages deploy
-apps/main/dist --project-name=playground --branch=main`.
+4. `cloudflare/wrangler-action@v3` runs `wrangler pages deploy dist` from
+   `apps/main/` (so `functions/` is bundled with the static `dist/` output).
 
 ### Manual / local deploy
 
 ```bash
 pnpm turbo run build --filter=@playground/main
-pnpm dlx wrangler pages deploy apps/main/dist --project-name=playground --branch=preview
+cd apps/main && pnpm dlx wrangler pages deploy dist --project-name=playground --branch=preview
 ```
+
+### Main dashboard stats (`GET /api/stats`)
+
+The main page loads **viewer counts** (Cloudflare zone analytics by hostname)
+and the **Compare registered-user count** via a [Pages
+Function](https://developers.cloudflare.com/pages/functions/) at
+`apps/main/functions/api/stats.ts`. After the first deploy that includes this
+function, add **Pages project secrets** (production and preview as needed):
+
+```bash
+cd apps/main
+pnpm dlx wrangler pages secret put CF_API_TOKEN --project-name playground
+pnpm dlx wrangler pages secret put CF_ZONE_ID --project-name playground
+```
+
+Use a Cloudflare API token with **Zone → Analytics → Read** for the
+`da-mr.com` zone. `CF_ZONE_ID` is that zone’s ID. Without these secrets, the
+endpoint still responds; view counts stay at `--` in the UI while the Compare
+user count is fetched from `https://compare.da-mr.com/api/stats`. For the
+`playground-dev` Pages project, run the same `wrangler pages secret put` commands
+with `--project-name playground-dev`.
+
+Optional secret **`COMPARE_STATS_URL`**: base URL for Compare’s stats JSON
+(default `https://compare.da-mr.com/api/stats`). Set on **`playground-dev`**
+to your dev Worker if it should read user counts from there, for example
+`https://dev-compare.da-mr.com/api/stats`.
 
 ### Compare (`apps/compare`)
 
@@ -135,8 +161,9 @@ in the Worker with no external auth services.
 
 - Passwords are hashed with PBKDF2 (Web Crypto API, 100k iterations, SHA-256).
 - Sessions are stored in D1 with HTTP-only secure cookies (30-day expiry).
-- Every `/api/*` route (except `/api/auth/*` and `/api/health`) requires a
-  valid session. Unauthenticated requests receive a `401`.
+- Every `/api/*` route (except `/api/auth/*`, `/api/health`, and public
+  `GET /api/stats`) requires a valid session. Unauthenticated requests receive
+  a `401`.
 - All data (categories, questions, apartments, answers, photos) is scoped to
   the authenticated user via a `user_id` column. Users only see their own data.
 - On registration, default categories and questions are seeded for the new user.
