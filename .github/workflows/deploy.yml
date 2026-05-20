@@ -24,6 +24,7 @@ jobs:
       main: ${{ steps.filter.outputs.main }}
       resume: ${{ steps.filter.outputs.resume }}
       compare: ${{ steps.filter.outputs.compare }}
+      image_gen: ${{ steps.filter.outputs.image_gen }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,6 +49,11 @@ jobs:
               - 'turbo.json'
             compare:
               - 'apps/compare/**'
+              - 'packages/global-header/**'
+              - 'pnpm-lock.yaml'
+              - 'turbo.json'
+            image_gen:
+              - 'apps/image-gen/**'
               - 'packages/global-header/**'
               - 'pnpm-lock.yaml'
               - 'turbo.json'
@@ -83,6 +89,7 @@ jobs:
           VITE_MAIN_ORIGIN: https://da-mr.com
           VITE_RESUME_ORIGIN: https://resume.da-mr.com
           VITE_COMPARE_ORIGIN: https://compare.da-mr.com
+          VITE_IMAGE_GEN_ORIGIN: https://image-gen.da-mr.com
 
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
@@ -129,6 +136,7 @@ jobs:
           VITE_MAIN_ORIGIN: https://dev.da-mr.com
           VITE_RESUME_ORIGIN: https://dev-resume.da-mr.com
           VITE_COMPARE_ORIGIN: https://dev-compare.da-mr.com
+          VITE_IMAGE_GEN_ORIGIN: https://dev-image-gen.da-mr.com
 
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
@@ -301,3 +309,90 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  deploy-image-gen:
+    name: Deploy apps/image-gen to Cloudflare Pages
+    needs: [detect-changes]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && needs.detect-changes.outputs.image_gen == 'true'
+    environment:
+      name: production
+      url: https://image-gen.da-mr.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @playground/image-gen
+        run: pnpm turbo run build --filter=@playground/image-gen
+        env:
+          VITE_MAIN_ORIGIN: https://da-mr.com
+
+      - name: Install Wrangler for workspace root
+        run: pnpm add -Dw wrangler@3.90.0
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/image-gen/dist --project-name=image-gen --branch=main --commit-dirty=true
+          workingDirectory: '.'
+          packageManager: pnpm
+
+  deploy-image-gen-dev:
+    name: Deploy apps/image-gen to Cloudflare Pages (dev)
+    needs: [detect-changes]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.detect-changes.outputs.image_gen == 'true'
+    environment:
+      name: development
+      url: https://dev-image-gen.da-mr.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @playground/image-gen
+        run: pnpm turbo run build --filter=@playground/image-gen
+        env:
+          VITE_MAIN_ORIGIN: https://dev.da-mr.com
+
+      - name: Install Wrangler for workspace root
+        run: pnpm add -Dw wrangler@3.90.0
+
+      - name: Deploy to Cloudflare Pages (dev)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/image-gen/dist --project-name=image-gen-dev --branch=main --commit-dirty=true
+          workingDirectory: '.'
+          packageManager: pnpm
+
