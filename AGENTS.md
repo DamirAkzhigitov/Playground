@@ -3,9 +3,9 @@
 ## Cursor Cloud specific instructions
 
 This is a **pnpm + Turborepo monorepo** hosting `da-mr.com` and its
-subdomain tools. Currently only one app exists: `apps/main` — a static
-Vite-built site (vanilla JS/CSS, no React). Future tools live as sibling
-apps under `apps/*`.
+subdomain tools. Primary landing: `apps/main` — a static
+Vite-built site (vanilla JS/CSS, no React). Additional tools live as sibling
+apps under `apps/*` (for example `apps/compare`, `apps/image-gen`).
 
 ### Quick reference
 
@@ -16,6 +16,7 @@ workspace(s).
 | ----------------- | ------------------------------------------------ |
 | Install deps      | `pnpm install`                                   |
 | Dev server (main) | `pnpm --filter @playground/main dev` (port 3000) |
+| Dev (image-gen)   | `pnpm --filter @playground/image-gen dev` (port 3003) |
 | Dev (all apps)    | `pnpm dev`                                       |
 | Lint              | `pnpm lint`                                      |
 | Format check      | `pnpm format:check`                              |

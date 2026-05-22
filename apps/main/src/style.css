@@ -50,9 +50,9 @@ h1 {
 }
 
 .projects {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-flow: column wrap;
+  gap: 20px;
 }
 
 .project-card {
