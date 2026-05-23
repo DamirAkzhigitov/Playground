@@ -7,7 +7,8 @@ const appDir = path.dirname(fileURLToPath(import.meta.url))
 const ORIGIN_DEFAULTS = {
   MAIN_ORIGIN: 'https://da-mr.com',
   RESUME_ORIGIN: 'https://resume.da-mr.com',
-  COMPARE_ORIGIN: 'https://compare.da-mr.com'
+  COMPARE_ORIGIN: 'https://compare.da-mr.com',
+  COMMITY_ORIGIN: 'https://commity.da-mr.com'
 } as const
 
 function resolveOrigins(mode: string) {
@@ -15,7 +16,8 @@ function resolveOrigins(mode: string) {
   return {
     MAIN_ORIGIN: env.VITE_MAIN_ORIGIN || ORIGIN_DEFAULTS.MAIN_ORIGIN,
     RESUME_ORIGIN: env.VITE_RESUME_ORIGIN || ORIGIN_DEFAULTS.RESUME_ORIGIN,
-    COMPARE_ORIGIN: env.VITE_COMPARE_ORIGIN || ORIGIN_DEFAULTS.COMPARE_ORIGIN
+    COMPARE_ORIGIN: env.VITE_COMPARE_ORIGIN || ORIGIN_DEFAULTS.COMPARE_ORIGIN,
+    COMMITY_ORIGIN: env.VITE_COMMITY_ORIGIN || ORIGIN_DEFAULTS.COMMITY_ORIGIN
   }
 }
 

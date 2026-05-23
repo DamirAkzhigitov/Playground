@@ -1,0 +1,47 @@
+name = "commity-api"
+main = "src/index.ts"
+compatibility_date = "2026-05-11"
+preview_urls = false
+
+[[routes]]
+pattern = "commity.da-mr.com"
+zone_name = "da-mr.com"
+custom_domain = true
+
+[assets]
+directory = "../dist"
+not_found_handling = "single-page-application"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "commity-db"
+database_id = "00000000-0000-0000-0000-000000000001"
+migrations_dir = "migrations"
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+
+[env.dev]
+name = "commity-api-dev"
+
+[[env.dev.routes]]
+pattern = "dev-commity.da-mr.com"
+zone_name = "da-mr.com"
+custom_domain = true
+
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "commity-db-dev"
+database_id = "00000000-0000-0000-0000-000000000002"
+migrations_dir = "migrations"
+
+[env.dev.assets]
+directory = "../dist"
+not_found_handling = "single-page-application"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]

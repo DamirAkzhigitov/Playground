@@ -48,6 +48,14 @@ deploy` from `apps/compare/worker`) that serves the Vite `dist/` as static
   to that Worker (Workers & Pages → `compare-api` → Custom domains). Remove
   or repoint the old **Pages** project for that hostname so only the Worker
   answers. Local dev still uses Vite proxy to `wrangler dev` on port 8787.
+- **`apps/commity`** — personal AI chat (`commity.da-mr.com`). Same Worker +
+  SPA layout as compare. Chat history is **localStorage** on the client; D1 is
+  auth + Gmail OAuth tokens. `POST /api/chat` accepts up to 20 messages and
+  calls OpenAI (`OPENAI_API_KEY`); optional **Gmail** draft/send via Google OAuth
+  (`GOOGLE_CLIENT_*`, `TOKEN_ENCRYPTION_KEY` in `.dev.vars`). Dev:
+  `pnpm --filter @playground/commity dev` (3003) and
+  `pnpm --filter @playground/commity-api dev` (8788). Copy
+  `apps/commity/worker/.dev.vars.example` to `.dev.vars` for local API calls.
 - `apps/main` calls the public TheMealDB API at runtime for random recipes;
   no API keys needed. No env vars or backend services for local dev.
 - When adding a new tool app, follow the recipe in `README.md` →

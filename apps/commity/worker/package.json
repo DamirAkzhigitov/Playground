@@ -1,0 +1,26 @@
+{
+  "name": "@playground/commity-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8788",
+    "deploy": "wrangler deploy",
+    "deploy:dev": "wrangler deploy --env dev",
+    "db:migrate:local": "wrangler d1 migrations apply commity-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply commity-db --remote",
+    "db:migrate:remote:dev": "wrangler d1 migrations apply commity-db-dev --remote --env dev",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "hono": "^4.7.11",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250508.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.7",
+    "wrangler": "^4.21.0"
+  }
+}

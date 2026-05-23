@@ -24,6 +24,7 @@ jobs:
       main: ${{ steps.filter.outputs.main }}
       resume: ${{ steps.filter.outputs.resume }}
       compare: ${{ steps.filter.outputs.compare }}
+      commity: ${{ steps.filter.outputs.commity }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,6 +49,11 @@ jobs:
               - 'turbo.json'
             compare:
               - 'apps/compare/**'
+              - 'packages/global-header/**'
+              - 'pnpm-lock.yaml'
+              - 'turbo.json'
+            commity:
+              - 'apps/commity/**'
               - 'packages/global-header/**'
               - 'pnpm-lock.yaml'
               - 'turbo.json'
@@ -83,6 +89,7 @@ jobs:
           VITE_MAIN_ORIGIN: https://da-mr.com
           VITE_RESUME_ORIGIN: https://resume.da-mr.com
           VITE_COMPARE_ORIGIN: https://compare.da-mr.com
+          VITE_COMMITY_ORIGIN: https://commity.da-mr.com
 
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
@@ -129,6 +136,7 @@ jobs:
           VITE_MAIN_ORIGIN: https://dev.da-mr.com
           VITE_RESUME_ORIGIN: https://dev-resume.da-mr.com
           VITE_COMPARE_ORIGIN: https://dev-compare.da-mr.com
+          VITE_COMMITY_ORIGIN: https://dev-commity.da-mr.com
 
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
@@ -298,6 +306,80 @@ jobs:
 
       - name: Deploy Worker (static assets + /api, dev)
         run: pnpm --filter @playground/compare-api run deploy:dev
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  deploy-commity:
+    name: Deploy apps/commity (Worker + SPA)
+    needs: [detect-changes]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && needs.detect-changes.outputs.commity == 'true'
+    environment:
+      name: production
+      url: https://commity.da-mr.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @playground/commity (client → dist/)
+        run: pnpm turbo run build --filter=@playground/commity
+        env:
+          VITE_MAIN_ORIGIN: https://da-mr.com
+
+      - name: Deploy Worker (static assets + /api)
+        run: pnpm --filter @playground/commity-api exec wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  deploy-commity-dev:
+    name: Deploy apps/commity (Worker + SPA, dev)
+    needs: [detect-changes]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.detect-changes.outputs.commity == 'true'
+    environment:
+      name: development
+      url: https://dev-commity.da-mr.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @playground/commity (client → dist/)
+        run: pnpm turbo run build --filter=@playground/commity
+        env:
+          VITE_MAIN_ORIGIN: https://dev.da-mr.com
+
+      - name: Deploy Worker (static assets + /api, dev)
+        run: pnpm --filter @playground/commity-api run deploy:dev
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
