@@ -11,6 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@playground/auth-core": "workspace:*",
     "hono": "^4.7.11",
     "zod": "4.4.3"
   },

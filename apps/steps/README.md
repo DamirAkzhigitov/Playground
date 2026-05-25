@@ -77,7 +77,7 @@ Progress is stored per user per enrollment, not globally on the action template.
 
 ### In scope (first releases)
 
-- Email/password auth (same pattern as `apps/compare` — cookie session, D1)
+- Email/password auth via `@playground/auth-core` / `@playground/auth-react` (cookie session, D1)
 - Action catalog: list, search, detail
 - Step list with rich text bodies (markdown rendered safely)
 - User enrollment + per-step progress + notes
@@ -166,4 +166,5 @@ Tracked in `PLAN.md` Phase 6.
 - [`IMPLEMENTATION.md`](./IMPLEMENTATION.md) — **phased development** (what ships each phase; links to DESIGN)
 - [`DESIGN.md`](./DESIGN.md) — screen map, page specs, components, accessibility
 - [`PLAN.md`](./PLAN.md) — task checkboxes, API tables, schema
-- [`../compare/README.md`](../compare/README.md) — reference Worker + auth pattern
+- [`../../packages/auth-core/README.md`](../../packages/auth-core/README.md) — shared Worker auth
+- [`../../packages/auth-react/README.md`](../../packages/auth-react/README.md) — shared React auth UI

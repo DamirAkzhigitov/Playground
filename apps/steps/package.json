@@ -17,6 +17,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@playground/auth-react": "workspace:*",
     "@playground/global-header": "workspace:*",
     "@tanstack/react-query": "^5.100.9",
     "class-variance-authority": "0.7.1",

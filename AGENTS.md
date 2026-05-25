@@ -52,9 +52,12 @@ deploy` from `apps/compare/worker`) that serves the Vite `dist/` as static
 - `apps/main` calls the public TheMealDB API at runtime for random recipes;
   no API keys needed. No env vars or backend services for local dev.
 - **`apps/steps`** — guided action catalog (search, per-user step progress,
- notes, contributor editor). **Phase 0:** scaffold + docs in
- `apps/steps/README.md`, `PLAN.md`, `DESIGN.md`; no Worker/API yet. Deploy
- not wired until Phase 6 in `PLAN.md`.
+  notes, contributor editor). Worker + D1 auth via `@playground/auth-core` /
+  `@playground/auth-react` (same pattern as compare). Deploy not wired until
+  Phase 6 in `apps/steps/PLAN.md`.
+- **Shared auth:** `@playground/auth-core` (Worker: sessions, routes) and
+  `@playground/auth-react` (React: forms, `createAuthProvider`, `ProtectedRoute`).
+  See `packages/auth-core/README.md`, `OAUTH.md`, `SSO.md`.
 - When adding a new tool app, follow the recipe in `README.md` →
  "Adding a new tool". Each tool = one Cloudflare Pages project + one
  deploy job + one subdomain.
