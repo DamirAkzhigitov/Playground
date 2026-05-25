@@ -1,26 +1,22 @@
-export { hashPassword, verifyPassword } from './crypto.js'
+export { createPlaygroundAuth } from './create-auth.js'
+export type {
+  AuthBindings as CreateAuthBindings,
+  CreatePlaygroundAuthOptions,
+  PlaygroundAuth
+} from './create-auth.js'
+export { mountAuthHandler } from './handler.js'
 export {
-  SESSION_COOKIE,
-  SESSION_MAX_AGE,
-  setSessionCookie,
-  clearSessionCookie,
-  sessionExpiresAt
-} from './session.js'
-export type { SessionCookieOptions } from './session.js'
-export {
+  createSessionMiddleware,
   requireAuth,
   requireAuthWithRole,
   hasMinimumRole
 } from './middleware.js'
 export type { AuthEnv, UserRole } from './middleware.js'
-export { createAuthRoutes } from './routes.js'
-export type { CreateAuthRoutesOptions } from './routes.js'
+export { authSchema } from './schema.js'
 export type {
   AuthBindings,
   AuthDb,
-  AuthHooks,
   AuthVariables,
   LoginInput,
-  RegisterInput,
-  UserRow
+  RegisterInput
 } from './types.js'

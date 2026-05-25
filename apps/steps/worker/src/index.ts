@@ -1,8 +1,12 @@
+import {
+  createSessionMiddleware,
+  mountAuthHandler,
+  requireAuth
+} from '@playground/auth-core'
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { getAuth } from './auth'
 import type { AppEnv } from './types'
-import { requireAuth } from './middleware'
-import { auth } from './auth'
 import { actions } from './routes/actions'
 import { enrollments } from './routes/enrollments'
 import { contributorActions } from './routes/contributor-actions'
@@ -11,18 +15,17 @@ const app = new Hono<AppEnv>()
 
 app.get('/api/health', (c) => c.json({ ok: true, service: 'steps-api' }))
 
-app.route('/api/auth', auth)
+app.use('/api/*', createSessionMiddleware(getAuth))
+mountAuthHandler(app, getAuth)
 
-// Public catalog browsing (no auth required)
 app.route('/api/actions', actions)
 
-// Everything else under /api requires auth (enrollments, contributor, future protected)
 app.use('/api/*', async (c, next) => {
   const path = c.req.path
   if (
     path.startsWith('/api/auth') ||
     path === '/api/health' ||
-    path.startsWith('/api/actions') // GET list + /:slug are public; mutations not hit here
+    path.startsWith('/api/actions')
   ) {
     return next()
   }
@@ -31,8 +34,6 @@ app.use('/api/*', async (c, next) => {
 
 app.route('/api/enrollments', enrollments)
 app.route('/api/contributor/actions', contributorActions)
-
-// Note: contributor routes internally re-check role; the above just ensures logged in.
 
 app.onError((err, c) => {
   console.error(err)

@@ -1,28 +1,27 @@
+import { createAuthClient } from 'better-auth/react'
 import {
   createContext,
   useCallback,
   useContext,
   useEffect,
-  useState
+  useMemo
 } from 'react'
 import type { ReactNode } from 'react'
 
-import type { ApiRequestFn, LoginInput, RegisterInput } from './types.js'
+import type { LoginInput, RegisterInput } from './types.js'
+
+type AuthClient = ReturnType<typeof createAuthClient>
 
 export type CreateAuthProviderOptions<
   TUser,
   TExtra extends Record<string, unknown> = Record<string, never>
 > = {
-  apiRequest: ApiRequestFn
+  /** Optional API origin; omit when SPA and Worker share an origin. */
+  baseURL?: string
   normalizeUser: (raw: Record<string, unknown>) => TUser
   onLogoutClear?: () => void
-  /** Called whenever user state is set (bootstrap, login, register, patch). */
   onUserChange?: (user: TUser | null) => void
-  extend?: (helpers: {
-    setUser: (user: TUser | null) => void
-    apiRequest: ApiRequestFn
-    user: TUser | null
-  }) => TExtra
+  extend?: (helpers: { authClient: AuthClient; user: TUser | null }) => TExtra
 }
 
 export type BaseAuthState<TUser> = {
@@ -39,76 +38,70 @@ export function createAuthProvider<
 >(options: CreateAuthProviderOptions<TUser, TExtra>) {
   type AuthState = BaseAuthState<TUser> & TExtra
 
+  const authClient = createAuthClient({
+    baseURL: options.baseURL
+  })
+
   const AuthContext = createContext<AuthState | null>(null)
 
   function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<TUser | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
+    const { data: session, isPending, refetch } = authClient.useSession()
 
-    const applyUser = useCallback((next: TUser | null) => {
-      setUser(next)
-      options.onUserChange?.(next)
-    }, [])
+    const user = useMemo(() => {
+      if (!session?.user) return null
+      return options.normalizeUser(
+        session.user as unknown as Record<string, unknown>
+      )
+    }, [session?.user])
 
     useEffect(() => {
-      let cancelled = false
-      options
-        .apiRequest<Record<string, unknown>>('/api/auth/me')
-        .then((u) => {
-          if (!cancelled) applyUser(options.normalizeUser(u))
-        })
-        .catch(() => {
-          if (!cancelled) applyUser(null)
-        })
-        .finally(() => {
-          if (!cancelled) setIsLoading(false)
-        })
-      return () => {
-        cancelled = true
-      }
-    }, [applyUser])
+      options.onUserChange?.(user)
+    }, [user])
 
     const login = useCallback(
       async (input: LoginInput) => {
-        const u = await options.apiRequest<Record<string, unknown>>(
-          '/api/auth/login',
-          { method: 'POST', body: input }
-        )
-        applyUser(options.normalizeUser(u))
+        const result = await authClient.signIn.email({
+          email: input.email,
+          password: input.password
+        })
+        if (result.error) {
+          throw new Error(result.error.message ?? 'Sign in failed')
+        }
+        await refetch()
       },
-      [applyUser]
+      [refetch]
     )
 
     const register = useCallback(
       async (input: RegisterInput) => {
-        const u = await options.apiRequest<Record<string, unknown>>(
-          '/api/auth/register',
-          { method: 'POST', body: input }
-        )
-        applyUser(options.normalizeUser(u))
+        const result = await authClient.signUp.email({
+          email: input.email,
+          password: input.password,
+          name: input.email.split('@')[0] ?? 'User'
+        })
+        if (result.error) {
+          throw new Error(result.error.message ?? 'Registration failed')
+        }
+        await refetch()
       },
-      [applyUser]
+      [refetch]
     )
 
     const logout = useCallback(async () => {
       try {
-        await options.apiRequest('/api/auth/logout', { method: 'POST' })
+        await authClient.signOut()
       } catch {
         /* clear local state even if server call fails */
       }
-      applyUser(null)
       options.onLogoutClear?.()
-    }, [applyUser])
+      await refetch()
+    }, [refetch])
 
-    const extensions = options.extend?.({
-      setUser,
-      apiRequest: options.apiRequest,
-      user
-    })
+    const extensions = options.extend?.({ authClient, user })
 
     const value: AuthState = {
       user,
-      isLoading,
+      isLoading: isPending,
       login,
       register,
       logout,
@@ -124,5 +117,5 @@ export function createAuthProvider<
     return ctx
   }
 
-  return { AuthProvider, useAuth }
+  return { AuthProvider, useAuth, authClient }
 }

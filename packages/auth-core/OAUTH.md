@@ -36,10 +36,15 @@ D1/SQLite via Drizzle, and built-in Google/GitHub/Facebook providers.
    ```
 
 4. Mount handler: `app.on(['POST', 'GET'], '/api/auth/*', (c) => createAuth(c.env).handler(c.req.raw))`
-5. Store secrets in Cloudflare (not git): `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`,
-   `GOOGLE_CLIENT_SECRET`, callback URL `https://steps.da-mr.com/api/auth/callback/google`.
-6. Add OAuth buttons to `@playground/auth-react` `LoginForm` (optional `socialProviders` slot).
-7. Map Better Auth user id to existing `enrollments.user_id` if tables are merged.
+5. Store secrets in Cloudflare (not git): `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (public app
+   origin, e.g. `https://steps.da-mr.com`), optional `BETTER_AUTH_TRUSTED_ORIGINS` for extra
+   dev origins (comma-separated). Local Vite (`localhost:3003`) proxies `/api` to Wrangler;
+   add the Vite origin to `BETTER_AUTH_TRUSTED_ORIGINS` in `worker/.dev.vars` or registration
+   fails with `INVALID_ORIGIN` when the browser still has auth cookies.
+6. Store OAuth client secrets: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, callback URL
+   `https://steps.da-mr.com/api/auth/callback/google`.
+7. Add OAuth buttons to `@playground/auth-react` `LoginForm` (optional `socialProviders` slot).
+8. Map Better Auth user id to existing `enrollments.user_id` if tables are merged.
 
 References:
 

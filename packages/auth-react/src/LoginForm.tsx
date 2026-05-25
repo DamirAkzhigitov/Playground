@@ -6,6 +6,8 @@ import { AuthFormError } from './AuthFormError.js'
 import { AuthFormLayout } from './AuthFormLayout.js'
 import type { LoginInput } from './types.js'
 
+export type SocialProvider = 'google' | 'facebook'
+
 export type LoginFormLabels = {
   title: string
   subtitle: string
@@ -17,6 +19,9 @@ export type LoginFormLabels = {
   submitPending: string
   noAccount: string
   createAccount: string
+  continueWithGoogle?: string
+  continueWithFacebook?: string
+  orContinueWith?: string
 }
 
 export type LoginFormProps = {
@@ -24,13 +29,17 @@ export type LoginFormProps = {
   onSubmit: (input: LoginInput) => Promise<void>
   registerHref?: string
   resolveError?: (err: unknown) => string
+  socialProviders?: SocialProvider[]
+  onSocialSignIn?: (provider: SocialProvider) => Promise<void>
 }
 
 export function LoginForm({
   labels,
   onSubmit,
   registerHref = '/register',
-  resolveError
+  resolveError,
+  socialProviders = [],
+  onSocialSignIn
 }: LoginFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -50,6 +59,19 @@ export function LoginForm({
     }
   }
 
+  const handleSocial = async (provider: SocialProvider) => {
+    if (!onSocialSignIn) return
+    setFormError(null)
+    setIsPending(true)
+    try {
+      await onSocialSignIn(provider)
+    } catch (err) {
+      setFormError(resolveError?.(err) ?? 'Social sign-in failed. Try again.')
+    } finally {
+      setIsPending(false)
+    }
+  }
+
   const footer: ReactNode = (
     <p className="text-center text-sm text-muted-foreground">
       {labels.noAccount}{' '}
@@ -59,6 +81,8 @@ export function LoginForm({
     </p>
   )
 
+  const showSocial = socialProviders.length > 0 && onSocialSignIn
+
   return (
     <AuthFormLayout
       title={labels.title}
@@ -67,6 +91,15 @@ export function LoginForm({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <AuthFormError message={formError} />
+
+        {showSocial ? (
+          <SocialSection
+            labels={labels}
+            providers={socialProviders}
+            disabled={isPending}
+            onSelect={handleSocial}
+          />
+        ) : null}
 
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium">
@@ -80,6 +113,7 @@ export function LoginForm({
             autoComplete="email"
             required
             value={email}
+            disabled={isPending}
             onChange={(e) => {
               setEmail(e.target.value)
               setFormError(null)
@@ -100,6 +134,7 @@ export function LoginForm({
             required
             minLength={8}
             value={password}
+            disabled={isPending}
             onChange={(e) => {
               setPassword(e.target.value)
               setFormError(null)
@@ -116,5 +151,47 @@ export function LoginForm({
         </button>
       </form>
     </AuthFormLayout>
+  )
+}
+
+function SocialSection({
+  labels,
+  providers,
+  disabled,
+  onSelect
+}: {
+  labels: LoginFormLabels
+  providers: SocialProvider[]
+  disabled: boolean
+  onSelect: (provider: SocialProvider) => Promise<void>
+}) {
+  return (
+    <div className="space-y-3">
+      {providers.includes('google') ? (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => onSelect('google')}
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+        >
+          {labels.continueWithGoogle ?? 'Continue with Google'}
+        </button>
+      ) : null}
+      {providers.includes('facebook') ? (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => onSelect('facebook')}
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+        >
+          {labels.continueWithFacebook ?? 'Continue with Facebook'}
+        </button>
+      ) : null}
+      {labels.orContinueWith ? (
+        <p className="text-center text-xs text-muted-foreground">
+          {labels.orContinueWith}
+        </p>
+      ) : null}
+    </div>
   )
 }

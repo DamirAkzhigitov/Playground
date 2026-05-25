@@ -18,12 +18,17 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@better-auth/drizzle-adapter": "1.6.11",
+    "better-auth": "1.6.11",
+    "drizzle-orm": "0.45.2",
     "hono": "^4.7.11",
     "zod": "4.4.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250508.0",
     "@eslint/js": "^9.39.1",
+    "@types/better-sqlite3": "7.6.13",
+    "better-sqlite3": "12.10.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.6.2",

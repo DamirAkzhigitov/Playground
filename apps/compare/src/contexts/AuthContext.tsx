@@ -15,18 +15,23 @@ function persistLocaleHint(locale: AppLocale) {
 
 type CompareAuthExtra = {
   updateLocale: (locale: AppLocale) => Promise<void>
+  signInWithSocial: (provider: 'google' | 'facebook') => Promise<void>
 }
 
 const { AuthProvider, useAuth } = createAuthProvider<
   AuthUser,
   CompareAuthExtra
 >({
-  apiRequest,
   onLogoutClear: () => queryClient.clear(),
   normalizeUser: (raw) => ({
     id: raw.id as string,
     email: raw.email as string,
-    createdAt: (raw.createdAt as string) ?? new Date().toISOString(),
+    createdAt:
+      typeof raw.createdAt === 'number'
+        ? new Date(raw.createdAt).toISOString()
+        : ((raw.createdAt as string) ??
+          (raw.created_at as string) ??
+          new Date().toISOString()),
     locale: isAppLocale(raw.locale as string | undefined)
       ? (raw.locale as AppLocale)
       : 'en'
@@ -34,22 +39,20 @@ const { AuthProvider, useAuth } = createAuthProvider<
   onUserChange: (user) => {
     if (user) persistLocaleHint(user.locale)
   },
-  extend: ({ setUser, apiRequest }) => ({
+  extend: ({ authClient }) => ({
     updateLocale: async (locale: AppLocale) => {
-      const u = await apiRequest<Record<string, unknown>>('/api/auth/me', {
+      await apiRequest('/api/profile/locale', {
         method: 'PATCH',
         body: { locale }
       })
-      const next: AuthUser = {
-        id: u.id as string,
-        email: u.email as string,
-        createdAt: (u.createdAt as string) ?? new Date().toISOString(),
-        locale: isAppLocale(u.locale as string | undefined)
-          ? (u.locale as AppLocale)
-          : 'en'
-      }
-      setUser(next)
-      persistLocaleHint(next.locale)
+      persistLocaleHint(locale)
+      await authClient.getSession()
+    },
+    signInWithSocial: async (provider) => {
+      await authClient.signIn.social({
+        provider,
+        callbackURL: window.location.origin
+      })
     }
   })
 })

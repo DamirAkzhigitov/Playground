@@ -1,24 +1,50 @@
--- Seed data for local development & smoke tests (Phase 1+)
+-- Seed data for local development & smoke tests (Better Auth / Phase 2)
 -- Password for both seeds: SeedPass123!
--- Contributor: can create/edit/publish via API
--- User: can enroll and track progress
 
-INSERT OR IGNORE INTO users (id, email, password_hash, role, created_at)
+INSERT OR IGNORE INTO users (id, name, email, emailVerified, createdAt, updatedAt, role, locale)
 VALUES (
   'a1000001-0001-4001-8001-000000000001',
+  'Seed Contributor',
   'seed+contributor@local.test',
-  'Bo2BMwEjon1hY9mVGStPUA==:iDPfUasi3+k+eeLH9UxQCdyDRKdQbnftPHhADZRWUOA=',
+  1,
+  1748131200000,
+  1748131200000,
   'contributor',
-  '2026-05-25T00:00:00.000Z'
+  'en'
 );
 
-INSERT OR IGNORE INTO users (id, email, password_hash, role, created_at)
+INSERT OR IGNORE INTO account (id, accountId, providerId, userId, password, createdAt, updatedAt)
+VALUES (
+  'a1000001-0001-4001-8001-000000000101',
+  'seed+contributor@local.test',
+  'credential',
+  'a1000001-0001-4001-8001-000000000001',
+  'de8c7f46a46fa0406f441968dfb447c8:d5bdfe1da363c1bb767e0573c8b201b61b9e2ca85473b3992701b1fe4096dadc30df6b45a05cdf079354956497e46df47032dbcb1f2a8443c9b1845d847b8227',
+  1748131200000,
+  1748131200000
+);
+
+INSERT OR IGNORE INTO users (id, name, email, emailVerified, createdAt, updatedAt, role, locale)
 VALUES (
   'a1000001-0001-4001-8001-000000000002',
+  'Seed User',
   'seed+user@local.test',
-  'Bo2BMwEjon1hY9mVGStPUA==:iDPfUasi3+k+eeLH9UxQCdyDRKdQbnftPHhADZRWUOA=',
+  1,
+  1748131200000,
+  1748131200000,
   'user',
-  '2026-05-25T00:00:00.000Z'
+  'en'
+);
+
+INSERT OR IGNORE INTO account (id, accountId, providerId, userId, password, createdAt, updatedAt)
+VALUES (
+  'a1000001-0001-4001-8001-000000000102',
+  'seed+user@local.test',
+  'credential',
+  'a1000001-0001-4001-8001-000000000002',
+  'de8c7f46a46fa0406f441968dfb447c8:d5bdfe1da363c1bb767e0573c8b201b61b9e2ca85473b3992701b1fe4096dadc30df6b45a05cdf079354956497e46df47032dbcb1f2a8443c9b1845d847b8227',
+  1748131200000,
+  1748131200000
 );
 
 -- Sample published action: "Buying an apartment with a mortgage" (realistic for housing tools)
@@ -53,5 +79,3 @@ VALUES
   ('a1000001-0001-4001-8001-000000000022', 'a1000001-0001-4001-8001-000000000011', 'Last 2 years tax returns', 'document', null, 2),
   ('a1000001-0001-4001-8001-000000000023', 'a1000001-0001-4001-8001-000000000012', 'Choose 2-3 lenders to compare rates', 'task', null, 1),
   ('a1000001-0001-4001-8001-000000000024', 'a1000001-0001-4001-8001-000000000013', 'Use Zillow / local MLS + realtor tours', 'link', 'https://zillow.com', 1);
-
--- Note: No enrollments or progress in seed; users create via API after login.

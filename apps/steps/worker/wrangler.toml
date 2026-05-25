@@ -1,6 +1,7 @@
 name = "steps-api"
 main = "src/index.ts"
 compatibility_date = "2026-05-11"
+compatibility_flags = ["nodejs_compat"]
 preview_urls = false
 
 # Assets config (SPA + /api on same origin) will be enabled in Phase 2+ when frontend shell exists.
