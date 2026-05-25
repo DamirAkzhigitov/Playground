@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import type { AppEnv } from '../types'
+import { entityIdSchema } from '../schemas'
 import { requireAuth } from '../middleware'
 import {
   typedRows,
@@ -13,12 +14,12 @@ import {
 } from '../helpers'
 
 const createEnrollmentSchema = z.object({
-  actionId: z.string().uuid()
+  actionId: entityIdSchema
 })
 
 const progressPatchSchema = z
   .object({
-    stepId: z.string().uuid(),
+    stepId: entityIdSchema,
     status: z.enum(['pending', 'done', 'skipped']).optional(),
     note: z.string().max(2000).nullable().optional()
   })
@@ -114,14 +115,65 @@ enrollments.get('/', async (c) => {
     }
   }
 
-  const items = typedRows(rows).map((r) => ({
-    ...formatEnrollment(r),
-    actionTitle: r.action_title,
-    actionSlug: r.action_slug,
-    progress: progressSummary[r.id] || { done: 0, total: 0, skipped: 0 }
-  }))
+  const stepCounts: Record<string, number> = {}
+  const actionIds = [...new Set(typedRows(rows).map((r) => r.action_id))]
+  if (actionIds.length > 0) {
+    const ph = actionIds.map(() => '?').join(',')
+    const counts = await c.env.DB.prepare(
+      `SELECT action_id, COUNT(*) as cnt FROM steps WHERE action_id IN (${ph}) GROUP BY action_id`
+    )
+      .bind(...actionIds)
+      .all<{ action_id: string; cnt: number }>()
+    for (const row of typedRows(counts)) {
+      stepCounts[row.action_id] = row.cnt
+    }
+  }
+
+  const items = typedRows(rows).map((r) => {
+    const summary = progressSummary[r.id] || {
+      done: 0,
+      total: 0,
+      skipped: 0
+    }
+    const stepCount = stepCounts[r.action_id] ?? 0
+    const terminal = summary.done + summary.skipped
+    const percent =
+      stepCount > 0 ? Math.round((summary.done / stepCount) * 100) : 0
+    const isCompleted = stepCount > 0 && terminal >= stepCount
+
+    return {
+      ...formatEnrollment(r),
+      actionTitle: r.action_title,
+      actionSlug: r.action_slug,
+      progress: {
+        done: summary.done,
+        skipped: summary.skipped,
+        stepCount,
+        percent
+      },
+      isCompleted
+    }
+  })
 
   return c.json({ items })
+})
+
+// DELETE /api/enrollments/:id — abandon guide (drops progress via CASCADE)
+enrollments.delete('/:id', async (c) => {
+  const userId = c.get('userId')
+  const id = c.req.param('id')
+
+  const enroll = await c.env.DB.prepare(
+    'SELECT id FROM enrollments WHERE id = ? AND user_id = ?'
+  )
+    .bind(id, userId)
+    .first()
+
+  if (!enroll) return c.json({ error: 'Enrollment not found' }, 404)
+
+  await c.env.DB.prepare('DELETE FROM enrollments WHERE id = ?').bind(id).run()
+
+  return c.body(null, 204)
 })
 
 // GET /api/enrollments/:id  (with steps + current progress)

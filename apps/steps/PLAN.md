@@ -86,8 +86,8 @@ Validation: Zod on all mutating routes.
 
 ## Phase 2 — Frontend shell
 
-- [ ] **2.1** Tailwind 4 + shadcn/ui baseline (copy compare setup).
-- [ ] **2.2** `react-router` routes (stubs):
+- [x] **2.1** Tailwind 4 + shadcn/ui baseline (copy compare setup).
+- [x] **2.2** `react-router` routes (stubs):
   - `/` — home (search + popular actions)
   - `/actions` — full catalog (search, filters, pagination)
   - `/actions/:slug` — action page (overview + in-page guide; `?step=`, `?enrollment=`)
@@ -95,10 +95,10 @@ Validation: Zod on all mutating routes.
   - `/login`, `/register` — compare-style auth pages
   - `/contributor` — editor layout
   - `/contributor/actions/new`, `/contributor/actions/:id/edit`
-- [ ] **2.3** Auth context + protected routes (user vs contributor).
-- [ ] **2.4** Typed API client + TanStack Query hooks.
+- [x] **2.3** Auth context + protected routes (user vs contributor).
+- [x] **2.4** Typed API client + TanStack Query hooks.
 
-**Exit criteria:** routes render; auth gate works against local API.
+**Exit criteria met.** All routes render as stubs; real auth (cookie + /me + role gates) against local Worker; layout + chrome per DESIGN. Feature pages filled in Phase 3+.
 
 ---
 

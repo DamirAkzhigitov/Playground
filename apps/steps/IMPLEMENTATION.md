@@ -46,8 +46,8 @@ Use these anchors when implementing UI in Phases 2–5.
 ```text
 Phase 0  Scaffold + docs          ████████░░  done
 Phase 1  Backend (Worker + D1)   ░░░░░░░░░░
-Phase 2  Frontend shell          ░░░░░░░░░░
-Phase 3  User MVP (public + user)░░░░░░░░░░
+Phase 2  Frontend shell          ████████░░  done (stubs)
+Phase 3  User MVP (public + user)████████░░  done
 Phase 4  Contributor editor      ░░░░░░░░░░
 Phase 5  Polish                  ░░░░░░░░░░
 Phase 6  Deploy + dashboard      ░░░░░░░░░░
@@ -165,8 +165,8 @@ See `apps/steps/worker/migrations/0002_seed.sql` for test accounts.
 
 ### Tasks
 
-- [ ] **2.1** Tailwind 4 + shadcn/ui (copy `apps/compare` setup)
-- [ ] **2.2** `react-router` routes:
+- [x] **2.1** Tailwind 4 + shadcn/ui (copy `apps/compare` setup)
+- [x] **2.2** `react-router` routes:
 
   | Route | Stub label | Design |
   | ----- | ---------- | ------ |
@@ -181,12 +181,14 @@ See `apps/steps/worker/migrations/0002_seed.sql` for test accounts.
 
   **Do not** add `/guide/:id` — guide mode stays on `/actions/:slug` per design.
 
-- [ ] **2.3** `AuthContext`, `ProtectedRoute` (user + contributor roles)
-- [ ] **2.4** Typed API client + TanStack Query provider
+- [x] **2.3** `AuthContext`, `ProtectedRoute` (user + contributor roles)
+- [x] **2.4** Typed API client + TanStack Query provider
 
 **Shared components (from design):** `PageHeader`, `LoadingState`, `ErrorState`, layout shell — see [Components](./DESIGN.md#components-planned).
 
-**Exit criteria:** Every route renders; `/my` and `/contributor/*` redirect when logged out; `/api/auth/me` drives session.
+**Status (Phase 2 complete):** All routes render as functional stubs. Auth flows (login/register/logout using real seeded accounts) work against local Worker. Protected routes gate correctly by role and redirect unauthed users. Global chrome header + mobile nav matches design spec. Full feature content deferred to Phases 3–4.
+
+**Exit criteria met.** `pnpm --filter @playground/steps build` succeeds; type-check + lint + format clean. See Phase 3 for real catalog/guide/my-guides content.
 
 ---
 
@@ -202,42 +204,42 @@ See `apps/steps/worker/migrations/0002_seed.sql` for test accounts.
 
 **Spec:** [Home — `/`](./DESIGN.md#home--)
 
-- [ ] Value prop + primary search → `/actions?q=…`
-- [ ] Popular actions (API: sort=popular or seed)
-- [ ] Link “View all actions” → `/actions`
+- [x] Value prop + primary search → `/actions?q=…`
+- [x] Popular actions (API: sort=popular or seed)
+- [x] Link “View all actions” → `/actions`
 
 ### 3.2 — Action catalog (`/actions`)
 
 **Spec:** [Action catalog](./DESIGN.md#action-catalog-actions)
 
-- [ ] URL-synced `q`, `tag`, `sort`, `page` (reset page on filter change)
-- [ ] `ActionCatalogToolbar`, `ActionSearchResults`, `Pagination` (page size 20)
-- [ ] Skeleton + empty state with example searches
+- [x] URL-synced `q`, `tag`, `sort`, `page` (reset page on filter change)
+- [x] `ActionCatalogToolbar`, `ActionSearchResults`, `Pagination` (page size 20)
+- [x] Skeleton + empty state with example searches
 
 ### 3.3 — Action page (`/actions/:slug`)
 
 **Spec:** [Action page](./DESIGN.md#action-page-actionsslug-overview--guide-one-route), [wireframe](./DESIGN.md#action-page--guide-mode-wireframe)
 
-- [ ] **Browse mode:** summary, tags, author, titles-only step list, Start / Continue / drop progress
-- [ ] **Guide mode:** same route; `?step=`, optional `?enrollment=`; `ActionGuideLayout` split + mobile Sheet
-- [ ] `StepProgressBar`, `RequirementList`, `MarkdownBody`, mark done / skip, prev/next
-- [ ] Notes per step; debounced `PATCH …/progress`
-- [ ] Sign-in prompt for visitors before persisted enroll (Q1)
+- [x] **Browse mode:** summary, tags, author, titles-only step list, Start / Continue / drop progress
+- [x] **Guide mode:** same route; `?step=`, optional `?enrollment=`; `ActionGuideLayout` split + mobile Sheet
+- [x] `StepProgressBar`, `RequirementList`, `MarkdownBody`, mark done / skip, prev/next
+- [x] Notes per step; debounced `PATCH …/progress`
+- [x] Sign-in prompt for visitors before persisted enroll (Q1)
 
 ### 3.4 — My guides (`/my`)
 
 **Spec:** [My guides](./DESIGN.md#my-guides-my)
 
-- [ ] In progress \| Completed tabs; sort in-progress by started
-- [ ] Continue → `/actions/:slug?step=…`; abandon with confirm
+- [x] In progress \| Completed tabs; sort in-progress by started
+- [x] Continue → `/actions/:slug?step=…`; abandon with confirm
 
 ### 3.5 — Auth (`/login`, `/register`)
 
 **Spec:** [Sign in](./DESIGN.md#sign-in-login), [Register](./DESIGN.md#register-register)
 
-- [ ] Compare-style cards; `returnUrl`; cross-links between login/register
+- [x] Compare-style cards; `returnUrl`; cross-links between login/register
 
-**Exit criteria:** Register → search catalog → open action → Start guide → mark steps → reload → state on action page and `/my` restored.
+**Exit criteria met.** Register → search catalog → open action → Start guide → mark steps → reload → state on action page and `/my` restored (requires local Worker + D1; see Phase 1 smoke).
 
 ---
 

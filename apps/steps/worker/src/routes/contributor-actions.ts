@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import type { Context } from 'hono'
 import { z } from 'zod'
 import type { AppEnv } from '../types'
+import { entityIdSchema } from '../schemas'
 import { requireAuth } from '../middleware'
 import {
   typedRows,
@@ -72,7 +73,7 @@ const patchMetaSchema = z
   })
 
 const stepInputSchema = z.object({
-  id: z.string().uuid().optional(), // if present, preserve for update feel; we replace anyway
+  id: entityIdSchema.optional(),
   order: z.number().int().min(1),
   title: z.string().trim().min(1).max(200),
   bodyMd: z.string().max(20000).optional().nullable(),
@@ -80,7 +81,7 @@ const stepInputSchema = z.object({
   requirements: z
     .array(
       z.object({
-        id: z.string().uuid().optional(),
+        id: entityIdSchema.optional(),
         label: z.string().trim().min(1).max(200),
         kind: z.enum(['document', 'task', 'link']).default('task'),
         details: z.string().max(500).optional().nullable(),
