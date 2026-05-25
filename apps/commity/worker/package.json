@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --port 8788",
+    "dev": "sh -c 'node scripts/localLogServer.mjs & LOG_PID=$!; trap \"kill $LOG_PID\" EXIT INT TERM; wrangler dev --port 8788'",
+    "dev:wrangler": "wrangler dev --port 8788",
     "deploy": "wrangler deploy",
     "deploy:dev": "wrangler deploy --env dev",
     "db:migrate:local": "wrangler d1 migrations apply commity-db --local",

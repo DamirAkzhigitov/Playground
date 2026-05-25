@@ -1,10 +1,17 @@
+import { loggedFetch } from '../lib/localLogger'
 import { decryptToken, encryptToken } from './tokenCrypto'
 
-export const GMAIL_SEND_SCOPE = 'https://www.googleapis.com/auth/gmail.send'
+/** Read, search, star, trash, and send mail (replaces narrow gmail.send). */
+export const GMAIL_MODIFY_SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
+/** Needed to show which Google account is connected. */
+export const USERINFO_EMAIL_SCOPE =
+  'https://www.googleapis.com/auth/userinfo.email'
+export const GMAIL_OAUTH_SCOPES = `${GMAIL_MODIFY_SCOPE} ${USERINFO_EMAIL_SCOPE}`
+
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
+
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
-const GMAIL_PROFILE_URL =
-  'https://gmail.googleapis.com/gmail/v1/users/me/profile'
+const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
 const STATE_TTL_MS = 10 * 60 * 1000
 
@@ -23,6 +30,11 @@ export type OriginResolveOptions = {
   publicOrigin?: string
   forwardedHost?: string | null
   forwardedProto?: string | null
+}
+
+/** True when the stored grant predates gmail.modify (send-only scope). */
+export function accountNeedsReconnect(scopes: string): boolean {
+  return !scopes.includes('gmail.modify')
 }
 
 /** First non-empty forwarded value (proxies may send comma-separated lists). */
@@ -67,7 +79,7 @@ export function buildGoogleAuthUrl(
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: 'code',
-    scope: GMAIL_SEND_SCOPE,
+    scope: GMAIL_OAUTH_SCOPES,
     access_type: 'offline',
     prompt: 'consent',
     state
@@ -120,7 +132,7 @@ export async function exchangeCodeForTokens(
   clientSecret: string,
   redirectUri: string
 ): Promise<{ accessToken: string; refreshToken: string; expiresIn: number }> {
-  const response = await fetch(GOOGLE_TOKEN_URL, {
+  const response = await loggedFetch('google.oauth.token', GOOGLE_TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
@@ -151,7 +163,7 @@ export async function refreshAccessToken(
   clientId: string,
   clientSecret: string
 ): Promise<{ accessToken: string; expiresIn: number }> {
-  const response = await fetch(GOOGLE_TOKEN_URL, {
+  const response = await loggedFetch('google.oauth.refresh', GOOGLE_TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
@@ -175,20 +187,25 @@ export async function refreshAccessToken(
   }
 }
 
-export async function fetchGmailProfileEmail(
+export async function fetchGoogleAccountEmail(
   accessToken: string
 ): Promise<string> {
-  const response = await fetch(GMAIL_PROFILE_URL, {
+  const response = await loggedFetch('google.userinfo', GOOGLE_USERINFO_URL, {
     headers: { Authorization: `Bearer ${accessToken}` }
   })
   const body = (await response.json()) as {
-    emailAddress?: string
-    error?: { message?: string }
+    email?: string
+    error?: string
+    error_description?: string
   }
-  if (!response.ok || !body.emailAddress) {
-    throw new Error(body.error?.message ?? 'Failed to load Gmail profile')
+  if (!response.ok || !body.email) {
+    throw new Error(
+      body.error_description ??
+        body.error ??
+        'Failed to load Google account email'
+    )
   }
-  return body.emailAddress
+  return body.email
 }
 
 export async function getGmailAccount(

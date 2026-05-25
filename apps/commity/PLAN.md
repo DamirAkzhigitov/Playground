@@ -37,6 +37,7 @@ Personal AI assistant at `commity.da-mr.com`: **one continuous chat** per accoun
 - [x] `POST /api/chat` — validates `messages` (1–20), calls OpenAI, returns assistant message (stateless)
 - [x] `src/openai.ts` — non-streaming completions, default model `gpt-4o-mini`
 - [x] **Gmail integration** — OAuth connect, `prepare_email` tool, review card, confirm send (`0002_gmail.sql`, `/api/gmail/*`)
+- [x] **Gmail inbox via AI** — `gmail.modify` scope, inbox tools (search/star/trash), OpenAI tool loop, reconnect for legacy grants
 - [x] D1 migration `0001_auth.sql` — `users`, `sessions` only
 - [x] `wrangler.toml` — prod `commity.da-mr.com`, dev `dev-commity.da-mr.com`, assets binding
 - [x] `.dev.vars.example` — `OPENAI_API_KEY`, `OPENAI_MODEL`
@@ -74,7 +75,7 @@ Personal AI assistant at `commity.da-mr.com`: **one continuous chat** per accoun
 
 - Smart context compression / summarization (reuse context IDs)
 - Multiple chats / conversation folders
-- Gmail inbox read / reply threading
+- Gmail reply threading (read inbox is done via chat tools)
 - RAG and other tools beyond email draft
 - Server-side message history
 

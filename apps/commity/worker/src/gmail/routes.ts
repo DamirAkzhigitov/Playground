@@ -9,10 +9,11 @@ import {
   consumeOAuthState,
   createOAuthState,
   exchangeCodeForTokens,
-  fetchGmailProfileEmail,
+  fetchGoogleAccountEmail,
+  accountNeedsReconnect,
   getGmailAccount,
   getValidAccessToken,
-  GMAIL_SEND_SCOPE,
+  GMAIL_OAUTH_SCOPES,
   redirectUriFromRequest,
   resolvePublicOrigin,
   type OriginResolveOptions
@@ -43,7 +44,11 @@ gmail.get('/status', requireAuth, async (c) => {
   if (!account) {
     return c.json({ connected: false })
   }
-  return c.json({ connected: true, email: account.google_email })
+  return c.json({
+    connected: true,
+    email: account.google_email,
+    needsReconnect: accountNeedsReconnect(account.scopes)
+  })
 })
 
 gmail.get('/connect', requireAuth, async (c) => {
@@ -82,7 +87,7 @@ gmail.get('/callback', async (c) => {
       redirectUri
     )
 
-    const googleEmail = await fetchGmailProfileEmail(tokens.accessToken)
+    const googleEmail = await fetchGoogleAccountEmail(tokens.accessToken)
     const now = new Date().toISOString()
     const refreshEnc = await encryptToken(
       tokens.refreshToken,
@@ -115,7 +120,7 @@ gmail.get('/callback', async (c) => {
         refreshEnc,
         accessEnc,
         expiresAt,
-        GMAIL_SEND_SCOPE,
+        GMAIL_OAUTH_SCOPES,
         now,
         now
       )
@@ -143,6 +148,15 @@ gmail.post('/send', requireAuth, async (c) => {
   const account = await getGmailAccount(c.env.DB, userId)
   if (!account) {
     return c.json({ error: 'Gmail is not connected' }, 400)
+  }
+  if (accountNeedsReconnect(account.scopes)) {
+    return c.json(
+      {
+        error:
+          'Gmail needs reconnect for inbox access. Use Connect Gmail again.'
+      },
+      403
+    )
   }
 
   const accessToken = await getValidAccessToken(

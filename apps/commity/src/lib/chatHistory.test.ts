@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeEach } from 'vitest'
 
 import {
+  apiContentFromMessage,
   clearThread,
   createMessage,
   loadThread,
@@ -47,6 +48,45 @@ describe('chatHistory', () => {
         subject: 'Hi',
         body: 'Body text'
       }
+    })
+    saveThread(USER, [msg])
+    expect(loadThread(USER)).toEqual([msg])
+  })
+
+  it('apiContentFromMessage substitutes inbox context when content is empty', () => {
+    const msg = createMessage('assistant', '', {
+      inboxEmails: [
+        {
+          messageId: 'abc',
+          threadId: 't1',
+          from: 'bob@example.com',
+          to: 'me@example.com',
+          subject: 'Hi',
+          date: 'Mon, 1 Jan 2024 12:00:00 +0000',
+          snippet: 'Hey',
+          isStarred: true
+        }
+      ]
+    })
+    expect(apiContentFromMessage(msg)).toContain('bob@example.com')
+    expect(apiContentFromMessage(msg)).toContain('Hi')
+    expect(sliceForApi([msg])[0]?.content.length).toBeGreaterThan(0)
+  })
+
+  it('persists inboxEmails on assistant messages', () => {
+    const msg = createMessage('assistant', 'Found mail', {
+      inboxEmails: [
+        {
+          messageId: 'abc',
+          threadId: 't1',
+          from: 'bob@example.com',
+          to: 'me@example.com',
+          subject: 'Hi',
+          date: 'Mon, 1 Jan 2024 12:00:00 +0000',
+          snippet: 'Hey',
+          isStarred: true
+        }
+      ]
     })
     saveThread(USER, [msg])
     expect(loadThread(USER)).toEqual([msg])

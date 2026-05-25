@@ -1,7 +1,7 @@
 OPENAI_API_KEY=sk-your-key-here
 OPENAI_MODEL=gpt-4o-mini
 
-# Google OAuth (Gmail send). Create a Web client in Google Cloud Console.
+# Google OAuth (Gmail inbox + send). Create a Web client in Google Cloud Console.
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret
 # 32 random bytes, base64-encoded: openssl rand -base64 32
@@ -9,3 +9,7 @@ TOKEN_ENCRYPTION_KEY=replace-with-base64-32-bytes
 
 # Required for local Gmail OAuth when using Vite on :3003 (must match Google redirect URI)
 APP_PUBLIC_ORIGIN=http://localhost:3003
+
+# Local request/response logging (pnpm dev starts localLogServer on :8799)
+LOCAL_LOGS=true
+LOCAL_LOG_URL=http://127.0.0.1:8799/log

@@ -14,6 +14,8 @@ export type RegisterInput = {
   password: string
 }
 
+import type { InboxEmail } from './inbox'
+
 export type ChatRole = 'user' | 'assistant' | 'system'
 
 export type EmailDraft = {
@@ -31,6 +33,7 @@ export type ChatMessage = {
   createdAt: string
   emailDraft?: EmailDraft
   emailSent?: boolean
+  inboxEmails?: InboxEmail[]
 }
 
 export type ApiChatMessage = {

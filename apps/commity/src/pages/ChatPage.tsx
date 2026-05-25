@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Mail, Trash2, Unplug } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { EmailDraftCard } from '@/components/EmailDraftCard'
+import { ChatMessageItem } from '@/components/ChatMessageItem'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -22,8 +22,7 @@ import {
   type ChatResponse
 } from '@/lib/gmail'
 import { apiRequest, ApiError } from '@/lib/api'
-import type { ChatMessage, EmailDraft } from '@/types'
-import { cn } from '@/lib/utils'
+import type { ChatMessage } from '@/types'
 
 type ChatPageProps = {
   userId: string
@@ -47,6 +46,7 @@ export function ChatPage({ userId, userEmail }: ChatPageProps) {
 
   const gmailConnected = gmailQuery.data?.connected ?? false
   const gmailEmail = gmailQuery.data?.email
+  const gmailNeedsReconnect = gmailQuery.data?.needsReconnect ?? false
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -91,6 +91,13 @@ export function ChatPage({ userId, userEmail }: ChatPageProps) {
     [messages, persistMessages]
   )
 
+  const removeMessage = useCallback(
+    (messageId: string) => {
+      persistMessages(messages.filter((m) => m.id !== messageId))
+    },
+    [messages, persistMessages]
+  )
+
   const handleSend = useCallback(async () => {
     const text = draft.trim()
     if (!text || isSending) return
@@ -111,13 +118,23 @@ export function ChatPage({ userId, userEmail }: ChatPageProps) {
         'assistant',
         data.message.content,
         {
-          emailDraft: data.emailDraft
+          emailDraft: data.emailDraft,
+          inboxEmails: data.inboxEmails
         }
       )
       const withReply = [...nextMessages, assistantMessage]
       persistMessages(withReply)
 
-      if (data.gmailRequired) {
+      if (data.needsReconnect) {
+        toast.message('Reconnect Gmail to search and manage your inbox', {
+          action: {
+            label: 'Reconnect',
+            onClick: () => {
+              window.location.href = connectGmailUrl()
+            }
+          }
+        })
+      } else if (data.gmailRequired) {
         toast.message('Connect Gmail to send this draft', {
           action: {
             label: 'Connect',
@@ -177,17 +194,24 @@ export function ChatPage({ userId, userEmail }: ChatPageProps) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {gmailConnected && gmailEmail ? (
-            <div className="flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs text-muted-foreground">
-              <Mail className="size-3.5" />
-              <span className="max-w-[12rem] truncate">{gmailEmail}</span>
-              <button
-                type="button"
-                className="ml-1 rounded p-0.5 hover:bg-muted"
-                title="Disconnect Gmail"
-                onClick={() => void handleDisconnectGmail()}
-              >
-                <Unplug className="size-3.5" />
-              </button>
+            <div className="flex items-center gap-2">
+              {gmailNeedsReconnect ? (
+                <Button type="button" variant="outline" size="sm" asChild>
+                  <a href={connectGmailUrl()}>Reconnect Gmail</a>
+                </Button>
+              ) : null}
+              <div className="flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs text-muted-foreground">
+                <Mail className="size-3.5" />
+                <span className="max-w-[12rem] truncate">{gmailEmail}</span>
+                <button
+                  type="button"
+                  className="ml-1 rounded p-0.5 hover:bg-muted"
+                  title="Disconnect Gmail"
+                  onClick={() => void handleDisconnectGmail()}
+                >
+                  <Unplug className="size-3.5" />
+                </button>
+              </div>
             </div>
           ) : (
             <Button type="button" variant="outline" size="sm" asChild>
@@ -235,41 +259,20 @@ export function ChatPage({ userId, userEmail }: ChatPageProps) {
       >
         {messages.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground">
-            Start a conversation. Ask me to draft an email — you review and
-            confirm before anything is sent.
+            Start a conversation. With Gmail connected, ask me to search your
+            inbox, star or trash messages, or draft an email — you confirm
+            before anything is sent.
           </p>
         ) : (
           <ul className="mx-auto flex max-w-2xl flex-col gap-3">
             {messages.map((msg) => (
-              <li key={msg.id} className="flex flex-col">
-                <div
-                  className={cn(
-                    'max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap',
-                    msg.role === 'user'
-                      ? 'ml-auto bg-primary text-primary-foreground'
-                      : 'mr-auto border bg-card text-card-foreground'
-                  )}
-                >
-                  {msg.content}
-                </div>
-                {msg.emailDraft ? (
-                  <EmailDraftCard
-                    draft={msg.emailDraft}
-                    gmailConnected={gmailConnected}
-                    sent={msg.emailSent === true}
-                    onDraftChange={(next: EmailDraft) =>
-                      updateMessage(msg.id, { emailDraft: next })
-                    }
-                    onDiscard={() =>
-                      updateMessage(msg.id, {
-                        emailDraft: undefined,
-                        emailSent: undefined
-                      })
-                    }
-                    onSent={() => updateMessage(msg.id, { emailSent: true })}
-                  />
-                ) : null}
-              </li>
+              <ChatMessageItem
+                key={msg.id}
+                message={msg}
+                gmailConnected={gmailConnected}
+                onUpdate={(patch) => updateMessage(msg.id, patch)}
+                onRemove={() => removeMessage(msg.id)}
+              />
             ))}
             {isSending ? (
               <li className="mr-auto flex items-center gap-2 text-sm text-muted-foreground">
@@ -302,8 +305,8 @@ export function ChatPage({ userId, userEmail }: ChatPageProps) {
           </Button>
         </div>
         <p className="mx-auto mt-2 max-w-2xl text-center text-xs text-muted-foreground">
-          Sends up to 20 recent messages to the assistant. Email drafts require
-          your confirmation before sending.
+          Sends up to 20 recent messages to the assistant. Inbox actions run
+          when Gmail is connected; email sends still require your confirmation.
         </p>
       </div>
     </div>

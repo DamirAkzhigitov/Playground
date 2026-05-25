@@ -2,11 +2,14 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import type { AppEnv } from './types'
 import { requireAuth } from './middleware'
+import { requestLogger } from './middleware/requestLogger'
 import { auth } from './auth'
 import { gmail } from './gmail/routes'
 import { chat } from './routes/chat'
 
 const app = new Hono<AppEnv>()
+
+app.use('/api/*', requestLogger)
 
 app.get('/api/health', (c) => c.json({ ok: true }))
 

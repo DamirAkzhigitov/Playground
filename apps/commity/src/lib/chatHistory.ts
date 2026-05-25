@@ -1,3 +1,4 @@
+import { parseInboxEmails } from '@/lib/parseInboxEmail'
 import type { ApiChatMessage, ChatMessage, ChatRole, EmailDraft } from '@/types'
 
 const STORAGE_PREFIX = 'commity:thread:'
@@ -91,6 +92,8 @@ function parseMessages(raw: unknown): ChatMessage[] {
     const emailDraft = parseEmailDraft(msg.emailDraft)
     if (emailDraft) parsed.emailDraft = emailDraft
     if (msg.emailSent === true) parsed.emailSent = true
+    const inboxEmails = parseInboxEmails(msg.inboxEmails)
+    if (inboxEmails) parsed.inboxEmails = inboxEmails
     out.push(parsed)
   }
   return out
@@ -122,7 +125,7 @@ export function resetMemoryStorage(): void {
 export function createMessage(
   role: ChatRole,
   content: string,
-  extra?: Pick<ChatMessage, 'emailDraft' | 'emailSent'>
+  extra?: Pick<ChatMessage, 'emailDraft' | 'emailSent' | 'inboxEmails'>
 ): ChatMessage {
   return {
     id: crypto.randomUUID(),
@@ -133,9 +136,35 @@ export function createMessage(
   }
 }
 
+/** Non-empty text for the API when the UI stores an empty assistant bubble. */
+export function apiContentFromMessage(msg: ChatMessage): string {
+  const trimmed = msg.content.trim()
+  if (trimmed) return trimmed
+
+  if (msg.role === 'assistant' && msg.inboxEmails?.length) {
+    const count = msg.inboxEmails.length
+    const preview = msg.inboxEmails
+      .slice(0, 5)
+      .map((e) => `${e.from} — ${e.subject}`)
+      .join('; ')
+    const suffix = count > 5 ? ` (+${count - 5} more)` : ''
+    return `[Inbox results shown in the app (${count}): ${preview}${suffix}]`
+  }
+
+  if (msg.role === 'assistant' && msg.emailDraft) {
+    const { to, subject } = msg.emailDraft
+    return `[Email draft prepared for review — To: ${to}, Subject: ${subject}]`
+  }
+
+  return msg.role === 'assistant' ? '[Assistant reply]' : '[Empty message]'
+}
+
 export function sliceForApi(
   messages: ChatMessage[],
   max = MAX_API_MESSAGES
 ): ApiChatMessage[] {
-  return messages.slice(-max).map(({ role, content }) => ({ role, content }))
+  return messages.slice(-max).map((msg) => ({
+    role: msg.role,
+    content: apiContentFromMessage(msg)
+  }))
 }
