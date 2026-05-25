@@ -6,6 +6,8 @@ Monorepo for [da-mr.com](https://da-mr.com) and its subdomain tools.
   Plain static site (Vite + vanilla JS/CSS). No React, no framework.
 - **`apps/resume`** — `resume.da-mr.com`. Dedicated resume app.
   Plain static site (Vite + vanilla JS/CSS). No React, no framework.
+- **`apps/steps`** — `steps.da-mr.com` (planned). Guided catalog of life
+  actions with per-user progress; see [`apps/steps/README.md`](apps/steps/README.md).
 - **`apps/<tool>`** — `<tool>.da-mr.com`. Each tool is an independent app
   deployed to its own Cloudflare Pages project under its own subdomain.
   React apps go here.
@@ -60,8 +62,12 @@ changed.
 ├── apps/
 │   ├── main/                 # da-mr.com (tools directory)
 │   │   └── ...               # @playground/main
-│   └── resume/               # resume.da-mr.com (resume app)
-│       └── ...               # @playground/resume
+│   ├── resume/               # resume.da-mr.com (resume app)
+│   │   └── ...               # @playground/resume
+│   ├── compare/              # compare.da-mr.com
+│   │   └── ...               # @playground/compare
+│   └── steps/                # steps.da-mr.com (scaffold + docs)
+│       └── ...               # @playground/steps
 ├── packages/                 # shared code (currently empty)
 ├── .github/workflows/
 │   ├── ci.yml                # lint/test/build on PR and push

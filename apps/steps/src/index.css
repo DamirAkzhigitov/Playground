@@ -1,0 +1,76 @@
+:root {
+  --global-header-height: 55px;
+  --bg: #f4f5fb;
+  --text: #1e2138;
+  --muted: #5c6178;
+  --accent: #5d5fef;
+  --card: #fff;
+  --radius: 0.875rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+}
+
+#root {
+  min-height: calc(100vh - var(--global-header-height));
+}
+
+.shell {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.hero .eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hero h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.2;
+}
+
+.hero .lede {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.0625rem;
+}
+
+.status {
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgb(30 33 56 / 6%);
+}
+
+.status p {
+  margin: 0;
+}
+
+.status code {
+  font-size: 0.875em;
+}
