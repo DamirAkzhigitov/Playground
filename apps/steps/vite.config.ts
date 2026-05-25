@@ -27,7 +27,13 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 3003,
-      open: true
+      open: true,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8787',
+          changeOrigin: true
+        }
+      }
     }
   }
 })

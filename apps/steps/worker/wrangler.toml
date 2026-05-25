@@ -1,0 +1,29 @@
+name = "steps-api"
+main = "src/index.ts"
+compatibility_date = "2026-05-11"
+preview_urls = false
+
+# Assets config (SPA + /api on same origin) will be enabled in Phase 2+ when frontend shell exists.
+# For pure API dev in Phase 1, this section is commented to avoid "dist missing" error.
+# [assets]
+# directory = "../dist"
+# not_found_handling = "single-page-application"
+# binding = "ASSETS"
+# run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "steps-db"
+# Placeholder; replace with real ID after `wrangler d1 create steps-db` in Phase 6
+database_id = "00000000-0000-0000-0000-000000000001"
+migrations_dir = "migrations"
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+
+# Future dev env and production routes will be added in Phase 6 (deploy).
+# For local: `pnpm --filter @playground/steps-api dev` (or from worker dir)
+# Migrations: pnpm db:migrate:local (uses local D1 sqlite)

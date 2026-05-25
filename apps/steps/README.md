@@ -54,13 +54,13 @@ Progress is stored per user per enrollment, not globally on the action template.
 
 1. User signs in.
 2. Search or browse actions (full-text on title + tags + summary).
-3. Open action detail → overview + step list preview.
-4. **Start guide** → creates enrollment, navigates to step 1 (or first incomplete).
+3. Open action page (`/actions/:slug`) → overview + step list (titles).
+4. **Start guide** → creates enrollment, switches to guide mode on the **same page** (first incomplete step).
 
 ### Work through steps
 
-1. Step view: explanation, requirements checklist (informational), mark done, add note.
-2. Navigate next / previous / jump to step from outline.
+1. On `/actions/:slug` (guide mode): active step body, requirements checklist, mark done, add note.
+2. Next / previous / jump from outline; URL `?step=` for deep links — no separate runner route.
 3. Autosave progress (debounced API).
 4. Dashboard: “Continue” for in-progress enrollments.
 
@@ -114,8 +114,9 @@ Aligned with other React tools in this monorepo (`apps/compare`):
 ```text
 apps/steps/
 ├── README.md          # this file — product + dev overview
-├── PLAN.md            # phased implementation checklist
-├── DESIGN.md          # UX/UI conventions (to flesh out with UI work)
+├── IMPLEMENTATION.md  # phased build plan (links to DESIGN per phase)
+├── PLAN.md            # detailed checklists, API/schema notes
+├── DESIGN.md          # UX/UI spec — screens, components, a11y
 ├── index.html
 ├── package.json       # @playground/steps
 ├── src/               # React app (growing)
@@ -162,6 +163,7 @@ Tracked in `PLAN.md` Phase 6.
 
 ## Related docs
 
-- [`PLAN.md`](./PLAN.md) — implementation phases and API sketch
-- [`DESIGN.md`](./DESIGN.md) — screen map and UI principles
+- [`IMPLEMENTATION.md`](./IMPLEMENTATION.md) — **phased development** (what ships each phase; links to DESIGN)
+- [`DESIGN.md`](./DESIGN.md) — screen map, page specs, components, accessibility
+- [`PLAN.md`](./PLAN.md) — task checkboxes, API tables, schema
 - [`../compare/README.md`](../compare/README.md) — reference Worker + auth pattern

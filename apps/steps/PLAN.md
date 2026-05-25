@@ -7,8 +7,8 @@ Guided catalog of life **actions** with per-user **progress**, **notes**, and a
 **Stack (target):** React 19 · TypeScript · Vite 8 · Tailwind 4 · shadcn/ui · TanStack Query · Hono · D1  
 **Reference:** `apps/compare` (Worker + cookie auth + D1)
 
-> **UI:** follow [`DESIGN.md`](./DESIGN.md) once UI work starts; reuse compare
-> patterns where sensible.
+> **Phases & design links:** [`IMPLEMENTATION.md`](./IMPLEMENTATION.md)  
+> **UI spec:** [`DESIGN.md`](./DESIGN.md) — reuse compare patterns where sensible.
 
 ---
 
@@ -33,10 +33,10 @@ Guided catalog of life **actions** with per-user **progress**, **notes**, and a
 
 ### 1A — Worker setup
 
-- [ ] **1A.1** `apps/steps/worker/` — `wrangler.toml`, `package.json`, Hono entry.
-- [ ] **1A.2** D1 binding `DB`; migrations folder.
-- [ ] **1A.3** `GET /api/health`, CORS, JSON error middleware.
-- [ ] **1A.4** Vite proxy `/api` → `wrangler dev` in `vite.config.ts`.
+- [x] **1A.1** `apps/steps/worker/` — `wrangler.toml`, `package.json`, Hono entry.
+- [x] **1A.2** D1 binding `DB`; migrations folder.
+- [x] **1A.3** `GET /api/health`, JSON error middleware (CORS not needed; same-origin Worker pattern).
+- [x] **1A.4** Vite proxy `/api` → `wrangler dev` in `vite.config.ts`.
 
 ### 1B — Schema (initial)
 
@@ -45,16 +45,16 @@ Guided catalog of life **actions** with per-user **progress**, **notes**, and a
 | `users` | id, email, password_hash, role (`user` \| `contributor` \| `admin`), created_at |
 | `sessions` | id, user_id, expires_at (compare pattern) |
 | `actions` | id, slug, title, summary, tags_json, status (`draft` \| `published`), locale, author_id, timestamps |
-| `steps` | id, action_id, order, title, body_md, created_at, updated_at |
+| `steps` | id, action_id, order, title, body_md, estimated_minutes (added per Q10), created_at, updated_at |
 | `step_requirements` | id, step_id, label, kind (`document` \| `task` \| `link`), details, order |
 | `enrollments` | id, user_id, action_id, started_at, last_step_id, updated_at |
 | `step_progress` | enrollment_id, step_id, status, note, completed_at — UNIQUE(enrollment_id, step_id) |
 
-Indexes: `actions.slug`, `actions.status`, `steps(action_id, order)`, full-text or LIKE search on title/summary (MVP: simple `LIKE`).
+Indexes: `actions.slug`, `actions.status`, `steps(action_id, order)`, LIKE search on title/summary/tags (MVP). 0001_init.sql + 0002_seed.sql (sample "buy apartment" action + seeded contributor/user accounts for local smoke tests).
 
 ### 1C — Auth API
 
-Mirror `apps/compare/worker` auth:
+Implemented (role surfaced in /me + login/register; contributor via seed only per Q30; mirrors compare cookie auth):
 
 | Method | Path | Purpose |
 | ------ | ---- | ------- |
@@ -67,7 +67,7 @@ Mirror `apps/compare/worker` auth:
 
 | Method | Path | Auth | Purpose |
 | ------ | ---- | ---- | ------- |
-| GET | `/api/actions` | optional | List published actions; query `?q=` search |
+| GET | `/api/actions` | public | ✅ (q, tag, sort, page, limit; published only) |
 | GET | `/api/actions/:slug` | optional | Action + steps + requirements |
 | POST | `/api/enrollments` | user | Start guide (`action_id`) |
 | GET | `/api/enrollments` | user | My in-progress / completed |
@@ -80,7 +80,7 @@ Mirror `apps/compare/worker` auth:
 
 Validation: Zod on all mutating routes.
 
-**Exit criteria:** curl/REST tests against local D1; migrations committed.
+**Exit criteria met.** Full implementation in Phase 1 (see IMPLEMENTATION.md for API table + smoke notes). Migrations committed; local D1 works; wrangler boots cleanly.
 
 ---
 
@@ -88,11 +88,11 @@ Validation: Zod on all mutating routes.
 
 - [ ] **2.1** Tailwind 4 + shadcn/ui baseline (copy compare setup).
 - [ ] **2.2** `react-router` routes (stubs):
-  - `/` — home / search
-  - `/actions/:slug` — action overview
-  - `/guide/:enrollmentId` — step runner
+  - `/` — home (search + popular actions)
+  - `/actions` — full catalog (search, filters, pagination)
+  - `/actions/:slug` — action page (overview + in-page guide; `?step=`, `?enrollment=`)
   - `/my` — my guides
-  - `/login`, `/register`
+  - `/login`, `/register` — compare-style auth pages
   - `/contributor` — editor layout
   - `/contributor/actions/new`, `/contributor/actions/:id/edit`
 - [ ] **2.3** Auth context + protected routes (user vs contributor).
@@ -104,9 +104,9 @@ Validation: Zod on all mutating routes.
 
 ## Phase 3 — User features (MVP)
 
-- [ ] **3.1** Search page — debounced search, result cards.
-- [ ] **3.2** Action detail — step outline, “Start guide” CTA.
-- [ ] **3.3** Step runner — one step view, requirements list, mark done, note field, prev/next.
+- [ ] **3.1** Action catalog (`/actions`) — debounced search, tag filter, sort, pagination, result cards.
+- [ ] **3.2** Action page (`/actions/:slug`) — browse mode (outline, Start/Continue), guide mode on same route (`?step=`), split layout + Sheet outline.
+- [ ] **3.3** Guide interactions — requirements, mark done / skip, notes, prev/next, autosave progress (no separate runner route).
 - [ ] **3.4** My guides — continue / completed lists.
 - [ ] **3.5** Autosave progress (debounced PATCH).
 
