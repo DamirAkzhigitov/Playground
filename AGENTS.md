@@ -3,9 +3,9 @@
 ## Cursor Cloud specific instructions
 
 This is a **pnpm + Turborepo monorepo** hosting `da-mr.com` and its
-subdomain tools. Currently only one app exists: `apps/main` — a static
-Vite-built site (vanilla JS/CSS, no React). Future tools live as sibling
-apps under `apps/*`.
+subdomain tools. Apps live as siblings under `apps/*` (e.g. `main`, `resume`,
+`compare`, `steps`). `apps/main` is a static Vite site (vanilla JS/CSS, no
+React). React tools use Vite + TypeScript.
 
 ### Quick reference
 
@@ -15,8 +15,9 @@ workspace(s).
 | Task              | Command                                          |
 | ----------------- | ------------------------------------------------ |
 | Install deps      | `pnpm install`                                   |
-| Dev server (main) | `pnpm --filter @playground/main dev` (port 3000) |
-| Dev (all apps)    | `pnpm dev`                                       |
+| Dev server (main)  | `pnpm --filter @playground/main dev` (port 3000)  |
+| Dev server (steps) | `pnpm --filter @playground/steps dev` (port 3003) |
+| Dev (all apps)     | `pnpm dev`                                        |
 | Lint              | `pnpm lint`                                      |
 | Format check      | `pnpm format:check`                              |
 | Type check        | `pnpm type-check`                                |
@@ -50,6 +51,13 @@ deploy` from `apps/compare/worker`) that serves the Vite `dist/` as static
   answers. Local dev still uses Vite proxy to `wrangler dev` on port 8787.
 - `apps/main` calls the public TheMealDB API at runtime for random recipes;
   no API keys needed. No env vars or backend services for local dev.
+- **`apps/steps`** — guided action catalog (search, per-user step progress,
+  notes, contributor editor). Worker + D1 auth via `@playground/auth-core` /
+  `@playground/auth-react` (same pattern as compare). Deploy not wired until
+  Phase 6 in `apps/steps/PLAN.md`.
+- **Shared auth:** `@playground/auth-core` (Worker: sessions, routes) and
+  `@playground/auth-react` (React: forms, `createAuthProvider`, `ProtectedRoute`).
+  See `packages/auth-core/README.md`, `OAUTH.md`, `SSO.md`.
 - When adding a new tool app, follow the recipe in `README.md` →
-  "Adding a new tool". Each tool = one Cloudflare Pages project + one
-  deploy job + one subdomain.
+ "Adding a new tool". Each tool = one Cloudflare Pages project + one
+ deploy job + one subdomain.

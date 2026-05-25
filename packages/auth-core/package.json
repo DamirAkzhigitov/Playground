@@ -1,0 +1,37 @@
+{
+  "name": "@playground/auth-core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared cookie-session auth for Cloudflare Workers (Hono + D1)",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --ignore-path ../../.prettierignore --write .",
+    "format:check": "prettier --ignore-path ../../.prettierignore --check .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@better-auth/drizzle-adapter": "1.6.11",
+    "better-auth": "1.6.11",
+    "drizzle-orm": "0.45.2",
+    "hono": "^4.7.11",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250508.0",
+    "@eslint/js": "^9.39.1",
+    "@types/better-sqlite3": "7.6.13",
+    "better-sqlite3": "12.10.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
+  }
+}

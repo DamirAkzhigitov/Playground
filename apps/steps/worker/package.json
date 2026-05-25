@@ -1,0 +1,23 @@
+{
+  "name": "@playground/steps-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply steps-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply steps-db --remote",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@playground/auth-core": "workspace:*",
+    "hono": "^4.7.11",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250508.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.21.0"
+  }
+}

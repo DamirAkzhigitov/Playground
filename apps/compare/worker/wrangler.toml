@@ -1,6 +1,7 @@
 name = "apartments-api"
 main = "src/index.ts"
 compatibility_date = "2026-05-11"
+compatibility_flags = ["nodejs_compat"]
 preview_urls = false
 
 [[routes]]

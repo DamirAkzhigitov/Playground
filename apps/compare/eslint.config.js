@@ -53,5 +53,11 @@ export default [
       'react-refresh/only-export-components': 'off'
     }
   },
+  {
+    files: ['src/contexts/AuthContext.tsx', 'src/contexts/I18nContext.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off'
+    }
+  },
   prettierConfig
 ]

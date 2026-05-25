@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - apps/compare/worker
+  - apps/steps/worker
   - packages/*
 
 onlyBuiltDependencies:
