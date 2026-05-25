@@ -60,5 +60,13 @@ export default [
       'react-refresh/only-export-components': 'off'
     }
   },
+  {
+    files: ['worker/scripts/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        ...globals.node
+      }
+    }
+  },
   prettierConfig
 ]
