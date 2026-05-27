@@ -6,10 +6,8 @@ Shared React auth for da-mr.com tool apps (Vite + React Router).
 
 ```tsx
 import { createAuthProvider, LoginForm, ProtectedRoute } from '@playground/auth-react'
-import { apiRequest } from '@/lib/api'
 
 const { AuthProvider, useAuth } = createAuthProvider<AuthUser>({
-  apiRequest,
   normalizeUser: (raw) => ({ id: raw.id as string, email: raw.email as string }),
   onLogoutClear: () => queryClient.clear()
 })
@@ -22,6 +20,9 @@ const { AuthProvider, useAuth } = createAuthProvider<AuthUser>({
 
 `LoginForm` / `RegisterForm` are presentational (labels via props); apps handle
 `navigate()` after successful submit.
+
+Cross-subdomain SSO (`.da-mr.com` cookies) needs no client changes — see
+[`auth-core/SSO.md`](../auth-core/SSO.md).
 
 Add to app `index.css` for Tailwind class scanning:
 

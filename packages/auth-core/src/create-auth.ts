@@ -4,14 +4,29 @@ import type { BetterAuthOptions } from 'better-auth'
 import { betterAuth } from 'better-auth'
 import { drizzle } from 'drizzle-orm/d1'
 
+import { getAuthDatabase } from './database.js'
 import { authSchema } from './schema.js'
+import {
+  buildPlaygroundSsoOptions,
+  mergeBetterAuthAdvanced,
+  resolveSsoCookieDomain
+} from './sso.js'
 
 export type AuthBindings = {
+  /** App data (listings, actions, …). Auth uses `AUTH_DB` when set. */
   DB: D1Database
+  /** Shared Better Auth D1 (`playground-auth-db`) for SSO across tools. */
+  AUTH_DB?: D1Database
   BETTER_AUTH_SECRET: string
   BETTER_AUTH_URL: string
   /** Comma-separated extra origins (e.g. Vite dev server when API is proxied). */
   BETTER_AUTH_TRUSTED_ORIGINS?: string
+  /**
+   * When set (e.g. `.da-mr.com`), session cookies are shared across tool subdomains.
+   * Requires the same D1 database + `BETTER_AUTH_SECRET` on every participating Worker.
+   * See packages/auth-core/SSO.md.
+   */
+  AUTH_COOKIE_DOMAIN?: string
   GOOGLE_CLIENT_ID?: string
   GOOGLE_CLIENT_SECRET?: string
   FACEBOOK_CLIENT_ID?: string
@@ -20,8 +35,20 @@ export type AuthBindings = {
 
 export type CreatePlaygroundAuthOptions = {
   appName: string
-  /** Called after a new user row is created (register or OAuth sign-up). */
-  onAfterRegister?: (userId: string) => Promise<void>
+  /**
+   * Called after a new user row is created (register or OAuth sign-up).
+   * Use to seed app data or mirror the user id into an app DB that still has `user_id` FKs.
+   */
+  onAfterRegister?: (user: {
+    id: string
+    email: string
+    name?: string | null
+  }) => Promise<void>
+  /**
+   * Cross-subdomain SSO cookie domain (overrides `AUTH_COOKIE_DOMAIN` binding).
+   * Use `.da-mr.com` only with a shared auth D1 + secret across tools.
+   */
+  ssoCookieDomain?: string
   /** Extra Better Auth options (trustedOrigins, advanced cookies, etc.). */
   authOptions?: Partial<BetterAuthOptions>
 }
@@ -85,7 +112,7 @@ export function createPlaygroundAuth(
   env: AuthBindings,
   options: CreatePlaygroundAuthOptions
 ) {
-  const db = drizzle(env.DB, { schema: authSchema })
+  const db = drizzle(getAuthDatabase(env), { schema: authSchema })
 
   const databaseHooks: BetterAuthOptions['databaseHooks'] | undefined =
     options.onAfterRegister
@@ -93,15 +120,28 @@ export function createPlaygroundAuth(
           user: {
             create: {
               after: async (user) => {
-                await options.onAfterRegister!(user.id)
+                await options.onAfterRegister!({
+                  id: user.id,
+                  email: user.email,
+                  name: user.name
+                })
               }
             }
           }
         }
       : undefined
 
-  const { trustedOrigins: extraTrustedOrigins, ...restAuthOptions } =
-    options.authOptions ?? {}
+  const {
+    trustedOrigins: extraTrustedOrigins,
+    advanced: extraAdvanced,
+    ...restAuthOptions
+  } = options.authOptions ?? {}
+
+  const ssoDomain = resolveSsoCookieDomain(env, options.ssoCookieDomain)
+  const ssoAdvanced = ssoDomain
+    ? buildPlaygroundSsoOptions({ cookieDomain: ssoDomain }).advanced
+    : undefined
+  const advanced = mergeBetterAuthAdvanced(ssoAdvanced, extraAdvanced)
 
   return betterAuth({
     appName: options.appName,
@@ -126,7 +166,8 @@ export function createPlaygroundAuth(
     },
     socialProviders: socialProviders(env),
     databaseHooks,
-    ...restAuthOptions
+    ...restAuthOptions,
+    ...(advanced ? { advanced } : {})
   })
 }
 

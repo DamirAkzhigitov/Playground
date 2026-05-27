@@ -53,6 +53,15 @@ wait_health() {
   fail "$name did not become healthy on :$port"
 }
 
+echo "=== Shared auth DB (playground-auth-db) ==="
+# Each Worker's wrangler dev keeps its own local D1 files — migrate auth from both app dirs.
+cd "$ROOT/apps/compare/worker"
+pnpm db:migrate:auth:local >/dev/null 2>&1 || true
+cd "$ROOT/apps/steps/worker"
+pnpm db:migrate:auth:local >/dev/null 2>&1 || true
+pass "auth DB migrations (local)"
+
+echo ""
 echo "=== Steps API (port $STEPS_PORT) ==="
 cd "$ROOT/apps/steps/worker"
 pnpm db:migrate:local >/dev/null 2>&1 || true

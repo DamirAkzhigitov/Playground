@@ -55,9 +55,10 @@ deploy` from `apps/compare/worker`) that serves the Vite `dist/` as static
   notes, contributor editor). Worker + D1 auth via `@playground/auth-core` /
   `@playground/auth-react` (same pattern as compare). Deploy not wired until
   Phase 6 in `apps/steps/PLAN.md`.
-- **Shared auth:** `@playground/auth-core` (Worker: sessions, routes) and
-  `@playground/auth-react` (React: forms, `createAuthProvider`, `ProtectedRoute`).
-  See `packages/auth-core/README.md`, `OAUTH.md`, `SSO.md`.
+- **Shared auth:** `@playground/auth-core` (Better Auth + D1) and `@playground/auth-react`.
+ SSO uses shared D1 `playground-auth-db` (`AUTH_DB` binding) + `AUTH_COOKIE_DOMAIN=.da-mr.com`.
+ Migrate auth: `pnpm --filter @playground/compare-api db:migrate:auth:local`. See
+ `packages/auth-core/SSO.md`.
 - When adding a new tool app, follow the recipe in `README.md` →
  "Adding a new tool". Each tool = one Cloudflare Pages project + one
  deploy job + one subdomain.

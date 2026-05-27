@@ -8,6 +8,8 @@
     "deploy": "wrangler deploy",
     "db:migrate:local": "wrangler d1 migrations apply steps-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply steps-db --remote",
+    "db:migrate:auth:local": "wrangler d1 migrations apply playground-auth-db --local",
+    "db:migrate:auth:remote": "wrangler d1 migrations apply playground-auth-db --remote",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

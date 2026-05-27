@@ -5,8 +5,8 @@ Cross-app code for da-mr.com tools.
 | Package | Purpose |
 | ------- | ------- |
 | `@playground/global-header` | Sticky nav bar injected in tool app HTML |
-| `@playground/auth-core` | Worker auth: PBKDF2 passwords, D1 sessions, Hono routes |
-| `@playground/auth-react` | React auth context, login/register forms, route guard |
+| `@playground/auth-core` | Worker auth: Better Auth + D1, Hono mount + session middleware |
+| `@playground/auth-react` | React auth: Better Auth client, login/register forms, route guard |
 
 Conventions (planned / future):
 
@@ -18,7 +18,8 @@ Conventions (planned / future):
 
 See [`auth-core/README.md`](auth-core/README.md) and [`auth-react/README.md`](auth-react/README.md).
 
-Worker apps mount `createAuthRoutes()` from `@playground/auth-core`. React tools use
+Worker apps use `createPlaygroundAuth()`, `mountAuthHandler()`, and
+`createSessionMiddleware()` from `@playground/auth-core`. React tools use
 `createAuthProvider()` and form components from `@playground/auth-react`.
 
 OAuth (Google, Facebook, etc.) and cross-subdomain SSO are documented in

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Hono } from 'hono'
-import { requireAuth } from '@playground/auth-core'
+import { getAuthDatabase, requireAuth } from '@playground/auth-core'
 import type { AppEnv } from '../types'
 
 const localeSchema = z.enum(['en', 'ru', 'el'])
@@ -15,13 +15,15 @@ profile.patch('/locale', requireAuth, async (c) => {
     .object({ locale: localeSchema })
     .parse(await c.req.json())
 
-  await c.env.DB.prepare('UPDATE users SET locale = ? WHERE id = ?')
+  const authDb = getAuthDatabase(c.env)
+
+  await authDb
+    .prepare('UPDATE users SET locale = ? WHERE id = ?')
     .bind(locale, userId)
     .run()
 
-  const user = await c.env.DB.prepare(
-    'SELECT id, email, locale, createdAt FROM users WHERE id = ?'
-  )
+  const user = await authDb
+    .prepare('SELECT id, email, locale, createdAt FROM users WHERE id = ?')
     .bind(userId)
     .first<{
       id: string

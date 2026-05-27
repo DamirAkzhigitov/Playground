@@ -1,47 +1,66 @@
 # @playground/auth-core
 
-Shared cookie-session authentication for Cloudflare Workers (Hono + D1).
+Shared authentication for Cloudflare Workers (Hono + D1) using
+[Better Auth](https://www.better-auth.com/).
 
 ## Usage
 
 ```ts
-import { createAuthRoutes, requireAuth } from '@playground/auth-core'
+import {
+  createPlaygroundAuth,
+  createSessionMiddleware,
+  mountAuthHandler,
+  requireAuth
+} from '@playground/auth-core'
 
-export const auth = createAuthRoutes<AppEnv>({
-  insertUser: async (db, { userId, email, passwordHash, now }) => {
-    await db
-      .prepare(
-        'INSERT INTO users (id, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?)'
-      )
-      .bind(userId, email, passwordHash, 'user', now)
-      .run()
-  },
-  selectUserForLogin: async (db, email) => { /* ... */ },
-  selectUserForMe: async (db, userId) => { /* ... */ },
-  formatAuthUser: (row) => ({
-    id: row.id,
-    email: row.email,
-    createdAt: row.created_at
-  }),
-  onAfterRegister: async (db, userId) => {
-    /* optional seed data */
-  },
-  registerExtraRoutes: (router) => {
-    /* e.g. PATCH /me for locale */
-  },
-  sessionCookieOptions: { domain: '.da-mr.com' } // optional SSO
+export function getAuth(env: AppEnv['Bindings']) {
+  return createPlaygroundAuth(env, {
+    appName: 'Steps',
+    onAfterRegister: async (userId) => {
+      /* optional seed data */
+    }
+  })
+}
+
+// In worker index.ts:
+app.use('/api/*', createSessionMiddleware(getAuth))
+mountAuthHandler(app, getAuth)
+```
+
+### Environment bindings
+
+| Variable | Required | Purpose |
+| -------- | -------- | ------- |
+| `DB` | yes | D1 with Better Auth tables (see `sql/better-auth.sql`) |
+| `BETTER_AUTH_SECRET` | yes | Session signing (min 32 chars) |
+| `BETTER_AUTH_URL` | yes | Public app origin, e.g. `https://steps.da-mr.com` |
+| `BETTER_AUTH_TRUSTED_ORIGINS` | no | Comma-separated extra origins (Vite dev) |
+| `AUTH_DB` | yes (SSO) | Shared D1 `playground-auth-db`; auth migrations in `migrations/` |
+| `AUTH_COOKIE_DOMAIN` | no (on in prod wrangler) | `.da-mr.com` for cross-subdomain SSO |
+| `GOOGLE_CLIENT_*` / `FACEBOOK_CLIENT_*` | no | OAuth providers when set |
+
+Store secrets with `wrangler secret put` (see `apps/*/worker/.dev.vars` for local dev).
+
+### Optional SSO
+
+```ts
+createPlaygroundAuth(env, {
+  appName: 'Compare',
+  ssoCookieDomain: '.da-mr.com' // or AUTH_COOKIE_DOMAIN binding
 })
 ```
 
-Mount in the Worker: `app.route('/api/auth', auth)`.
+Requires shared D1 + shared `BETTER_AUTH_SECRET` across tools. See [SSO.md](./SSO.md).
 
-## API
+## API surface
 
-- `POST /register`, `POST /login`, `POST /logout`, `GET /me`
-- `requireAuth`, `requireAuthWithRole`, `hasMinimumRole`
-- `hashPassword`, `verifyPassword` (PBKDF2-SHA256, 100k iterations)
+- **Better Auth routes** (mounted at `/api/auth/*`): email/password sign-up/sign-in,
+  `get-session`, sign-out, OAuth callbacks when providers are configured.
+- **Middleware:** `createSessionMiddleware`, `requireAuth`, `requireAuthWithRole`,
+  `hasMinimumRole` (`user` | `contributor` | `admin`).
+- **Exports:** `authSchema`, `buildPlaygroundSsoOptions`, `mountAuthHandler`.
 
 ## See also
 
-- [OAUTH.md](./OAUTH.md) — adding Google / Facebook via Better Auth
+- [OAUTH.md](./OAUTH.md) — Google / Facebook setup
 - [SSO.md](./SSO.md) — one login across `*.da-mr.com`

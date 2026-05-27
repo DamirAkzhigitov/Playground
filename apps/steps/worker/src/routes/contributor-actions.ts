@@ -3,6 +3,7 @@ import type { Context } from 'hono'
 import { z } from 'zod'
 import type { AppEnv } from '../types'
 import { entityIdSchema } from '../schemas'
+import { hasMinimumRole } from '@playground/auth-core'
 import { requireAuth } from '../middleware'
 import {
   typedRows,
@@ -21,14 +22,16 @@ const contributorActions = new Hono<AppEnv>()
 contributorActions.use('*', requireAuth)
 
 async function ensureContributor(c: Context<AppEnv>) {
-  const userId = c.get('userId')
-  const user = await c.env.DB.prepare('SELECT role FROM users WHERE id = ?')
-    .bind(userId)
-    .first<{ role: string }>()
-  if (!user || (user.role !== 'contributor' && user.role !== 'admin')) {
+  const role = c.get('userRole')
+  if (!role || !hasMinimumRole(role, 'contributor')) {
     return c.json({ error: 'Contributor access required' }, 403)
   }
   return null
+}
+
+function isAdmin(c: Context<AppEnv>): boolean {
+  const role = c.get('userRole')
+  return role === 'admin'
 }
 
 function slugify(title: string): string {
@@ -182,13 +185,7 @@ contributorActions.patch('/:id', async (c) => {
   if (!existing) return c.json({ error: 'Action not found' }, 404)
 
   const isOwner = existing.author_id === userId
-  const isAdmin =
-    (
-      await c.env.DB.prepare('SELECT role FROM users WHERE id = ?')
-        .bind(userId)
-        .first<{ role: string }>()
-    )?.role === 'admin'
-  if (!isOwner && !isAdmin) return c.json({ error: 'Forbidden' }, 403)
+  if (!isOwner && !isAdmin(c)) return c.json({ error: 'Forbidden' }, 403)
 
   // If changing slug, ensure unique
   if (payload.slug) {
@@ -249,13 +246,7 @@ contributorActions.put('/:id/steps', async (c) => {
   if (!existing) return c.json({ error: 'Action not found' }, 404)
 
   const isOwner = existing.author_id === userId
-  const isAdmin =
-    (
-      await c.env.DB.prepare('SELECT role FROM users WHERE id = ?')
-        .bind(userId)
-        .first<{ role: string }>()
-    )?.role === 'admin'
-  if (!isOwner && !isAdmin) return c.json({ error: 'Forbidden' }, 403)
+  if (!isOwner && !isAdmin(c)) return c.json({ error: 'Forbidden' }, 403)
 
   const now = nowIso()
 
@@ -338,13 +329,7 @@ contributorActions.post('/:id/publish', async (c) => {
   if (!action) return c.json({ error: 'Action not found' }, 404)
 
   const isOwner = action.author_id === userId
-  const isAdmin =
-    (
-      await c.env.DB.prepare('SELECT role FROM users WHERE id = ?')
-        .bind(userId)
-        .first<{ role: string }>()
-    )?.role === 'admin'
-  if (!isOwner && !isAdmin) return c.json({ error: 'Forbidden' }, 403)
+  if (!isOwner && !isAdmin(c)) return c.json({ error: 'Forbidden' }, 403)
 
   if (action.status === 'published') {
     return c.json({ message: 'Already published' })
