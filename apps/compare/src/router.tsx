@@ -9,21 +9,21 @@ import { EditListingsPage } from './pages/EditListingsPage.tsx'
 import { ComparePage } from './pages/ComparePage'
 import { ExportPage } from './pages/ExportPage'
 import { InspectionPage } from './pages/InspectionPage'
-import { LoginPage } from './pages/LoginPage'
+import { buildAuthLoginUrl, buildAuthRegisterUrl } from '@playground/auth-react'
+import { AuthRedirect } from './components/AuthRedirect'
 import { NewListingsPage } from './pages/NewListingsPage.tsx'
 import { QuestionsPage } from './pages/QuestionsPage'
-import { RegisterPage } from './pages/RegisterPage'
 import { SettingsPage } from './pages/SettingsPage'
 
 export const AppRouter = createBrowserRouter([
   {
     path: '/login',
-    element: <LoginPage />,
+    element: <AuthRedirect buildUrl={buildAuthLoginUrl} />,
     errorElement: <RouteErrorBoundary />
   },
   {
     path: '/register',
-    element: <RegisterPage />,
+    element: <AuthRedirect buildUrl={buildAuthRegisterUrl} />,
     errorElement: <RouteErrorBoundary />
   },
   {

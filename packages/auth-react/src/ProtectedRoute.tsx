@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
+import { useEffect } from 'react'
 import type { ReactNode } from 'react'
 
 import type { UserRole } from './types.js'
@@ -58,6 +59,13 @@ export function ProtectedRoute({
   }
 
   if (!user) {
+    const isExternalLogin =
+      loginPath.startsWith('http://') || loginPath.startsWith('https://')
+    if (isExternalLogin) {
+      return (
+        <ExternalLoginRedirect loginPath={loginPath} isLoading={isLoading} />
+      )
+    }
     return <Navigate to={loginPath} replace />
   }
 
@@ -66,4 +74,30 @@ export function ProtectedRoute({
   }
 
   return children
+}
+
+function ExternalLoginRedirect({
+  loginPath,
+  isLoading: parentLoading
+}: {
+  loginPath: string
+  isLoading: boolean
+}) {
+  useEffect(() => {
+    window.location.assign(loginPath)
+  }, [loginPath])
+
+  if (parentLoading) {
+    return (
+      <div className="flex min-h-[calc(100dvh_-_var(--global-header-height))] items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex min-h-[calc(100dvh_-_var(--global-header-height))] items-center justify-center">
+      <Loader2 className="size-6 animate-spin text-muted-foreground" />
+    </div>
+  )
 }

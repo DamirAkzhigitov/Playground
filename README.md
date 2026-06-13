@@ -2,10 +2,18 @@
 
 Monorepo for [da-mr.com](https://da-mr.com) and its subdomain tools.
 
-- **`apps/main`** — `da-mr.com`. Simple main page with a list of projects/tools.
+Product strategy, MVP scoring, subscription assumptions, and launch notes live in
+[`docs/product-family.md`](docs/product-family.md). Analytics tooling and cookie
+consent guidance is in [`docs/analytics-and-cookies.md`](docs/analytics-and-cookies.md).
+Execution priorities and task order are in
+[`docs/execution-roadmap.md`](docs/execution-roadmap.md).
+
+- **`apps/main`** — `da-mr.com`. Simple directory with a list of apps.
   Plain static site (Vite + vanilla JS/CSS). No React, no framework.
-- **`apps/resume`** — `resume.da-mr.com`. Dedicated resume app.
+- **`apps/resume`** — `resume.da-mr.com`. Static about/resume page.
   Plain static site (Vite + vanilla JS/CSS). No React, no framework.
+- **`apps/auth`** — `auth.da-mr.com`. Central sign-in for all tools (Better Auth
+  UI + `/api/auth/*` on one Worker).
 - **`apps/steps`** — `steps.da-mr.com` (planned). Guided catalog of life
   actions with per-user progress; see [`apps/steps/README.md`](apps/steps/README.md).
 - **`apps/<tool>`** — `<tool>.da-mr.com`. Each tool is an independent app
@@ -13,6 +21,7 @@ Monorepo for [da-mr.com](https://da-mr.com) and its subdomain tools.
   React apps go here.
 - **`packages/*`** — shared code across apps (added when needed; see
   [packages/README.md](packages/README.md)).
+- **`docs/*`** — product strategy and operating documents.
 
 ## Stack
 
@@ -40,6 +49,7 @@ All commands run from the repo root; Turbo fans them out to each app.
 | Task                 | Command                                          |
 | -------------------- | ------------------------------------------------ |
 | Start dev (all apps) | `pnpm dev`                                       |
+| Stop stuck dev ports | `pnpm stop` (after Ctrl+C if ports stay in use)  |
 | Start dev (one app)  | `pnpm --filter @playground/main dev`             |
 | Build all apps       | `pnpm build`                                     |
 | Build one app        | `pnpm turbo run build --filter=@playground/main` |
@@ -68,7 +78,8 @@ changed.
 │   │   └── ...               # @playground/compare
 │   └── steps/                # steps.da-mr.com (scaffold + docs)
 │       └── ...               # @playground/steps
-├── packages/                 # shared code (currently empty)
+├── packages/                 # shared code across apps
+├── docs/                     # product and launch strategy
 ├── .github/workflows/
 │   ├── ci.yml                # lint/test/build on PR and push
 │   ├── pr-checks.yml         # PR validation with coverage

@@ -22,11 +22,7 @@ app.route('/api/actions', actions)
 
 app.use('/api/*', async (c, next) => {
   const path = c.req.path
-  if (
-    path.startsWith('/api/auth') ||
-    path === '/api/health' ||
-    path.startsWith('/api/actions')
-  ) {
+  if (path === '/api/health' || path.startsWith('/api/actions')) {
     return next()
   }
   return requireAuth(c, next)

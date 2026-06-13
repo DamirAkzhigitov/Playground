@@ -1,3 +1,5 @@
+import { buildAuthLoginUrl } from '@playground/auth-react'
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 type RequestOptions = Omit<RequestInit, 'body'> & {
@@ -59,16 +61,8 @@ export const apiRequest = async <T>(
   const parsedBody = await parseResponseBody(response)
 
   if (!response.ok) {
-    if (
-      response.status === 401 &&
-      !path.startsWith('/api/auth/') &&
-      !window.location.pathname.startsWith('/login') &&
-      !window.location.pathname.startsWith('/register')
-    ) {
-      const returnUrl = encodeURIComponent(
-        window.location.pathname + window.location.search
-      )
-      window.location.href = `/login?returnUrl=${returnUrl}`
+    if (response.status === 401 && !path.startsWith('/api/auth/')) {
+      window.location.href = buildAuthLoginUrl(window.location.href)
       return undefined as never
     }
     const fallbackMessage = `Request failed with status ${response.status}`

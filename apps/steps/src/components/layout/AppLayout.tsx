@@ -1,17 +1,17 @@
 import { LogOut, User } from 'lucide-react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 
+import { buildAuthLoginUrl } from '@playground/auth-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 export function AppLayout() {
   const { user, logout } = useAuth()
-  const navigate = useNavigate()
 
   const handleLogout = async () => {
     await logout()
-    navigate('/login', { replace: true })
+    window.location.href = '/'
   }
 
   const navItems = [
@@ -88,7 +88,9 @@ export function AppLayout() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/login')}
+                onClick={() => {
+                  window.location.href = buildAuthLoginUrl(window.location.href)
+                }}
               >
                 <User aria-hidden="true" className="size-4 mr-1.5" />
                 Sign in

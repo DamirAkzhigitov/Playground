@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --port 8787 --inspector-port 9237 --persist-to ../../../.wrangler/local-dev-persist",
     "deploy": "wrangler deploy",
     "db:migrate:local": "wrangler d1 migrations apply steps-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply steps-db --remote",

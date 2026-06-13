@@ -1,3 +1,11 @@
+export {
+  buildAuthLoginUrl,
+  buildAuthRegisterUrl,
+  DEV_RETURN_URL_PORTS,
+  getAuthOrigin,
+  resolveReturnUrl,
+  validateReturnUrl
+} from './auth-urls.js'
 export { AuthFormError } from './AuthFormError.js'
 export { AuthFormLayout } from './AuthFormLayout.js'
 export { LoginForm } from './LoginForm.js'

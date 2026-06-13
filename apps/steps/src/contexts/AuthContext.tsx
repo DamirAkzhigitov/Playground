@@ -25,11 +25,11 @@ const { AuthProvider, useAuth } = createAuthProvider<AuthUser, StepsAuthExtra>({
       (raw.created_at as string) ??
       new Date().toISOString()
   }),
-  extend: ({ authClient }) => ({
+  extend: ({ centralAuthClient }) => ({
     signInWithSocial: async (provider) => {
-      await authClient.signIn.social({
+      await centralAuthClient.signIn.social({
         provider,
-        callbackURL: window.location.origin
+        callbackURL: window.location.href
       })
     }
   })

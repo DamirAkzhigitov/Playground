@@ -30,7 +30,7 @@ migrations_dir = "../../../packages/auth-core/migrations"
 
 [vars]
 AUTH_COOKIE_DOMAIN = ".da-mr.com"
-BETTER_AUTH_TRUSTED_ORIGINS = "https://compare.da-mr.com,https://steps.da-mr.com"
+BETTER_AUTH_TRUSTED_ORIGINS = "https://auth.da-mr.com,https://compare.da-mr.com,https://steps.da-mr.com"
 
 [[r2_buckets]]
 binding = "PHOTOS"
@@ -69,7 +69,7 @@ database_id = "62c9747d-6d66-420f-93ff-d66fcecf29d1"
 migrations_dir = "../../../packages/auth-core/migrations"
 
 [env.dev.vars]
-BETTER_AUTH_TRUSTED_ORIGINS = "https://dev-compare.da-mr.com,https://dev-steps.da-mr.com,http://localhost:3002,http://127.0.0.1:3002,http://localhost:3003,http://127.0.0.1:3003"
+BETTER_AUTH_TRUSTED_ORIGINS = "https://dev-auth.da-mr.com,https://dev-compare.da-mr.com,https://dev-steps.da-mr.com,http://localhost:3002,http://127.0.0.1:3002,http://localhost:3003,http://127.0.0.1:3003,http://localhost:3004,http://127.0.0.1:3004"
 
 [[env.dev.r2_buckets]]
 binding = "PHOTOS"

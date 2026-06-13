@@ -1,0 +1,24 @@
+{
+  "name": "@playground/auth-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8789 --inspector-port 9239 --persist-to ../../../.wrangler/local-dev-persist",
+    "deploy": "wrangler deploy",
+    "deploy:dev": "wrangler deploy --env dev",
+    "db:migrate:auth:local": "wrangler d1 migrations apply playground-auth-db --local",
+    "db:migrate:auth:remote": "wrangler d1 migrations apply playground-auth-db --remote",
+    "db:migrate:auth:remote:dev": "wrangler d1 migrations apply playground-auth-db-dev --remote --env dev",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@playground/auth-core": "workspace:*",
+    "hono": "^4.7.11"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250508.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.21.0"
+  }
+}

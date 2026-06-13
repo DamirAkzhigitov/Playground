@@ -7,8 +7,8 @@ import { HomePage } from '@/pages/HomePage'
 import { CatalogPage } from '@/pages/CatalogPage'
 import { ActionPage } from '@/pages/ActionPage'
 import { MyGuidesPage } from '@/pages/MyGuidesPage'
-import { LoginPage } from '@/pages/LoginPage'
-import { RegisterPage } from '@/pages/RegisterPage'
+import { buildAuthLoginUrl, buildAuthRegisterUrl } from '@playground/auth-react'
+import { AuthRedirect } from '@/components/AuthRedirect'
 import { ContributorHubPage } from '@/pages/ContributorHubPage'
 import { ContributorNewActionPage } from '@/pages/ContributorNewActionPage'
 import { ContributorEditActionPage } from '@/pages/ContributorEditActionPage'
@@ -16,12 +16,12 @@ import { ContributorEditActionPage } from '@/pages/ContributorEditActionPage'
 export const AppRouter = createBrowserRouter([
   {
     path: '/login',
-    element: <LoginPage />,
+    element: <AuthRedirect buildUrl={buildAuthLoginUrl} />,
     errorElement: <RouteErrorBoundary />
   },
   {
     path: '/register',
-    element: <RegisterPage />,
+    element: <AuthRedirect buildUrl={buildAuthRegisterUrl} />,
     errorElement: <RouteErrorBoundary />
   },
   {

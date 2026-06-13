@@ -31,8 +31,12 @@ export default defineConfig(({ mode }) => {
       port: 3002,
       open: true,
       proxy: {
+        '/api/auth': {
+          target: 'http://localhost:8789',
+          changeOrigin: true
+        },
         '/api': {
-          target: 'http://localhost:8787',
+          target: 'http://localhost:8788',
           changeOrigin: true
         }
       }

@@ -16,8 +16,11 @@ workspace(s).
 | ----------------- | ------------------------------------------------ |
 | Install deps      | `pnpm install`                                   |
 | Dev server (main)  | `pnpm --filter @playground/main dev` (port 3000)  |
+| Dev server (auth)  | `pnpm --filter @playground/auth dev` (port 3004)  |
 | Dev server (steps) | `pnpm --filter @playground/steps dev` (port 3003) |
+| Auth Worker (local)| `pnpm --filter @playground/auth-api dev` (8789)   |
 | Dev (all apps)     | `pnpm dev`                                        |
+| Stop stuck dev ports | `pnpm stop` (if restart says port in use after Ctrl+C) |
 | Lint              | `pnpm lint`                                      |
 | Format check      | `pnpm format:check`                              |
 | Type check        | `pnpm type-check`                                |
@@ -55,10 +58,20 @@ deploy` from `apps/compare/worker`) that serves the Vite `dist/` as static
   notes, contributor editor). Worker + D1 auth via `@playground/auth-core` /
   `@playground/auth-react` (same pattern as compare). Deploy not wired until
   Phase 6 in `apps/steps/PLAN.md`.
-- **Shared auth:** `@playground/auth-core` (Better Auth + D1) and `@playground/auth-react`.
- SSO uses shared D1 `playground-auth-db` (`AUTH_DB` binding) + `AUTH_COOKIE_DOMAIN=.da-mr.com`.
- Migrate auth: `pnpm --filter @playground/compare-api db:migrate:auth:local`. See
- `packages/auth-core/SSO.md`.
+- **Central auth:** `auth.da-mr.com` ([`apps/auth`](apps/auth)) hosts login UI and
+ `/api/auth/*`. Tools redirect via `VITE_AUTH_ORIGIN` and `buildAuthLoginUrl` from
+ `@playground/auth-react`. Shared D1 `playground-auth-db`, cookie domain
+ `.da-mr.com`. Migrate: `pnpm --filter @playground/auth-api db:migrate:auth:local`.
+ See `packages/auth-core/SSO.md`.
+- **Stuck ports after dev:** `wrangler` and `workerd` often survive Ctrl+C when
+  using Turbo or background terminals. Run `pnpm stop` from the repo root before
+  restarting (`scripts/stop-dev.sh` frees 3000–3004, 8787–8789, and inspector ports).
+- **Local dev SSO:** Auth / compare / steps Workers use
+ `--persist-to .wrangler/local-dev-persist` so the same local `playground-auth-db`
+ backs every port. Without that, signing in on the auth Worker (`8789`) while compare
+ Vite proxies `/api/auth` there leaves compare API (`8788`) with a different sqlite
+ file → `useSession` succeeds but `/api/listings` returns 401 and the compare app
+ redirects to login. Restart all three Workers after pulling this change.
 - When adding a new tool app, follow the recipe in `README.md` →
  "Adding a new tool". Each tool = one Cloudflare Pages project + one
  deploy job + one subdomain.

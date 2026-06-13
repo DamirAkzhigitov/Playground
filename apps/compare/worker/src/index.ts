@@ -6,6 +6,7 @@ import {
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { getAuth } from './auth'
+import { ensureCompareAppUser } from './ensure-app-user'
 import type { AppEnv } from './types'
 import { categories } from './routes/categories'
 import { questions } from './routes/questions'
@@ -17,13 +18,28 @@ import { profile } from './routes/profile'
 
 const app = new Hono<AppEnv>()
 
+function isPublicApiPath(path: string): boolean {
+  return path === '/api/health' || path.startsWith('/api/auth')
+}
+
 app.get('/api/health', (c) => c.json({ ok: true }))
 
 app.use('/api/*', createSessionMiddleware(getAuth))
 mountAuthHandler(app, getAuth)
 
 app.use('/api/*', async (c, next) => {
-  if (c.req.path.startsWith('/api/auth') || c.req.path === '/api/health') {
+  if (isPublicApiPath(c.req.path)) {
+    return next()
+  }
+  const userId = c.get('userId')
+  if (userId) {
+    await ensureCompareAppUser(c)
+  }
+  return next()
+})
+
+app.use('/api/*', async (c, next) => {
+  if (isPublicApiPath(c.req.path)) {
     return next()
   }
   return requireAuth(c, next)

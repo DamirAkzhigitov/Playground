@@ -27,7 +27,7 @@ migrations_dir = "../../../packages/auth-core/migrations"
 
 [vars]
 AUTH_COOKIE_DOMAIN = ".da-mr.com"
-BETTER_AUTH_TRUSTED_ORIGINS = "https://compare.da-mr.com,https://steps.da-mr.com"
+BETTER_AUTH_TRUSTED_ORIGINS = "https://auth.da-mr.com,https://compare.da-mr.com,https://steps.da-mr.com"
 
 [observability]
 enabled = true

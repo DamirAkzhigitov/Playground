@@ -8,6 +8,7 @@ import {
 } from 'react'
 import type { ReactNode } from 'react'
 
+import { getAuthOrigin } from './auth-urls.js'
 import type { LoginInput, RegisterInput } from './types.js'
 
 type AuthClient = ReturnType<typeof createAuthClient>
@@ -21,7 +22,12 @@ export type CreateAuthProviderOptions<
   normalizeUser: (raw: Record<string, unknown>) => TUser
   onLogoutClear?: () => void
   onUserChange?: (user: TUser | null) => void
-  extend?: (helpers: { authClient: AuthClient; user: TUser | null }) => TExtra
+  extend?: (helpers: {
+    authClient: AuthClient
+    /** OAuth / central login UI — uses `getAuthOrigin()`, not same-origin `/api/auth`. */
+    centralAuthClient: AuthClient
+    user: TUser | null
+  }) => TExtra
 }
 
 export type BaseAuthState<TUser> = {
@@ -38,8 +44,15 @@ export function createAuthProvider<
 >(options: CreateAuthProviderOptions<TUser, TExtra>) {
   type AuthState = BaseAuthState<TUser> & TExtra
 
+  /**
+   * Same-origin `/api/auth` (Vite proxy in dev, `mountAuthHandler` on tool Workers in prod).
+   * Cross-origin `getAuthOrigin()` breaks session reads in local dev (different ports).
+   */
   const authClient = createAuthClient({
-    baseURL: options.baseURL
+    baseURL: options.baseURL ?? ''
+  })
+  const centralAuthClient = createAuthClient({
+    baseURL: getAuthOrigin()
   })
 
   const AuthContext = createContext<AuthState | null>(null)
@@ -97,7 +110,7 @@ export function createAuthProvider<
       await refetch()
     }, [refetch])
 
-    const extensions = options.extend?.({ authClient, user })
+    const extensions = options.extend?.({ authClient, centralAuthClient, user })
 
     const value: AuthState = {
       user,

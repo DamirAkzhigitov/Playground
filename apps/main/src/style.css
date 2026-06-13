@@ -76,6 +76,8 @@ h1 {
 
 .project-status {
   display: inline-block;
+  align-self: flex-start;
+  margin-bottom: 0.75rem;
   padding: 0.22rem 0.55rem;
   border-radius: 999px;
   font-size: 0.78rem;

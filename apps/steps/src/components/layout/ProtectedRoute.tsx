@@ -1,4 +1,7 @@
-import { ProtectedRoute as SharedProtectedRoute } from '@playground/auth-react'
+import {
+  buildAuthLoginUrl,
+  ProtectedRoute as SharedProtectedRoute
+} from '@playground/auth-react'
 
 import { useAuth } from '@/contexts/AuthContext'
 import type { UserRole } from '@/types'
@@ -13,8 +16,13 @@ export function ProtectedRoute({
   requiredRole
 }: ProtectedRouteProps) {
   const auth = useAuth()
+  const loginPath = buildAuthLoginUrl(window.location.href)
   return (
-    <SharedProtectedRoute auth={auth} requiredRole={requiredRole}>
+    <SharedProtectedRoute
+      auth={auth}
+      loginPath={loginPath}
+      requiredRole={requiredRole}
+    >
       {children}
     </SharedProtectedRoute>
   )

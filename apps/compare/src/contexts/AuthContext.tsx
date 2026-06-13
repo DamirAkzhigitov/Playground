@@ -39,7 +39,7 @@ const { AuthProvider, useAuth } = createAuthProvider<
   onUserChange: (user) => {
     if (user) persistLocaleHint(user.locale)
   },
-  extend: ({ authClient }) => ({
+  extend: ({ authClient, centralAuthClient }) => ({
     updateLocale: async (locale: AppLocale) => {
       await apiRequest('/api/profile/locale', {
         method: 'PATCH',
@@ -49,9 +49,9 @@ const { AuthProvider, useAuth } = createAuthProvider<
       await authClient.getSession()
     },
     signInWithSocial: async (provider) => {
-      await authClient.signIn.social({
+      await centralAuthClient.signIn.social({
         provider,
-        callbackURL: window.location.origin
+        callbackURL: window.location.href
       })
     }
   })

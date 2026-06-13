@@ -22,7 +22,7 @@ export function AppLayout() {
 
   const handleLogout = async () => {
     await logout()
-    navigate('/login', { replace: true })
+    navigate('/listings', { replace: true })
   }
 
   return (

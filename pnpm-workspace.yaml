@@ -1,5 +1,6 @@
 packages:
   - apps/*
+  - apps/auth/worker
   - apps/compare/worker
   - apps/steps/worker
   - packages/*

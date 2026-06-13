@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Playground dashboard for da-mr.com projects and tools."
+      content="A directory of da-mr.com web apps and product experiments."
     />
     <meta name="author" content="Damir Akzhigitov" />
     <meta name="theme-color" content="#030306" />
@@ -31,16 +31,21 @@
     <main class="container">
       <header class="hero">
         <p class="eyebrow">da-mr.com</p>
-        <h1>Projects and Tools</h1>
+        <h1>Apps and product experiments</h1>
         <p class="subtitle">
-          A small collection of things I build and keep improving.
+          A simple directory of independent web apps: comparison tools, guided
+          processes, and static project pages.
         </p>
       </header>
 
       <section aria-label="Project list" class="projects">
         <article class="project-card">
-          <h2>Resume</h2>
-          <p>My resume.</p>
+          <span class="project-status">Static page</span>
+          <h2>About</h2>
+          <p>
+            Background, experience, and context about the person behind these
+            apps.
+          </p>
           <a
             id="resume-project-link"
             class="project-link"
@@ -51,17 +56,33 @@
           </a>
         </article>
         <article class="project-card">
+          <span class="project-status">Core product</span>
           <h2>Compare</h2>
           <p>
-            Mobile-first compare checklist app with quick in-visit answers,
-            local autosave, export options, and side-by-side comparison across
-            multiple items.
+            Universal comparison app for products, electronics, GPUs, services,
+            and other curated categories with structured side-by-side decisions.
           </p>
           <a
             id="apartments-project-link"
             class="project-link"
             href="__COMPARE_ORIGIN__"
             data-local-href="http://localhost:3002"
+          >
+            Open project
+          </a>
+        </article>
+        <article class="project-card">
+          <span class="project-status">Lead magnet</span>
+          <h2>Steps</h2>
+          <p>
+            Guided app for completing complex paths: documents, actions,
+            resources, tools, and step-by-step progress.
+          </p>
+          <a
+            id="steps-project-link"
+            class="project-link"
+            href="__STEPS_ORIGIN__"
+            data-local-href="http://localhost:3003"
           >
             Open project
           </a>

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { buildAuthLoginUrl } from '@playground/auth-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -314,11 +315,13 @@ export function ActionPage() {
       <div className="flex flex-wrap gap-2">
         {!user ? (
           <Button asChild>
-            <Link
-              to={`/login?returnUrl=${encodeURIComponent(`/actions/${slug}`)}`}
+            <a
+              href={buildAuthLoginUrl(
+                `${window.location.origin}/actions/${slug ?? ''}`
+              )}
             >
               Sign in to start
-            </Link>
+            </a>
           </Button>
         ) : inProgressEnrollment ? (
           <>
