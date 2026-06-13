@@ -19,7 +19,7 @@ Week 1 tasks: [`week-1-tasks.md`](week-1-tasks.md).
 | D-06 | Compare seed categories (1–2) + example pairs | _TBD_ | | |
 | D-07 | Steps guides to publish (3 titles/slugs) | _TBD_ | | |
 | D-08 | Main site copy approved | _TBD_ (link to PR or copy doc) | | |
-| D-09 | Compare public vs account-only | _TBD_ (see matrix below) | | |
+| D-09 | Compare public vs account-only | **Current:** account-only (see [`packages/auth-core/AUTHORIZATION.md`](../packages/auth-core/AUTHORIZATION.md)). **Target matrix:** below — fill Public/Account/Pro columns when locked. | | |
 
 ### D-09 — Compare access matrix
 

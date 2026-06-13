@@ -57,7 +57,7 @@ The roadmap correctly prioritizes **one paid product (Compare)**, **one lead mag
 
 **Product definitions missing:**
 
-- Compare: nothing documented as public vs account-only in code (today **everything requires login**).
+- Compare: public vs account-only matrix documented in [`packages/auth-core/AUTHORIZATION.md`](../packages/auth-core/AUTHORIZATION.md) (today **everything requires login**).
 - Steps: public guide browse works without login; saved progress requires auth — **aligned with roadmap intent**.
 
 ---

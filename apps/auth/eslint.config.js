@@ -21,6 +21,7 @@ export default [
         project: [
           './tsconfig.app.json',
           './tsconfig.node.json',
+          './tsconfig.test.json',
           './worker/tsconfig.json'
         ]
       },

@@ -42,6 +42,12 @@ jobs:
       - name: Test
         run: pnpm turbo run test
 
+      - name: Install Playwright (Chromium)
+        run: pnpm --filter @playground/e2e exec playwright install chromium --with-deps
+
+      - name: Auth integration E2E
+        run: pnpm test:e2e
+
       - name: Security audit
         run: pnpm run security:audit
         continue-on-error: true

@@ -31,6 +31,9 @@
     "format:check": {},
     "type-check": {},
     "test": {},
+    "test:e2e": {
+      "cache": false
+    },
     "test:coverage": {
       "outputs": ["coverage/**"]
     }

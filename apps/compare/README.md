@@ -22,6 +22,23 @@ pnpm --filter @playground/compare dev
 
 Other scripts: `build`, `lint`, `type-check`, `test` (see `package.json`).
 
+## Authentication
+
+Compare uses shared auth (`@playground/auth-core`, `@playground/auth-react`) with
+central login at `auth.da-mr.com`. See
+[`packages/auth-core/AUTHORIZATION.md`](../../packages/auth-core/AUTHORIZATION.md).
+
+| Access | Today |
+| ------ | ----- |
+| **Guest** | Not supported — all routes require sign-in |
+| **Signed-in user** | Full app: listings, questions, inspection, compare, export, settings |
+
+Public comparison/category pages (guest browse) are on the roadmap (decision
+**D-09** in [`docs/DECISIONS.md`](../../docs/DECISIONS.md)).
+
+Local dev: set `VITE_AUTH_ORIGIN=http://localhost:3004`; Workers share auth D1 via
+`--persist-to .wrangler/local-dev-persist` (see root `AGENTS.md`).
+
 ---
 
 ## Product flow
@@ -266,7 +283,9 @@ Normalized answers make a comparison grid straightforward (Solar, Parking, Crack
 | Database | Cloudflare D1      |
 | Files    | Cloudflare R2      |
 
-**Auth:** start with no auth or simple email; later Google / magic links if needed.
+**Auth:** shared Better Auth + central login (`auth.da-mr.com`). Account-only
+today; public read routes planned. See
+[`packages/auth-core/AUTHORIZATION.md`](../../packages/auth-core/AUTHORIZATION.md).
 
 ### Suggested API shape
 

@@ -60,7 +60,13 @@ Requires shared D1 + shared `BETTER_AUTH_SECRET` across tools. See [SSO.md](./SS
   `hasMinimumRole` (`user` | `contributor` | `admin`).
 - **Exports:** `authSchema`, `buildPlaygroundSsoOptions`, `mountAuthHandler`.
 
+## Authorization (guests, roles, per-app matrix)
+
+See [AUTHORIZATION.md](./AUTHORIZATION.md) for how guest vs signed-in access works
+on Steps and Compare, Worker route patterns, and frontend guards.
+
 ## See also
 
+- [AUTHORIZATION.md](./AUTHORIZATION.md) — guests, roles, public vs protected routes
 - [OAUTH.md](./OAUTH.md) — Google / Facebook setup
 - [SSO.md](./SSO.md) — one login across `*.da-mr.com`

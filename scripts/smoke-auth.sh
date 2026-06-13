@@ -131,6 +131,11 @@ unauth_code=$(curl -sS -o /dev/null -w '%{http_code}' \
 assert_status "$unauth_code" "401" "steps enrollments without cookie"
 pass "steps unauthed /api/enrollments → 401"
 
+actions_code=$(curl -sS -o /tmp/smoke-steps-actions.json -w '%{http_code}' \
+  "http://127.0.0.1:${STEPS_PORT}/api/actions")
+assert_status "$actions_code" "200" "steps public catalog without cookie"
+pass "steps guest GET /api/actions → 200"
+
 user_login=$(curl -sS -w '\n%{http_code}' -c "$COOKIE_JAR" -X POST \
   "http://127.0.0.1:${AUTH_PORT}/api/auth/sign-in/email" \
   -H 'Content-Type: application/json' \

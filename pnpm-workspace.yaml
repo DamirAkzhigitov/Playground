@@ -4,6 +4,7 @@ packages:
   - apps/compare/worker
   - apps/steps/worker
   - packages/*
+  - e2e
 
 onlyBuiltDependencies:
   - esbuild

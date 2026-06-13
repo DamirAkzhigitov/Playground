@@ -2,6 +2,9 @@
 
 Monorepo for [da-mr.com](https://da-mr.com) and its subdomain tools.
 
+**Documentation index:** [`DOCS.md`](DOCS.md) — links to all product, auth, and
+app docs in one place.
+
 Product strategy, MVP scoring, subscription assumptions, and launch notes live in
 [`docs/product-family.md`](docs/product-family.md). Analytics tooling and cookie
 consent guidance is in [`docs/analytics-and-cookies.md`](docs/analytics-and-cookies.md).
@@ -21,7 +24,8 @@ Execution priorities and task order are in
   React apps go here.
 - **`packages/*`** — shared code across apps (added when needed; see
   [packages/README.md](packages/README.md)).
-- **`docs/*`** — product strategy and operating documents.
+- **`docs/*`** — product strategy and operating documents (index:
+  [`DOCS.md`](DOCS.md)).
 
 ## Stack
 
@@ -59,6 +63,8 @@ All commands run from the repo root; Turbo fans them out to each app.
 | Format check         | `pnpm format:check`                              |
 | Type check           | `pnpm type-check`                                |
 | Tests                | `pnpm test`                                      |
+| Auth E2E (browser)   | `pnpm test:e2e`                                  |
+| Auth API smoke       | `./scripts/smoke-auth.sh`                        |
 | Tests with coverage  | `pnpm test:coverage`                             |
 | Security audit       | `pnpm security:audit`                            |
 
@@ -147,25 +153,30 @@ pnpm --filter @playground/compare-api exec wrangler deploy
 
 #### Authentication
 
-The compare app uses **cookie-based session auth** — fully self-contained
-in the Worker with no external auth services.
+Compare uses the **shared auth stack** (Better Auth + central login at
+`auth.da-mr.com`, cookie session, shared D1 `playground-auth-db`). See
+[`packages/auth-core/SSO.md`](packages/auth-core/SSO.md) and
+[`packages/auth-core/AUTHORIZATION.md`](packages/auth-core/AUTHORIZATION.md).
 
-- Passwords are hashed with PBKDF2 (Web Crypto API, 100k iterations, SHA-256).
-- Sessions are stored in D1 with HTTP-only secure cookies (30-day expiry).
-- Every `/api/*` route (except `/api/auth/*` and `/api/health`) requires a
-  valid session. Unauthenticated requests receive a `401`.
-- All data (categories, questions, apartments, answers, photos) is scoped to
-  the authenticated user via a `user_id` column. Users only see their own data.
-- On registration, default categories and questions are seeded for the new user.
+- Session validation runs on every `/api/*` request via `createSessionMiddleware`.
+- **Today the app is account-only:** the SPA wraps all routes in `ProtectedRoute`,
+  and every data API (except `/api/health` and `/api/auth/*`) returns **401**
+  without a session.
+- On first authenticated request, `ensureCompareAppUser` mirrors the auth user
+  into compare D1 and seeds default categories/questions.
+- All listing/question/answer data is scoped by `user_id`.
 
-**Auth API routes:**
+**Auth routes** (Better Auth on the Worker, proxied to central auth in local dev):
 
-| Method | Path                 | Purpose                       |
-| ------ | -------------------- | ----------------------------- |
-| POST   | `/api/auth/register` | Create account + session      |
-| POST   | `/api/auth/login`    | Authenticate + create session |
-| POST   | `/api/auth/logout`   | Destroy session + clear cookie|
-| GET    | `/api/auth/me`       | Return current user           |
+| Method | Path | Purpose |
+| ------ | ---- | ------- |
+| POST | `/api/auth/sign-up/email` | Create account |
+| POST | `/api/auth/sign-in/email` | Sign in |
+| POST | `/api/auth/sign-out` | Sign out |
+| GET | `/api/auth/get-session` | Current session |
+
+Public/guest Compare pages (SEO category views) are planned but not implemented —
+see decision **D-09** in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 
 **D1 migrations** live in `apps/compare/worker/migrations/`. Run locally:
 

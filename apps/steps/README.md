@@ -27,8 +27,8 @@ progress**.
 
 | Role | Capabilities |
 | ---- | ------------ |
-| **Visitor** | Browse public catalog (optional; TBD), read marketing/home |
-| **User** | Register / login, search actions, start a guide, mark steps, notes, resume progress |
+| **Guest (visitor)** | Browse published catalog (home, search, action detail) without sign-in |
+| **User** | Register / login, start a guide, mark steps, notes, resume progress |
 | **Contributor** | Create/edit actions and steps, requirements, publish workflow (draft → published) |
 | **Admin** | Moderate content, manage contributors (later) |
 
@@ -52,7 +52,7 @@ Progress is stored per user per enrollment, not globally on the action template.
 
 ### Discover & start
 
-1. User signs in.
+1. Browse or search actions (guests) or sign in for saved progress.
 2. Search or browse actions (full-text on title + tags + summary).
 3. Open action page (`/actions/:slug`) → overview + step list (titles).
 4. **Start guide** → creates enrollment, switches to guide mode on the **same page** (first incomplete step).
@@ -166,5 +166,6 @@ Tracked in `PLAN.md` Phase 6.
 - [`IMPLEMENTATION.md`](./IMPLEMENTATION.md) — **phased development** (what ships each phase; links to DESIGN)
 - [`DESIGN.md`](./DESIGN.md) — screen map, page specs, components, accessibility
 - [`PLAN.md`](./PLAN.md) — task checkboxes, API tables, schema
+- [`../../packages/auth-core/AUTHORIZATION.md`](../../packages/auth-core/AUTHORIZATION.md) — guest vs signed-in access matrix
 - [`../../packages/auth-core/README.md`](../../packages/auth-core/README.md) — shared Worker auth
 - [`../../packages/auth-react/README.md`](../../packages/auth-react/README.md) — shared React auth UI

@@ -79,6 +79,10 @@ Production database IDs (Cloudflare):
 7. **Compare app data** — register no longer seeds compare DB. First authenticated
    compare API request runs lazy mirror + seed ([`ensure-app-user.ts`](../../apps/compare/worker/src/ensure-app-user.ts)).
 
+8. **Guest access** — per-app public vs account-only routes are documented in
+   [`AUTHORIZATION.md`](./AUTHORIZATION.md). Steps allows guest catalog browse;
+   Compare is account-only until public routes ship (D-09).
+
 ## Tool SPA configuration
 
 ```bash

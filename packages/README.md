@@ -19,12 +19,17 @@ Conventions (planned / future):
 
 See [`auth-core/README.md`](auth-core/README.md) and [`auth-react/README.md`](auth-react/README.md).
 
+Full doc map: [`../DOCS.md`](../DOCS.md) → Authentication & authorization.
+
 Worker apps use `createPlaygroundAuth()`, `mountAuthHandler()`, and
 `createSessionMiddleware()` from `@playground/auth-core`. React tools use
 `createAuthProvider()` and form components from `@playground/auth-react`.
 
-OAuth (Google, Facebook, etc.) and cross-subdomain SSO are documented in
-[`auth-core/OAUTH.md`](auth-core/OAUTH.md) and [`auth-core/SSO.md`](auth-core/SSO.md).
+OAuth (Google, Facebook, etc.), cross-subdomain SSO, and the guest vs
+signed-in access model are documented in
+[`auth-core/OAUTH.md`](auth-core/OAUTH.md),
+[`auth-core/SSO.md`](auth-core/SSO.md), and
+[`auth-core/AUTHORIZATION.md`](auth-core/AUTHORIZATION.md).
 
 ## Product access
 

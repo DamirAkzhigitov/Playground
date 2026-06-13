@@ -13,6 +13,7 @@
     "lint:fix": "turbo run lint:fix",
     "lint:staged": "lint-staged",
     "test": "turbo run test",
+    "test:e2e": "pnpm --filter @playground/e2e test",
     "test:coverage": "turbo run test:coverage",
     "type-check": "turbo run type-check",
     "format": "turbo run format",

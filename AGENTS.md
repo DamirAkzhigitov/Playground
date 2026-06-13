@@ -2,6 +2,8 @@
 
 ## Cursor Cloud specific instructions
 
+**Doc index:** [`DOCS.md`](../DOCS.md) at repo root.
+
 This is a **pnpm + Turborepo monorepo** hosting `da-mr.com` and its
 subdomain tools. Apps live as siblings under `apps/*` (e.g. `main`, `resume`,
 `compare`, `steps`). `apps/main` is a static Vite site (vanilla JS/CSS, no
@@ -25,6 +27,8 @@ workspace(s).
 | Format check      | `pnpm format:check`                              |
 | Type check        | `pnpm type-check`                                |
 | Tests             | `pnpm test`                                      |
+| Auth E2E          | `pnpm test:e2e` (browser; see `e2e/README.md`)   |
+| Auth API smoke    | `./scripts/smoke-auth.sh`                        |
 | Build (all)       | `pnpm build`                                     |
 | Build (main only) | `pnpm turbo run build --filter=@playground/main` |
 | Security audit    | `pnpm security:audit`                            |
