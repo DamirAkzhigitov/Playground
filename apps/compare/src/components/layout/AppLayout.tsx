@@ -1,45 +1,91 @@
-import { BarChart2, Home, ListChecks, LogOut, Settings } from 'lucide-react'
+import {
+  Compass,
+  ListChecks,
+  LogOut,
+  PlusCircle,
+  Settings,
+  Package
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { buildAuthLoginUrl } from '@playground/auth-react'
 
 export function AppLayout() {
   const { user, logout } = useAuth()
   const { t } = useI18n()
   const navigate = useNavigate()
+  const [pendingAuthRedirect, setPendingAuthRedirect] = useState(false)
+
+  useEffect(() => {
+    if (!pendingAuthRedirect) return
+    window.location.assign(buildAuthLoginUrl(window.location.href))
+  }, [pendingAuthRedirect])
 
   const tabs = [
-    { to: '/listings', labelKey: 'nav.listings' as const, icon: Home },
-    { to: '/questions', labelKey: 'nav.questions' as const, icon: ListChecks },
-    { to: '/compare', labelKey: 'nav.compare' as const, icon: BarChart2 },
-    // TODO: not ready yet
-    // { to: '/export', labelKey: 'nav.export' as const, icon: Download },
-    { to: '/settings', labelKey: 'nav.settings' as const, icon: Settings }
+    { to: '/', labelKey: 'nav.browse' as const, icon: Compass, guest: true },
+    {
+      to: '/items',
+      labelKey: 'nav.items' as const,
+      icon: Package,
+      guest: false
+    },
+    {
+      to: '/my-compares',
+      labelKey: 'nav.myCompares' as const,
+      icon: ListChecks,
+      guest: false
+    },
+    {
+      to: '/add-item',
+      labelKey: 'nav.addItem' as const,
+      icon: PlusCircle,
+      guest: false
+    },
+    {
+      to: '/settings',
+      labelKey: 'nav.settings' as const,
+      icon: Settings,
+      guest: false
+    }
   ] as const
 
   const handleLogout = async () => {
     await logout()
-    navigate('/listings', { replace: true })
+    navigate('/', { replace: true })
+  }
+
+  const handleProtectedNav = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    guest: boolean
+  ) => {
+    if (!guest && !user) {
+      e.preventDefault()
+      setPendingAuthRedirect(true)
+    }
   }
 
   return (
     <div className="min-h-[calc(100dvh_-_var(--global-header-height))] bg-background text-foreground">
       <header className="mx-auto flex max-w-3xl items-center justify-between px-4 pt-3 sm:px-6">
         <span className="truncate text-xs text-muted-foreground">
-          {user?.email}
+          {user?.email ?? t('nav.guest')}
         </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleLogout}
-          className="gap-1 text-xs text-muted-foreground"
-        >
-          <LogOut aria-hidden="true" className="size-3.5" />
-          <span className="sr-only sm:not-sr-only">{t('auth.logout')}</span>
-        </Button>
+        {user ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="gap-1 text-xs text-muted-foreground"
+          >
+            <LogOut aria-hidden="true" className="size-3.5" />
+            <span className="sr-only sm:not-sr-only">{t('auth.logout')}</span>
+          </Button>
+        ) : null}
       </header>
       <main className="pb-page-tabs mx-auto w-full max-w-3xl px-4 pt-2 print:max-w-none print:pb-4 sm:px-6">
         <Outlet />
@@ -64,6 +110,7 @@ export function AppLayout() {
                 >
                   <NavLink
                     to={tab.to}
+                    onClick={(e) => handleProtectedNav(e, tab.guest)}
                     className={({ isActive }) =>
                       cn(
                         'flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-[11px] font-medium leading-tight transition-colors sm:text-xs',

@@ -41,7 +41,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const el = document.querySelector('playground-global-header')
     if (el) {
-      el.setAttribute('home-label', translate(locale, 'nav.dashboard'))
+      el.setAttribute('home-label', translate(locale, 'nav.browse'))
     }
   }, [locale])
 

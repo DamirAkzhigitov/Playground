@@ -164,10 +164,10 @@ Create or update [`DECISIONS.md`](DECISIONS.md) with:
 
 ### Decisions
 
-- [ ] **D-01** Lock Compare positioning (1 paragraph)
-- [ ] **D-02** Choose first paid boundary for Compare
-- [ ] **D-03** Set v1 pricing (single Pro plan)
-- [ ] **D-04** Choose billing provider
+- [x] **D-01** Lock Compare positioning (1 paragraph)
+- [x] **D-02** Choose first paid boundary for Compare
+- [x] **D-03** Set v1 pricing (single Pro plan)
+- [x] **D-04** Choose billing provider
 - [ ] **D-05** Approve legal approach + entity/contact email
 - [ ] **D-06** Pick 1–2 Compare seed categories + example product pairs
 - [ ] **D-07** Pick 3 Steps guides to publish (titles/slugs)

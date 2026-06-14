@@ -7,10 +7,10 @@
     "dev": "wrangler dev --port 8788 --inspector-port 9238 --persist-to ../../../.wrangler/local-dev-persist",
     "deploy": "wrangler deploy",
     "deploy:dev": "wrangler deploy --env dev",
-    "db:migrate:local": "wrangler d1 migrations apply apartments-db --local",
+    "db:migrate:local": "wrangler d1 migrations apply apartments-db --local --persist-to ../../../.wrangler/local-dev-persist",
     "db:migrate:remote": "wrangler d1 migrations apply apartments-db --remote",
     "db:migrate:remote:dev": "wrangler d1 migrations apply apartments-db-dev --remote --env dev",
-    "db:migrate:auth:local": "wrangler d1 migrations apply playground-auth-db --local",
+    "db:migrate:auth:local": "wrangler d1 migrations apply playground-auth-db --local --persist-to ../../../.wrangler/local-dev-persist",
     "db:migrate:auth:remote": "wrangler d1 migrations apply playground-auth-db --remote",
     "db:migrate:auth:remote:dev": "wrangler d1 migrations apply playground-auth-db-dev --remote --env dev",
     "type-check": "tsc --noEmit"

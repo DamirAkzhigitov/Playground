@@ -10,9 +10,9 @@ export const useUploadPhoto = () => {
   return useMutation({
     mutationFn: async (payload: UploadPhotoInput) => {
       const formData = new FormData()
-      formData.append('listingId', payload.listingId)
-      if (payload.questionId) {
-        formData.append('questionId', payload.questionId)
+      formData.append('itemId', payload.itemId)
+      if (payload.specId) {
+        formData.append('specId', payload.specId)
       }
       formData.append('file', payload.file)
       return apiRequest<Photo>('/api/photos/upload', {
@@ -21,12 +21,9 @@ export const useUploadPhoto = () => {
       })
     },
     onSuccess: async (_data, variables) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.listings }),
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.listing(variables.listingId)
-        })
-      ])
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.item(variables.itemId)
+      })
     }
   })
 }
@@ -38,12 +35,9 @@ export const useDeletePhoto = () => {
     mutationFn: ({ id }: DeletePhotoInput) =>
       apiRequest<void>(`/api/photos/${id}`, { method: 'DELETE' }),
     onSuccess: async (_data, variables) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.listings }),
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.listing(variables.listingId)
-        })
-      ])
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.item(variables.itemId)
+      })
     }
   })
 }

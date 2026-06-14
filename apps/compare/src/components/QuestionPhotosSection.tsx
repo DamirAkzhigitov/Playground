@@ -32,31 +32,33 @@ import { photoPublicUrl } from '@/lib/photoUrl'
 import { cn } from '@/lib/utils'
 import type { Photo } from '@/types'
 
-type QuestionPhotosSectionProps = {
-  listingId: string
-  questionId: string
-  questionLabel: string
+type SpecPhotosSectionProps = {
+  itemId: string
+  specId: string
+  specLabel: string
   allPhotos: Photo[]
   density?: 'comfortable' | 'compact'
+  readOnly?: boolean
 }
 
 export function QuestionPhotosSection({
-  listingId,
-  questionId,
-  questionLabel,
+  itemId,
+  specId,
+  specLabel,
   allPhotos,
-  density = 'comfortable'
-}: QuestionPhotosSectionProps) {
+  density = 'comfortable',
+  readOnly = false
+}: SpecPhotosSectionProps) {
   const { t } = useI18n()
   const photos = useMemo(
     () =>
       allPhotos
-        .filter((p) => p.questionId === questionId)
+        .filter((p) => p.specId === specId)
         .sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         ),
-    [allPhotos, questionId]
+    [allPhotos, specId]
   )
 
   const cameraInputRef = useRef<HTMLInputElement>(null)
@@ -78,8 +80,8 @@ export function QuestionPhotosSection({
       try {
         const prepared = await compressImageForUpload(file)
         await upload.mutateAsync({
-          listingId: listingId,
-          questionId,
+          itemId,
+          specId,
           file: prepared
         })
         toast.success(t('photos.added'))
@@ -87,7 +89,7 @@ export function QuestionPhotosSection({
         toast.error(e instanceof Error ? e.message : t('photos.uploadFailed'))
       }
     },
-    [listingId, questionId, upload, t]
+    [itemId, specId, upload, t]
   )
 
   const onFileInputChange = useCallback(
@@ -107,7 +109,7 @@ export function QuestionPhotosSection({
     const snapshot = photos
     const deletedIndex = snapshot.findIndex((p) => p.id === targetId)
     try {
-      await del.mutateAsync({ id: targetId, listingId: listingId })
+      await del.mutateAsync({ id: targetId, itemId })
       toast.success(t('photos.removed'))
       setDeleteTarget(null)
       setLightboxIndex((current) => {
@@ -134,7 +136,7 @@ export function QuestionPhotosSection({
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('photos.deleteFailed'))
     }
-  }, [listingId, del, deleteTarget, photos, t])
+  }, [itemId, del, deleteTarget, photos, t])
 
   const openLightbox = (index: number) => setLightboxIndex(index)
   const closeLightbox = () => setLightboxIndex(null)
@@ -147,55 +149,61 @@ export function QuestionPhotosSection({
     setLightboxIndex((i) => (i === null || i >= photos.length - 1 ? i : i + 1))
   }
 
-  const busy = upload.isPending || del.isPending
+  const busy = !readOnly && (upload.isPending || del.isPending)
   const compact = density === 'compact'
+
+  if (readOnly && photos.length === 0) {
+    return null
+  }
 
   return (
     <div className={cn('space-y-3', compact ? 'pt-1' : 'pt-2')}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap gap-2">
-          <input
-            ref={cameraInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="sr-only"
-            aria-hidden
-            tabIndex={-1}
-            onChange={onFileInputChange}
-          />
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="sr-only"
-            aria-hidden
-            tabIndex={-1}
-            onChange={onFileInputChange}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="min-h-11 gap-2"
-            disabled={busy}
-            onClick={() => cameraInputRef.current?.click()}
-          >
-            <Camera className="size-4 shrink-0" aria-hidden />
-            <span>{t('photos.takePhoto')}</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="min-h-11 gap-2"
-            disabled={busy}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <ImagePlus className="size-4 shrink-0" aria-hidden />
-            <span>{t('photos.addFromLibrary')}</span>
-          </Button>
-        </div>
+        {!readOnly ? (
+          <div className="flex flex-wrap gap-2">
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="sr-only"
+              aria-hidden
+              tabIndex={-1}
+              onChange={onFileInputChange}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              aria-hidden
+              tabIndex={-1}
+              onChange={onFileInputChange}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="min-h-11 gap-2"
+              disabled={busy}
+              onClick={() => cameraInputRef.current?.click()}
+            >
+              <Camera className="size-4 shrink-0" aria-hidden />
+              <span>{t('photos.takePhoto')}</span>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="min-h-11 gap-2"
+              disabled={busy}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <ImagePlus className="size-4 shrink-0" aria-hidden />
+              <span>{t('photos.addFromLibrary')}</span>
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       {photos.length > 0 && (
@@ -216,7 +224,7 @@ export function QuestionPhotosSection({
                 aria-label={t('photos.viewAria', {
                   index: index + 1,
                   total: photos.length,
-                  label: questionLabel
+                  label: specLabel
                 })}
               >
                 <img
@@ -226,20 +234,22 @@ export function QuestionPhotosSection({
                   loading="lazy"
                 />
               </button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="icon-lg"
-                className="absolute right-1 bottom-1 size-11 rounded-full border border-border shadow-md"
-                aria-label={t('photos.deleteAria')}
-                disabled={busy}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setDeleteTarget(photo)
-                }}
-              >
-                <Trash2 className="size-4 text-destructive" aria-hidden />
-              </Button>
+              {!readOnly ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon-lg"
+                  className="absolute right-1 bottom-1 size-11 rounded-full border border-border shadow-md"
+                  aria-label={t('photos.deleteAria')}
+                  disabled={busy}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setDeleteTarget(photo)
+                  }}
+                >
+                  <Trash2 className="size-4 text-destructive" aria-hidden />
+                </Button>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -258,7 +268,7 @@ export function QuestionPhotosSection({
           className="max-h-[95dvh] w-[calc(100vw-1rem)] max-w-4xl gap-0 overflow-hidden border-0 bg-background/95 p-2 sm:p-4"
         >
           <DialogTitle className="sr-only">
-            {t('photos.lightboxTitle', { label: questionLabel })}
+            {t('photos.lightboxTitle', { label: specLabel })}
           </DialogTitle>
           <DialogDescription className="sr-only">
             {t('photos.lightboxDesc')}
@@ -281,7 +291,7 @@ export function QuestionPhotosSection({
               <div className="min-h-0 min-w-0 flex-1">
                 <img
                   src={photoPublicUrl(lightboxPhoto.r2Key)}
-                  alt={t('photos.lightboxTitle', { label: questionLabel })}
+                  alt={t('photos.lightboxTitle', { label: specLabel })}
                   className="mx-auto max-h-[min(80dvh,900px)] w-full object-contain"
                 />
               </div>

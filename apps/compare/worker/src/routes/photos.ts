@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import type { AppEnv } from '../types'
 import { nowIso } from '../helpers'
+import { canReadItem } from '../item-access'
 import {
   MAX_PHOTO_BYTES,
   detectImageContentType,
@@ -9,8 +10,8 @@ import {
 } from '../photoSecurity'
 
 const uploadPhotoSchema = z.object({
-  listingId: z.string().trim().min(1),
-  questionId: z.string().trim().min(1).optional()
+  itemId: z.string().trim().min(1),
+  specId: z.string().trim().min(1).optional()
 })
 
 type UploadFile = {
@@ -30,7 +31,7 @@ const isUploadFile = (value: unknown): value is UploadFile =>
 const photos = new Hono<AppEnv>()
 
 photos.post('/upload', async (c) => {
-  const userId = c.get('userId')
+  const userId = c.get('userId')!
   const formData = await c.req.formData()
   const file = formData.get('file')
   if (!isUploadFile(file)) {
@@ -38,16 +39,16 @@ photos.post('/upload', async (c) => {
   }
 
   const payload = uploadPhotoSchema.parse({
-    listingId: formData.get('listingId'),
-    questionId: formData.get('questionId') ?? undefined
+    itemId: formData.get('itemId'),
+    specId: formData.get('specId') ?? undefined
   })
 
   const owns = await c.env.DB.prepare(
-    'SELECT 1 FROM listings WHERE id = ? AND user_id = ?'
+    'SELECT 1 FROM items WHERE id = ? AND user_id = ?'
   )
-    .bind(payload.listingId, userId)
+    .bind(payload.itemId, userId)
     .first()
-  if (!owns) return c.json({ error: 'Listing not found' }, 404)
+  if (!owns) return c.json({ error: 'Item not found' }, 404)
 
   const buffer = await file.arrayBuffer()
   if (buffer.byteLength > MAX_PHOTO_BYTES) {
@@ -67,26 +68,24 @@ photos.post('/upload', async (c) => {
 
   const id = crypto.randomUUID()
   const safeName = safePhotoFilename(file.name)
-  const key = `${payload.listingId}-${Date.now()}-${id}-${safeName}`
+  const key = `${payload.itemId}-${Date.now()}-${id}-${safeName}`
 
   await c.env.PHOTOS.put(key, buffer, {
-    httpMetadata: {
-      contentType
-    }
+    httpMetadata: { contentType }
   })
 
   const createdAt = nowIso()
   await c.env.DB.prepare(
-    'INSERT INTO photos (id, listing_id, question_id, r2_key, created_at) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO photos (id, item_id, spec_id, r2_key, created_at) VALUES (?, ?, ?, ?, ?)'
   )
-    .bind(id, payload.listingId, payload.questionId ?? null, key, createdAt)
+    .bind(id, payload.itemId, payload.specId ?? null, key, createdAt)
     .run()
 
   return c.json(
     {
       id,
-      listingId: payload.listingId,
-      questionId: payload.questionId ?? null,
+      itemId: payload.itemId,
+      specId: payload.specId ?? null,
       r2Key: key,
       createdAt
     },
@@ -96,17 +95,22 @@ photos.post('/upload', async (c) => {
 
 photos.get('/:key', async (c) => {
   const userId = c.get('userId')
-  const paramKey = c.req.param('key')
-  const key = decodeURIComponent(paramKey)
+  const key = decodeURIComponent(c.req.param('key'))
 
   const row = await c.env.DB.prepare(
-    `SELECT p.r2_key FROM photos p
-     INNER JOIN listings a ON a.id = p.listing_id
-     WHERE p.r2_key = ? AND a.user_id = ?`
+    `SELECT p.r2_key, i.user_id, i.is_public FROM photos p
+     INNER JOIN items i ON i.id = p.item_id
+     WHERE p.r2_key = ?`
   )
-    .bind(key, userId)
-    .first<{ r2_key: string }>()
-  if (!row) {
+    .bind(key)
+    .first<{ r2_key: string; user_id: string; is_public: number }>()
+  if (
+    !row ||
+    !canReadItem(
+      { id: '', user_id: row.user_id, is_public: row.is_public },
+      userId
+    )
+  ) {
     return c.json({ error: 'Photo not found' }, 404)
   }
 
@@ -127,18 +131,21 @@ photos.get('/:key', async (c) => {
   if (object.httpEtag) {
     headers.set('etag', object.httpEtag)
   }
-  headers.set('Cache-Control', 'private, max-age=3600')
+  headers.set(
+    'Cache-Control',
+    row.is_public === 1 ? 'public, max-age=3600' : 'private, max-age=3600'
+  )
 
   return new Response(buf, { headers })
 })
 
 photos.delete('/:id', async (c) => {
-  const userId = c.get('userId')
+  const userId = c.get('userId')!
   const id = c.req.param('id')
   const photo = await c.env.DB.prepare(
     `SELECT p.r2_key FROM photos p
-     INNER JOIN listings a ON a.id = p.listing_id
-     WHERE p.id = ? AND a.user_id = ?`
+     INNER JOIN items i ON i.id = p.item_id
+     WHERE p.id = ? AND i.user_id = ?`
   )
     .bind(id, userId)
     .first<{ r2_key: string }>()

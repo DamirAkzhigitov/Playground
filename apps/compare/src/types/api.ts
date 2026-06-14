@@ -7,17 +7,7 @@ export type AuthUser = {
   locale: AppLocale
 }
 
-export type LoginInput = {
-  email: string
-  password: string
-}
-
-export type RegisterInput = {
-  email: string
-  password: string
-}
-
-export type QuestionType =
+export type SpecType =
   | 'text'
   | 'number'
   | 'date'
@@ -26,52 +16,69 @@ export type QuestionType =
   | 'multi-select'
   | 'rating'
 
-/** For compare: whether larger raw values score higher, or smaller (e.g. price). */
-export type QuestionValuePreference = 'higher' | 'lower'
+export type SpecValuePreference = 'higher' | 'lower'
 
-export type Category = {
+export type SpecOption = {
   id: string
-  name: string
-  order: number
-}
-
-export type QuestionOption = {
-  id: string
-  questionId: string
+  specId: string
   label: string
   value: string
   order: number
 }
 
-export type Question = {
+export type Spec = {
   id: string
   label: string
-  type: QuestionType
-  categoryId: string
+  type: SpecType
+  sectionId: string
   required: boolean
   isArchived: boolean
   order: number
   ratingMin: number | null
   ratingMax: number | null
-  valuePreference: QuestionValuePreference | null
-  options: QuestionOption[]
+  valuePreference: SpecValuePreference | null
+  options: SpecOption[]
 }
 
-export type QuestionGroup = Category & {
-  questions: Question[]
-}
-
-export type Listing = {
+export type SpecSection = {
   id: string
+  name: string
+  order: number
+  specs: Spec[]
+}
+
+/** @deprecated Use SpecType */
+export type QuestionType = SpecType
+/** @deprecated Use SpecValuePreference */
+export type QuestionValuePreference = SpecValuePreference
+/** @deprecated Use Spec */
+export type Question = Spec
+/** @deprecated Use SpecSection */
+export type QuestionGroup = SpecSection
+
+export type ItemType = {
+  id: string
+  slug: string
+  name: string
+  icon: string | null
+  isSystem: boolean
+  userId: string | null
+  order: number
+  createdAt: string
+}
+
+export type Item = {
+  id: string
+  itemTypeId: string
   title: string
-  address: string | null
-  price: number | null
   notes: string | null
+  isPublic: boolean
+  isOwner?: boolean
   createdAt: string
   updatedAt: string
   completion?: {
-    answeredQuestions: number
-    totalQuestions: number
+    answeredSpecs: number
+    totalSpecs: number
     percent: number
     criticalMissingCount: number
   }
@@ -79,8 +86,8 @@ export type Listing = {
 
 export type Answer = {
   id: string
-  listingId: string
-  questionId: string
+  itemId: string
+  specId: string
   value: string | null
   note: string | null
   updatedAt: string
@@ -88,42 +95,97 @@ export type Answer = {
 
 export type Photo = {
   id: string
-  listingId: string
-  questionId: string | null
+  itemId: string
+  specId: string | null
   r2Key: string
   createdAt: string
 }
 
-export type ListingDetail = Listing & {
+export type ItemDetail = Item & {
   answers: Answer[]
   photos: Photo[]
+  sections: SpecSection[]
 }
 
-export type CreateCategoryInput = {
+export type CompareGroup = {
+  id: string
+  title: string
+  itemTypeId: string
+  isPublic: boolean
+  selectionMode: 'all' | 'curated'
+  createdAt: string
+  updatedAt: string
+  itemTypeName?: string
+  itemTypeSlug?: string
+  itemCount?: number
+  isOwner?: boolean
+}
+
+export type CompareGroupView = {
+  group: CompareGroup & { isOwner?: boolean }
+  itemType: ItemType
+  sections: SpecSection[]
+  items: Array<
+    Item & {
+      answers: Answer[]
+      isOwner?: boolean
+    }
+  >
+}
+
+export type CreateItemTypeInput = {
   name: string
-  order?: number
+  slug?: string
+  icon?: string | null
 }
 
-export type UpdateCategoryInput = Partial<Pick<Category, 'name' | 'order'>>
+export type CreateItemInput = {
+  title: string
+  itemTypeId: string
+  notes?: string | null
+  isPublic?: boolean
+}
 
-export type CreateQuestionInput = {
+export type UpdateItemInput = Partial<CreateItemInput>
+
+export type CreateCompareGroupInput = {
+  title: string
+  itemTypeId: string
+  isPublic?: boolean
+  selectionMode?: 'all' | 'curated'
+}
+
+export type UpdateCompareGroupInput = Partial<CreateCompareGroupInput>
+
+export type UpsertAnswerInput = {
+  itemId: string
+  specId: string
+  value: string | null
+  note?: string | null
+}
+
+export type UpsertAnswerPayload =
+  | { answer: UpsertAnswerInput }
+  | { answers: UpsertAnswerInput[] }
+
+export type CreateSpecInput = {
   label: string
-  type: QuestionType
-  categoryId: string
+  type: SpecType
+  sectionId: string
   required: boolean
   order?: number
   ratingMin?: number | null
   ratingMax?: number | null
-  valuePreference?: QuestionValuePreference
-  options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>
+  valuePreference?: SpecValuePreference
+  options?: Array<Pick<SpecOption, 'label' | 'value' | 'order'>>
 }
 
-export type UpdateQuestionInput = Partial<
+export type UpdateSpecInput = Partial<
   Pick<
-    Question,
+    Spec,
     | 'label'
     | 'type'
-    | 'categoryId'
+    | 'sectionId'
     | 'required'
     | 'isArchived'
     | 'order'
@@ -132,45 +194,16 @@ export type UpdateQuestionInput = Partial<
     | 'valuePreference'
   >
 > & {
-  options?: Array<Pick<QuestionOption, 'label' | 'value' | 'order'>>
+  options?: Array<Pick<SpecOption, 'label' | 'value' | 'order'>>
 }
-
-export type ReorderQuestionInput = {
-  id: string
-  order: number
-}
-
-export type CreateListingInput = {
-  title: string
-  address?: string | null
-  price?: number | null
-  notes?: string | null
-}
-
-export type UpdateListingInput = Partial<CreateListingInput>
-
-export type UpsertAnswerInput = {
-  listingId: string
-  questionId: string
-  value: string | null
-  note?: string | null
-}
-
-export type UpsertAnswerPayload =
-  | {
-      answer: UpsertAnswerInput
-    }
-  | {
-      answers: UpsertAnswerInput[]
-    }
 
 export type UploadPhotoInput = {
-  listingId: string
-  questionId?: string
+  itemId: string
+  specId?: string
   file: File
 }
 
 export type DeletePhotoInput = {
   id: string
-  listingId: string
+  itemId: string
 }

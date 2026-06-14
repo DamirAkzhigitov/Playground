@@ -7,7 +7,7 @@ const baseQuestion = (type: Question['type']): Question => ({
   id: 'q1',
   label: 'Q',
   type,
-  categoryId: 'c1',
+  sectionId: 'c1',
   required: false,
   isArchived: false,
   order: 0,

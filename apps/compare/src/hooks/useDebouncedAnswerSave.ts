@@ -74,7 +74,7 @@ export function useKeyedDebouncedAnswerSave(
 
   const queueSave = useCallback(
     (input: UpsertAnswerInput) => {
-      const key = input.questionId
+      const key = input.specId
       pendingRef.current[key] = input
       window.clearTimeout(timersRef.current[key])
       timersRef.current[key] = window.setTimeout(() => {

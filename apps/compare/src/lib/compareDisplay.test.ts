@@ -13,7 +13,7 @@ const baseQuestion = (overrides: Partial<Question>): Question => ({
   id: 'q1',
   label: 'Test',
   type: 'text',
-  categoryId: 'c1',
+  sectionId: 'c1',
   required: false,
   isArchived: false,
   order: 0,
@@ -41,8 +41,8 @@ describe('normalizeAnswerForCompare', () => {
     const q = baseQuestion({
       type: 'multi-select',
       options: [
-        { id: '1', questionId: 'q1', label: 'A', value: 'a', order: 0 },
-        { id: '2', questionId: 'q1', label: 'B', value: 'b', order: 1 }
+        { id: '1', specId: 'q1', label: 'A', value: 'a', order: 0 },
+        { id: '2', specId: 'q1', label: 'B', value: 'b', order: 1 }
       ]
     })
     const aFirst = normalizeAnswerForCompare(q, '["a","b"]')
@@ -155,8 +155,8 @@ describe('answerStrengthRatio', () => {
     const q = baseQuestion({
       type: 'select',
       options: [
-        { id: '1', questionId: 'q1', label: 'Low', value: 'low', order: 0 },
-        { id: '2', questionId: 'q1', label: 'High', value: 'high', order: 1 }
+        { id: '1', specId: 'q1', label: 'Low', value: 'low', order: 0 },
+        { id: '2', specId: 'q1', label: 'High', value: 'high', order: 1 }
       ]
     })
     expect(answerStrengthRatio(q, 'low', null)).toBe(0)

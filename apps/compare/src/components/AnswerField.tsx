@@ -9,10 +9,10 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { parseMultiSelect, stringifyMultiSelect } from '@/lib/answerValue'
 import { cn } from '@/lib/utils'
-import type { Question } from '@/types'
+import type { Spec } from '@/types'
 
 type AnswerFieldProps = {
-  question: Question
+  question: Spec
   value: string | null
   note: string | null
   onValueChange: (value: string | null) => void

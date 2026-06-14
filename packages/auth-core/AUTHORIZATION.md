@@ -174,16 +174,19 @@ Product intent: **SEO-friendly public guides**; login only for saved progress
 | Surface | Guest | User |
 | ------- | ----- | ---- |
 | All SPA routes | No — redirect to login | Yes |
-| All data APIs (`/api/listings`, `/api/questions`, …) | No — 401 | Yes (own data only) |
+| Own listings (create, edit, delete, answers, photos) | No — 401 | Yes |
+| Others' **public** listings (list, detail, photos read) | No — 401 (guest browse planned) | Yes — read-only |
+| Private listings (others') | No — 404 | No — 404 |
+| Questions / categories / export / profile | No — 401 | Yes (own catalog only) |
 | `/api/health`, `/api/auth/*` | Yes | Yes |
 
 Worker gate: `apps/compare/worker/src/index.ts` requires auth for every path
-except health and auth.
+except health and auth. Listings carry an `is_public` flag; reads use
+`canReadListing()` (owner or public); writes remain owner-only.
 
-Product intent: **private workbook today**. Public category/comparison pages are
-planned (decision **D-09** in [`docs/DECISIONS.md`](../../docs/DECISIONS.md),
-[`docs/execution-roadmap.md`](../../docs/execution-roadmap.md)) — not implemented
-yet.
+Product intent: **signed-in users can browse others' public listings**; guest
+access without login is planned (decision **D-09** in
+[`docs/DECISIONS.md`](../../docs/DECISIONS.md)).
 
 ### Auth app (`apps/auth`)
 
