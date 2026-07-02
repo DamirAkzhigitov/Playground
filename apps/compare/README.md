@@ -52,6 +52,15 @@ Local dev: set `VITE_AUTH_ORIGIN=http://localhost:3004`; Workers share auth D1 v
 
 Migration: [`worker/migrations/0010_universal_compare.sql`](worker/migrations/0010_universal_compare.sql)
 
+## Bulk import (CSV → SQL)
+
+For large catalogs (100+ items), use the CSV bundle format and D1 SQL — not the Add item UI.
+
+- Guide: [`IMPORT.md`](IMPORT.md)
+- Example template: [`import-templates/gpu-example/`](import-templates/gpu-example/)
+- Converter: `node scripts/csv-to-sql.mjs --dir <bundle> --dry-run`
+- Agent skill: `.cursor/skills/compare-bulk-import/`
+
 ## API (high level)
 
 | Method | Path | Auth |

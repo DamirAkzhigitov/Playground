@@ -1,0 +1,73 @@
+{
+  "itemTypeId": "type-gpu",
+  "userId": "REPLACE_WITH_YOUR_AUTH_USER_UUID",
+  "specs": [
+    {
+      "id": "spec-gpu-model",
+      "label": "Model name",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "spec-gpu-vendor",
+      "label": "Manufacturer",
+      "type": "select",
+      "required": true,
+      "options": [
+        { "label": "NVIDIA", "value": "nvidia" },
+        { "label": "AMD", "value": "amd" },
+        { "label": "Intel", "value": "intel" }
+      ]
+    },
+    {
+      "id": "spec-gpu-vram",
+      "label": "VRAM (GB)",
+      "type": "number",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "spec-gpu-cores",
+      "label": "CUDA / stream processors",
+      "type": "number",
+      "required": false,
+      "options": []
+    },
+    {
+      "id": "spec-gpu-boost",
+      "label": "Boost clock (MHz)",
+      "type": "number",
+      "required": false,
+      "options": []
+    },
+    {
+      "id": "spec-gpu-rt",
+      "label": "Ray tracing",
+      "type": "boolean",
+      "required": false,
+      "options": []
+    },
+    {
+      "id": "spec-gpu-tdp",
+      "label": "TDP (W)",
+      "type": "number",
+      "required": false,
+      "options": []
+    },
+    {
+      "id": "spec-gpu-msrp",
+      "label": "MSRP ($)",
+      "type": "number",
+      "required": false,
+      "options": []
+    },
+    {
+      "id": "spec-gpu-street",
+      "label": "Street price ($)",
+      "type": "number",
+      "required": false,
+      "options": []
+    }
+  ]
+}

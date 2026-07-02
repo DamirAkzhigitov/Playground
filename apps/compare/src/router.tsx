@@ -28,16 +28,12 @@ export const AppRouter = createBrowserRouter([
     errorElement: <RouteErrorBoundary />
   },
   {
-    path: '/compare/:groupId',
-    element: <GroupComparePage />,
-    errorElement: <RouteErrorBoundary />
-  },
-  {
     path: '/',
     element: <AppLayout />,
     errorElement: <RouteErrorBoundary />,
     children: [
       { index: true, element: <BrowsePage /> },
+      { path: 'compare/:groupId', element: <GroupComparePage /> },
       {
         path: 'items',
         element: (
