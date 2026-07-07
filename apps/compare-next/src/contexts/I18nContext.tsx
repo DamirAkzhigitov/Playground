@@ -1,13 +1,15 @@
+'use client'
+
 import {
   createContext,
-  ReactNode,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo
 } from 'react'
-import { type MessageId, translate } from '../i18n/messages'
-import { AppLocale } from '../i18n/locale.ts'
+import { type MessageId, translate } from '@/i18n/messages'
+import { type AppLocale } from '@/i18n/locale'
 
 type I18nContextValue = {
   locale: AppLocale

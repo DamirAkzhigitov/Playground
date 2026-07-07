@@ -1,12 +1,22 @@
+'use client'
+
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { LazyCatalogueCard } from '@/components/catalogue/LazyCatalogueCard'
+import { CatalogueCard } from '@/components/catalogue/CatalogueCard'
 import { CatalogueSearch } from '@/components/catalogue/CatalogueSearch'
 import { useI18n } from '@/contexts/I18nContext'
-import { fetchCataloguePage } from '@/data/fetchCatalogue'
+import {
+  fetchCataloguePage,
+  type CataloguePageResult
+} from '@/data/fetchCatalogue'
+import { catalogueSlotClass } from '@/lib/catalogueSlot'
 
-export function CataloguePage() {
+type CataloguePageProps = {
+  initialPage: CataloguePageResult
+}
+
+export function CataloguePage({ initialPage }: CataloguePageProps) {
   const { t } = useI18n()
   const [query, setQuery] = useState('')
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -16,7 +26,14 @@ export function CataloguePage() {
       queryKey: ['catalogue', query],
       queryFn: ({ pageParam }) => fetchCataloguePage(pageParam, query),
       initialPageParam: 0,
-      getNextPageParam: (lastPage) => lastPage.nextPage
+      getNextPageParam: (lastPage) => lastPage.nextPage,
+      initialData:
+        query === ''
+          ? {
+              pages: [initialPage],
+              pageParams: [0]
+            }
+          : undefined
     })
 
   const entries = useMemo(
@@ -85,7 +102,9 @@ export function CataloguePage() {
         <>
           <div className="catalogue__grid">
             {entries.map((entry) => (
-              <LazyCatalogueCard key={entry.id} entry={entry} />
+              <div key={entry.id} className={catalogueSlotClass(entry.size)}>
+                <CatalogueCard entry={entry} />
+              </div>
             ))}
           </div>
 

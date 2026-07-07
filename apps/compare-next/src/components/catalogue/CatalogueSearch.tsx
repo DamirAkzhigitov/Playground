@@ -1,3 +1,5 @@
+'use client'
+
 type CatalogueSearchProps = {
   value: string
   onChange: (value: string) => void

@@ -2,18 +2,11 @@ import { MOCK_CATALOGUE } from '@/data/mockCatalogue'
 import type { CatalogueEntry } from '@/types/catalogue'
 
 const PAGE_SIZE = 8
-const LOAD_DELAY_MS = 650
 
 export type CataloguePageResult = {
   items: CatalogueEntry[]
   nextPage: number | null
   total: number
-}
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
 }
 
 function matchesQuery(
@@ -34,12 +27,10 @@ function filterCatalogue(query: string): CatalogueEntry[] {
   )
 }
 
-export async function fetchCataloguePage(
+export function getCataloguePage(
   page: number,
   query: string
-): Promise<CataloguePageResult> {
-  await delay(LOAD_DELAY_MS)
-
+): CataloguePageResult {
   const source = filterCatalogue(query)
   const start = page * PAGE_SIZE
   const items = source.slice(start, start + PAGE_SIZE)
@@ -50,4 +41,11 @@ export async function fetchCataloguePage(
     nextPage: nextStart < source.length ? page + 1 : null,
     total: source.length
   }
+}
+
+export async function fetchCataloguePage(
+  page: number,
+  query: string
+): Promise<CataloguePageResult> {
+  return getCataloguePage(page, query)
 }
