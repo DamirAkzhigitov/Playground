@@ -1,0 +1,28 @@
+{
+  "name": "@playground/compare-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8788 --inspector-port 9238 --persist-to ../../../.wrangler/local-dev-persist",
+    "deploy": "wrangler deploy",
+    "deploy:dev": "wrangler deploy --env dev",
+    "db:migrate:local": "wrangler d1 migrations apply apartments-db --local --persist-to ../../../.wrangler/local-dev-persist",
+    "db:migrate:remote": "wrangler d1 migrations apply apartments-db --remote",
+    "db:migrate:remote:dev": "wrangler d1 migrations apply apartments-db-dev --remote --env dev",
+    "db:migrate:auth:local": "wrangler d1 migrations apply playground-auth-db --local --persist-to ../../../.wrangler/local-dev-persist",
+    "db:migrate:auth:remote": "wrangler d1 migrations apply playground-auth-db --remote",
+    "db:migrate:auth:remote:dev": "wrangler d1 migrations apply playground-auth-db-dev --remote --env dev",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "4.12.28",
+    "xlsx": "0.18.5",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20260702.1",
+    "typescript": "5.9.3",
+    "wrangler": "4.107.1"
+  }
+}
