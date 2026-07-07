@@ -74,10 +74,8 @@ input {
   max-width: var(--max-width);
   margin-inline: auto;
   padding: var(--space-lg) var(--space-md);
-}
 
-@media (min-width: 640px) {
-  .app-main {
+  @media (min-width: 640px) {
     padding: var(--space-xl) var(--space-lg);
   }
 }

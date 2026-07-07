@@ -14,7 +14,7 @@ type I18nContextValue = {
   t: (id: MessageId, vars?: Record<string, string | number>) => string
 }
 
-const I18nContext = createContext<I18n>(null)
+const I18nContext = createContext<I18nContextValue | null>(null)
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const locale = 'en' // TODO: read locale from user/stored value

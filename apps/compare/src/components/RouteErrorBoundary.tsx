@@ -1,6 +1,6 @@
 import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
 import { ErrorState } from '@/components/ErrorState.tsx'
-import { useI18n } from '@/context/I18nContext'
+import { useI18n } from '@/context'
 
 export function RouteErrorBoundary() {
   const error = useRouteError()

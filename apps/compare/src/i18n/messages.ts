@@ -9,6 +9,9 @@ const EN = {
   'catalogue.searchAria':
     'Search comparisons by title, description, or category',
   'catalogue.itemCount': '{count} comparisons',
+  'catalogue.itemCountPartial': '{shown} of {total} comparisons',
+  'catalogue.loading': 'Loading comparisons…',
+  'catalogue.loadingMore': 'Loading more…',
   'catalogue.empty': 'No comparisons match “{query}”.'
 } as const
 
