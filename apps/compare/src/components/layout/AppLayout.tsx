@@ -2,8 +2,10 @@ import { Outlet } from 'react-router-dom'
 
 export function AppLayout() {
   return (
-    <main>
-      <Outlet />
-    </main>
+    <div className="app-shell">
+      <main className="app-main">
+        <Outlet />
+      </main>
+    </div>
   )
 }

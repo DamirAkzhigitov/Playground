@@ -1,0 +1,117 @@
+.catalogue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.catalogue__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.catalogue__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.catalogue__subtitle {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  max-width: 36rem;
+}
+
+.catalogue__search {
+  position: relative;
+}
+
+.catalogue__search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.catalogue__search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.catalogue__search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(93 95 239 / 15%);
+}
+
+.catalogue__meta {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* Responsive photo grid — uniform row/column gaps via fixed tracks + dense packing */
+.catalogue__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  grid-auto-rows: 18rem;
+  gap: var(--space-md);
+  grid-auto-flow: dense;
+}
+
+.catalogue__grid .card--wide {
+  grid-column: span 2;
+}
+
+.catalogue__grid .card--tall {
+  grid-row: span 2;
+}
+
+.catalogue__grid .card--featured {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.catalogue__empty {
+  padding: var(--space-xl);
+  text-align: center;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 639px) {
+  .catalogue__grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    grid-auto-flow: row;
+  }
+
+  .catalogue__grid .card {
+    height: auto;
+  }
+
+  .catalogue__grid .card__media {
+    height: 10rem;
+    flex: none;
+  }
+
+  .catalogue__grid .card--wide,
+  .catalogue__grid .card--tall,
+  .catalogue__grid .card--featured {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+
+  .catalogue__grid .card--tall .card__media,
+  .catalogue__grid .card--featured .card__media {
+    height: 12rem;
+  }
+}
