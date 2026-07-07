@@ -63,7 +63,7 @@ jobs:
               - 'turbo.json'
 
   deploy-main:
-    name: Deploy apps/main to Cloudflare Pages
+    name: Deploy apps/main to Cloudflare pages
     needs: [detect-changes]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && needs.detect-changes.outputs.main == 'true'
@@ -98,7 +98,7 @@ jobs:
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -108,7 +108,7 @@ jobs:
           packageManager: pnpm
 
   deploy-main-dev:
-    name: Deploy apps/main to Cloudflare Pages (dev)
+    name: Deploy apps/main to Cloudflare pages (dev)
     needs: [detect-changes]
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.detect-changes.outputs.main == 'true'
@@ -145,7 +145,7 @@ jobs:
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
 
-      - name: Deploy to Cloudflare Pages (dev)
+      - name: Deploy to Cloudflare pages (dev)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -155,7 +155,7 @@ jobs:
           packageManager: pnpm
 
   deploy-resume:
-    name: Deploy apps/resume to Cloudflare Pages
+    name: Deploy apps/resume to Cloudflare pages
     needs: [detect-changes]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && needs.detect-changes.outputs.resume == 'true'
@@ -187,7 +187,7 @@ jobs:
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -197,7 +197,7 @@ jobs:
           packageManager: pnpm
 
   deploy-resume-dev:
-    name: Deploy apps/resume to Cloudflare Pages (dev)
+    name: Deploy apps/resume to Cloudflare pages (dev)
     needs: [detect-changes]
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.detect-changes.outputs.resume == 'true'
@@ -231,7 +231,7 @@ jobs:
       - name: Install Wrangler for workspace root
         run: pnpm add -Dw wrangler@3.90.0
 
-      - name: Deploy to Cloudflare Pages (dev)
+      - name: Deploy to Cloudflare pages (dev)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
