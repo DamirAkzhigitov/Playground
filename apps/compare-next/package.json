@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "type-check": "tsc --noEmit",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "deploy:dev": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env dev",
@@ -23,15 +25,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19.1.7",
     "@types/react-dom": "^19.1.7",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "sass": "1.101.0",
-    "tailwindcss": "^4",
     "typescript": "^5.7.4",
+    "vitest": "^3.2.4",
     "wrangler": "^4.108.0"
   }
 }

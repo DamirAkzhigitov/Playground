@@ -11,6 +11,11 @@ import {
   fetchCataloguePage,
   type CataloguePageResult
 } from '@/data/fetchCatalogue'
+import {
+  catalogueCopyKey,
+  CATALOGUE_SUBTITLE_ID,
+  CATALOGUE_TITLE_ID
+} from '@/lib/catalogueCopy'
 import { catalogueSlotClass } from '@/lib/catalogueSlot'
 import type { CatalogueSort } from '@/types/catalogue'
 
@@ -40,21 +45,9 @@ export function CataloguePage({
     return () => clearTimeout(timer)
   }, [searchInput])
 
-  const heading = isHome
-    ? t('catalogue.title')
-    : sort === 'new'
-      ? t('catalogue.titleNew')
-      : sort === 'hot'
-        ? t('catalogue.titleHot')
-        : t('catalogue.titlePopular')
-
-  const subtitle = isHome
-    ? t('catalogue.subtitle')
-    : sort === 'new'
-      ? t('catalogue.subtitleNew')
-      : sort === 'hot'
-        ? t('catalogue.subtitleHot')
-        : t('catalogue.subtitlePopular')
+  const copyKey = catalogueCopyKey(sort, isHome)
+  const heading = t(CATALOGUE_TITLE_ID[copyKey])
+  const subtitle = t(CATALOGUE_SUBTITLE_ID[copyKey])
 
   const filterOptions = useMemo(
     () => [

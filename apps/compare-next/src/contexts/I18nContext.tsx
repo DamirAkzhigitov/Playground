@@ -8,8 +8,8 @@ import {
   useEffect,
   useMemo
 } from 'react'
+import { DEFAULT_LOCALE, type AppLocale } from '@/i18n/locale'
 import { type MessageId, translate } from '@/i18n/messages'
-import { type AppLocale } from '@/i18n/locale'
 
 type I18nContextValue = {
   locale: AppLocale
@@ -19,7 +19,7 @@ type I18nContextValue = {
 const I18nContext = createContext<I18nContextValue | null>(null)
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const locale = 'en' // TODO: read locale from user/stored value
+  const locale = DEFAULT_LOCALE
 
   const t = useCallback(
     (id: MessageId, vars?: Record<string, string | number>) =>
@@ -38,6 +38,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
 export function useI18n(): I18nContextValue {
   const ctx = useContext(I18nContext)
-  if (!ctx) throw new Error('useI18n')
+  if (!ctx) {
+    throw new Error('useI18n must be used within I18nProvider')
+  }
   return ctx
 }
