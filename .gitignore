@@ -46,3 +46,4 @@ yarn-error.log*
 # Cloudflare
 .wrangler/
 .dev.vars
+/e2e/test-results/
