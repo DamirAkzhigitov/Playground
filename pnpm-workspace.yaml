@@ -1,6 +1,5 @@
 packages:
   - apps/*
-  - apps/compare-next/worker
   - e2e
 
 onlyBuiltDependencies:

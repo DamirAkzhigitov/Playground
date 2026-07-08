@@ -38,8 +38,7 @@ changed.
 ```
 .
 ├── apps/
-│   ├── compare-next/              # compare.da-mr.com
-│      └── ...               # @playground/compare
+│   ├── compare-next/              # compare.da-mr.com (@playground/compare-next)
 ├── packages/                 # shared code across apps
 ├── .github/workflows/
 │   ├── ci.yml                # lint/test/build on PR and push
@@ -91,20 +90,21 @@ pnpm turbo run build --filter=@playground/main
 pnpm dlx wrangler pages deploy apps/main/dist --project-name=playground --branch=preview
 ```
 
-### Compare (`apps/compare`)
+### Compare (`apps/compare-next`)
 
-Production ships as **one Worker** (`apps/compare/worker`): static files from
-`apps/compare/dist` plus the Hono API under `/api/*` (see `wrangler.toml`
-`[assets]` and `run_worker_first`). The browser uses relative `/api` URLs (no
-`VITE_API_BASE_URL` in CI).
-
-After deploy, attach **`compare.da-mr.com`** to that Worker and turn off or
-unlink the hostname from a separate **Pages** project so traffic is not split.
+Production ships as **one Cloudflare Worker** via
+[`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare): the Next.js app
+and API routes (`/api/health`, `/api/catalogue`) share the same origin. Attach
+**`compare.da-mr.com`** to the `compare-next` Worker (Workers & Pages → Custom
+domains). The catalogue API currently serves mock data; a real D1 backend will
+replace it later.
 
 ```bash
-pnpm turbo run build --filter=@playground/compare
-pnpm --filter @playground/compare-api exec wrangler deploy
+pnpm --filter @playground/compare-next deploy
 ```
+
+Dev PR previews deploy to **`dev-compare.da-mr.com`** via `deploy:dev` (Worker
+`compare-next-dev`).
 
 ## Adding a new tool (subdomain)
 

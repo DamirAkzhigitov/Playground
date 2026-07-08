@@ -14,6 +14,8 @@ import {
 import { catalogueSlotClass } from '@/lib/catalogueSlot'
 import type { CatalogueSort } from '@/types/catalogue'
 
+const SEARCH_DEBOUNCE_MS = 350
+
 type CataloguePageProps = {
   initialPage: CataloguePageResult
   sort: CatalogueSort
@@ -26,8 +28,17 @@ export function CataloguePage({
   isHome = false
 }: CataloguePageProps) {
   const { t } = useI18n()
-  const [query, setQuery] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const timer = setTimeout(
+      () => setDebouncedQuery(searchInput),
+      SEARCH_DEBOUNCE_MS
+    )
+    return () => clearTimeout(timer)
+  }, [searchInput])
 
   const heading = isHome
     ? t('catalogue.title')
@@ -56,12 +67,13 @@ export function CataloguePage({
 
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useInfiniteQuery({
-      queryKey: ['catalogue', query, sort],
-      queryFn: ({ pageParam }) => fetchCataloguePage(pageParam, query, sort),
+      queryKey: ['catalogue', debouncedQuery, sort],
+      queryFn: ({ pageParam }) =>
+        fetchCataloguePage(pageParam, debouncedQuery, sort),
       initialPageParam: 0,
       getNextPageParam: (lastPage) => lastPage.nextPage,
       initialData:
-        query === ''
+        debouncedQuery === ''
           ? {
               pages: [initialPage],
               pageParams: [0]
@@ -112,8 +124,8 @@ export function CataloguePage({
 
       <div className="catalogue__toolbar">
         <CatalogueSearch
-          value={query}
-          onChange={setQuery}
+          value={searchInput}
+          onChange={setSearchInput}
           placeholder={t('catalogue.searchPlaceholder')}
           ariaLabel={t('catalogue.searchAria')}
           label={t('catalogue.searchLabel')}
@@ -137,7 +149,7 @@ export function CataloguePage({
         </div>
       ) : entries.length === 0 ? (
         <p className="catalogue__empty">
-          {t('catalogue.empty', { query: query.trim() })}
+          {t('catalogue.empty', { query: debouncedQuery.trim() })}
         </p>
       ) : (
         <>

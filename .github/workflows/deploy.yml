@@ -55,9 +55,7 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'turbo.json'
             compare:
-              - 'apps/compare/**'
-              - 'packages/auth-core/**'
-              - 'packages/auth-react/**'
+              - 'apps/compare-next/**'
               - 'packages/global-header/**'
               - 'pnpm-lock.yaml'
               - 'turbo.json'
@@ -241,7 +239,7 @@ jobs:
           packageManager: pnpm
 
   deploy-compare:
-    name: Deploy apps/compare (Worker + SPA)
+    name: Deploy apps/compare-next (OpenNext Worker)
     needs: [detect-changes]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && needs.detect-changes.outputs.compare == 'true'
@@ -265,15 +263,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build @playground/compare (client → dist/)
-        run: pnpm turbo run build --filter=@playground/compare
+      - name: Deploy @playground/compare-next to Cloudflare
+        run: pnpm --filter @playground/compare-next run deploy
         env:
-          VITE_MAIN_ORIGIN: https://da-mr.com
-          VITE_AUTH_ORIGIN: https://auth.da-mr.com
-
-      - name: Deploy Worker (static assets + /api)
-        run: pnpm --filter @playground/compare-api exec wrangler deploy
-        env:
+          NEXT_PUBLIC_SITE_URL: https://compare.da-mr.com
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
@@ -314,7 +307,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   deploy-compare-dev:
-    name: Deploy apps/compare (Worker + SPA, dev)
+    name: Deploy apps/compare-next (OpenNext Worker, dev)
     needs: [detect-changes]
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.detect-changes.outputs.compare == 'true'
@@ -340,15 +333,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build @playground/compare (client → dist/)
-        run: pnpm turbo run build --filter=@playground/compare
+      - name: Deploy @playground/compare-next to Cloudflare (dev)
+        run: pnpm --filter @playground/compare-next run deploy:dev
         env:
-          VITE_MAIN_ORIGIN: https://dev.da-mr.com
-          VITE_AUTH_ORIGIN: https://dev-auth.da-mr.com
-
-      - name: Deploy Worker (static assets + /api, dev)
-        run: pnpm --filter @playground/compare-api run deploy:dev
-        env:
+          NEXT_PUBLIC_SITE_URL: https://dev-compare.da-mr.com
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 

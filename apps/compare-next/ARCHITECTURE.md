@@ -33,6 +33,9 @@ apps/compare-next/
 │   │   ├── new/page.tsx        # /new catalogue
 │   │   ├── hot/page.tsx        # /hot catalogue
 │   │   ├── popular/page.tsx    # /popular catalogue
+│   │   ├── api/                  # Route handlers (mock catalogue API for now)
+│   │   │   ├── catalogue/route.ts
+│   │   │   └── health/route.ts
 │   │   ├── robots.ts           # robots.txt
 │   │   └── sitemap.ts          # sitemap.xml
 │   ├── components/
@@ -287,7 +290,8 @@ pnpm --filter @playground/compare-next lint     # ESLint
 
 # From apps/compare-next
 pnpm preview    # OpenNext build + local Cloudflare runtime
-pnpm deploy     # Build + deploy to Cloudflare
+pnpm --filter @playground/compare-next deploy     # Build + deploy to Cloudflare
+pnpm --filter @playground/compare-next deploy:dev # Dev Worker (dev-compare.da-mr.com)
 ```
 
 See [`README.md`](./README.md) and [OpenNext Cloudflare docs](https://opennext.js.org/cloudflare)

@@ -85,11 +85,21 @@ export function getCataloguePage(
   }
 }
 
-// TODO: Replace with fetch to catalogue API (e.g. GET /api/catalogue?page=&q=&sort=).
 export async function fetchCataloguePage(
   page: number,
   query: string,
   sort: CatalogueSort = 'new'
 ): Promise<CataloguePageResult> {
-  return getCataloguePage(page, query, sort)
+  const params = new URLSearchParams({
+    page: String(page),
+    q: query,
+    sort
+  })
+  const response = await fetch(`/api/catalogue?${params}`)
+
+  if (!response.ok) {
+    throw new Error(`Catalogue API error: ${response.status}`)
+  }
+
+  return response.json() as Promise<CataloguePageResult>
 }

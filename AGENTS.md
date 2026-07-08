@@ -281,12 +281,13 @@ the Cloudflare deploy flow.
   using `cloudflare/wrangler-action@v3` against the `playground` Cloudflare
   Pages project. Git auto-build on the Cloudflare side must stay
   **disabled** for this project so deploys don't double-fire.
-- **`apps/compare`** is deployed as a **single Cloudflare Worker** (`wrangler
-  deploy` from `apps/compare/worker`) that serves the Vite `dist/` as static
-  assets and Hono `/api/*` on the same origin — attach **`compare.da-mr.com`**
-  to that Worker (Workers & Pages → `compare-api` → Custom domains). Remove
-  or repoint the old **Pages** project for that hostname so only the Worker
-  answers. Local dev still uses Vite proxy to `wrangler dev` on port 8787.
+- **`apps/compare-next`** is deployed as a **single Cloudflare Worker** via
+  OpenNext (`pnpm --filter @playground/compare-next deploy` from repo root).
+  Next.js pages and `/api/*` routes run on the same origin — attach
+  **`compare.da-mr.com`** to the `compare-next` Worker (Workers & Pages →
+  Custom domains). PR previews use Worker `compare-next-dev` on
+  **`dev-compare.da-mr.com`**. See
+  [`apps/compare-next/ARCHITECTURE.md`](apps/compare-next/ARCHITECTURE.md).
 - `apps/main` calls the public TheMealDB API at runtime for random recipes;
   no API keys needed. No env vars or backend services for local dev.
 - **`apps/steps`** — guided action catalog (search, per-user step progress,
@@ -301,12 +302,10 @@ the Cloudflare deploy flow.
 - **Stuck ports after dev:** `wrangler` and `workerd` often survive Ctrl+C when
   using Turbo or background terminals. Run `pnpm stop` from the repo root before
   restarting (`scripts/stop-dev.sh` frees 3000–3004, 8787–8789, and inspector ports).
-- **Local dev SSO:** Auth / compare / steps Workers use
+- **Local dev SSO:** Auth / steps Workers use
   `--persist-to .wrangler/local-dev-persist` so the same local `playground-auth-db`
-  backs every port. Without that, signing in on the auth Worker (`8789`) while compare
-  Vite proxies `/api/auth` there leaves compare API (`8788`) with a different sqlite
-  file → `useSession` succeeds but `/api/listings` returns 401 and the compare app
-  redirects to login. Restart all three Workers after pulling this change.
+  backs every port. Compare-next uses Next.js API routes locally (no separate
+  compare Worker in dev).
 - When adding a new tool app, follow the recipe in `README.md` →
   "Adding a new tool". Each tool = one Cloudflare Pages project + one
   deploy job + one subdomain.
