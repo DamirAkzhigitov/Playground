@@ -2,42 +2,6 @@
 
 Monorepo for [da-mr.com](https://da-mr.com) and its subdomain tools.
 
-**Documentation index:** [`DOCS.md`](DOCS.md) — links to all product, auth, and
-app docs in one place.
-
-Product strategy, MVP scoring, subscription assumptions, and launch notes live in
-[`docs/product-family.md`](docs/product-family.md). Analytics tooling and cookie
-consent guidance is in [`docs/analytics-and-cookies.md`](docs/analytics-and-cookies.md).
-Execution priorities and task order are in
-[`docs/execution-roadmap.md`](docs/execution-roadmap.md).
-
-- **`apps/main`** — `da-mr.com`. Simple directory with a list of apps.
-  Plain static site (Vite + vanilla JS/CSS). No React, no framework.
-- **`apps/resume`** — `resume.da-mr.com`. Static about/resume page.
-  Plain static site (Vite + vanilla JS/CSS). No React, no framework.
-- **`apps/auth`** — `auth.da-mr.com`. Central sign-in for all tools (Better Auth
-  UI + `/api/auth/*` on one Worker).
-- **`apps/steps`** — `steps.da-mr.com` (planned). Guided catalog of life
-  actions with per-user progress; see [`apps/steps/README.md`](apps/steps/README.md).
-- **`apps/<tool>`** — `<tool>.da-mr.com`. Each tool is an independent app
-  deployed to its own Cloudflare Pages project under its own subdomain.
-  React apps go here.
-- **`packages/*`** — shared code across apps (added when needed; see
-  [packages/README.md](packages/README.md)).
-- **`docs/*`** — product strategy and operating documents (index:
-  [`DOCS.md`](DOCS.md)).
-
-## Stack
-
-- **Node.js** 22 (`.nvmrc`, `engines.node >=22`)
-- **pnpm** 10 — package manager, workspaces
-- **Turborepo** 2 — task orchestration with caching
-- **Vite** 8 — bundler (per app)
-- **Vitest** 4 — tests
-- **ESLint** 9 (flat config) + **Prettier** 3 — code quality
-- **Husky** + **lint-staged** — pre-commit hook
-- **Cloudflare Pages** — hosting, one project per app
-
 ## Setup
 
 ```bash
@@ -63,8 +27,6 @@ All commands run from the repo root; Turbo fans them out to each app.
 | Format check         | `pnpm format:check`                              |
 | Type check           | `pnpm type-check`                                |
 | Tests                | `pnpm test`                                      |
-| Auth E2E (browser)   | `pnpm test:e2e`                                  |
-| Auth API smoke       | `./scripts/smoke-auth.sh`                        |
 | Tests with coverage  | `pnpm test:coverage`                             |
 | Security audit       | `pnpm security:audit`                            |
 
@@ -76,16 +38,9 @@ changed.
 ```
 .
 ├── apps/
-│   ├── main/                 # da-mr.com (tools directory)
-│   │   └── ...               # @playground/main
-│   ├── resume/               # resume.da-mr.com (resume app)
-│   │   └── ...               # @playground/resume
-│   ├── compare/              # compare.da-mr.com
-│   │   └── ...               # @playground/compare
-│   └── steps/                # steps.da-mr.com (scaffold + docs)
-│       └── ...               # @playground/steps
+│   ├── compare-next/              # compare.da-mr.com
+│      └── ...               # @playground/compare
 ├── packages/                 # shared code across apps
-├── docs/                     # product and launch strategy
 ├── .github/workflows/
 │   ├── ci.yml                # lint/test/build on PR and push
 │   ├── pr-checks.yml         # PR validation with coverage
@@ -149,39 +104,6 @@ unlink the hostname from a separate **Pages** project so traffic is not split.
 ```bash
 pnpm turbo run build --filter=@playground/compare
 pnpm --filter @playground/compare-api exec wrangler deploy
-```
-
-#### Authentication
-
-Compare uses the **shared auth stack** (Better Auth + central login at
-`auth.da-mr.com`, cookie session, shared D1 `playground-auth-db`). See
-[`packages/auth-core/SSO.md`](packages/auth-core/SSO.md) and
-[`packages/auth-core/AUTHORIZATION.md`](packages/auth-core/AUTHORIZATION.md).
-
-- Session validation runs on every `/api/*` request via `createSessionMiddleware`.
-- **Today the app is account-only:** the SPA wraps all routes in `ProtectedRoute`,
-  and every data API (except `/api/health` and `/api/auth/*`) returns **401**
-  without a session.
-- On first authenticated request, `ensureCompareAppUser` mirrors the auth user
-  into compare D1 and seeds default categories/questions.
-- All listing/question/answer data is scoped by `user_id`.
-
-**Auth routes** (Better Auth on the Worker, proxied to central auth in local dev):
-
-| Method | Path | Purpose |
-| ------ | ---- | ------- |
-| POST | `/api/auth/sign-up/email` | Create account |
-| POST | `/api/auth/sign-in/email` | Sign in |
-| POST | `/api/auth/sign-out` | Sign out |
-| GET | `/api/auth/get-session` | Current session |
-
-Public/guest Compare pages (SEO category views) are planned but not implemented —
-see decision **D-09** in [`docs/DECISIONS.md`](docs/DECISIONS.md).
-
-**D1 migrations** live in `apps/compare/worker/migrations/`. Run locally:
-
-```bash
-pnpm --filter @playground/compare-api run db:migrate:local
 ```
 
 ## Adding a new tool (subdomain)
