@@ -1,4 +1,4 @@
-import { getCataloguePage } from '@/data/fetchCatalogue'
+import { getCataloguePage } from '@/data/catalogue'
 import type { CatalogueSort } from '@/types/catalogue'
 
 const VALID_SORTS = new Set<CatalogueSort>(['new', 'hot', 'popular'])
@@ -14,11 +14,11 @@ function parseSort(value: string | null): CatalogueSort {
     : 'new'
 }
 
-export function GET(request: Request) {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const page = parsePage(searchParams.get('page'))
   const query = searchParams.get('q') ?? searchParams.get('query') ?? ''
   const sort = parseSort(searchParams.get('sort'))
 
-  return Response.json(getCataloguePage(page, query, sort))
+  return Response.json(await getCataloguePage(page, query, sort))
 }

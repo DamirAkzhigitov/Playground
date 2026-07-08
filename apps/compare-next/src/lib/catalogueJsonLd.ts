@@ -1,4 +1,4 @@
-import type { CataloguePageResult } from '@/data/fetchCatalogue'
+import type { CataloguePageResult } from '@/data/catalogueQuery'
 import {
   catalogueCopyKey,
   CATALOGUE_SUBTITLE,

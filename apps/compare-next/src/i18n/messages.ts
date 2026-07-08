@@ -24,7 +24,26 @@ const EN = {
   'catalogue.itemCountPartial': '{shown} of {total} comparisons',
   'catalogue.loading': 'Loading comparisons…',
   'catalogue.loadingMore': 'Loading more…',
-  'catalogue.empty': 'No comparisons match “{query}”.'
+  'catalogue.empty': 'No comparisons match “{query}”.',
+  'comparison.breadcrumbHome': 'Home',
+  'comparison.pickerTitle': 'Items in this comparison',
+  'comparison.pickerHint': 'Add or remove items to build your own comparison.',
+  'comparison.addItem': 'Add item',
+  'comparison.remove': 'Remove {name}',
+  'comparison.best': 'Best',
+  'comparison.viewCount': '{count} views',
+  'comparison.specColumn': 'Spec',
+  'comparison.peopleAlsoCompare': 'People also compare',
+  'comparison.customNote':
+    'Showing a custom multi-item comparison. Only canonical two-way pages are indexed.',
+  'item.specsHeading': 'Specifications',
+  'item.compareWithHeading': 'Compare with',
+  'hub.title': 'Compare {kind}',
+  'hub.itemsHeading': 'All {kind}',
+  'hub.popularHeading': 'Popular {kind} comparisons',
+  'hub.pickHint': 'Select two or more to compare.',
+  'hub.compareSelected': 'Compare selected ({count})',
+  'hub.selectAtLeastTwo': 'Select at least two items to compare.'
 } as const
 
 export type MessageId = keyof typeof EN

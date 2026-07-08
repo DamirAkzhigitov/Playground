@@ -18,6 +18,14 @@
 	"images": {
 		"binding": "IMAGES"
 	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "compare-next-db",
+			"database_id": "REPLACE_WITH_D1_DATABASE_ID",
+			"migrations_dir": "migrations"
+		}
+	],
 	"services": [
 		{
 			"binding": "WORKER_SELF_REFERENCE",
@@ -42,6 +50,14 @@
 				{
 					"binding": "WORKER_SELF_REFERENCE",
 					"service": "compare-next-dev"
+				}
+			],
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "compare-next-db-dev",
+					"database_id": "REPLACE_WITH_D1_DATABASE_ID_DEV",
+					"migrations_dir": "migrations"
 				}
 			],
 			"routes": [

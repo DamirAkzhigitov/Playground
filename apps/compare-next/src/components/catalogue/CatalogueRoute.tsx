@@ -1,6 +1,6 @@
 import { CataloguePage } from '@/components/catalogue/CataloguePage'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { getCataloguePage } from '@/data/fetchCatalogue'
+import { getCataloguePage } from '@/data/catalogue'
 import { catalogueJsonLd } from '@/lib/catalogueJsonLd'
 import type { CatalogueSort } from '@/types/catalogue'
 
@@ -9,8 +9,11 @@ type CatalogueRouteProps = {
   isHome?: boolean
 }
 
-export function CatalogueRoute({ sort, isHome = false }: CatalogueRouteProps) {
-  const initialPage = getCataloguePage(0, '', sort)
+export async function CatalogueRoute({
+  sort,
+  isHome = false
+}: CatalogueRouteProps) {
+  const initialPage = await getCataloguePage(0, '', sort)
 
   return (
     <AppLayout>
