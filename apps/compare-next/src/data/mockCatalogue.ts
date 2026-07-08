@@ -1,6 +1,8 @@
 import type { CatalogueEntry } from '@/types/catalogue'
 
-export const MOCK_CATALOGUE: CatalogueEntry[] = [
+type RawCatalogueEntry = Omit<CatalogueEntry, 'publishedAt' | 'viewCount'>
+
+const RAW_CATALOGUE: RawCatalogueEntry[] = [
   {
     id: 'rtx-4090-vs-4080',
     title: 'RTX 4090 vs RTX 4080 Super',
@@ -352,3 +354,24 @@ export const MOCK_CATALOGUE: CatalogueEntry[] = [
     size: 'default'
   }
 ]
+
+function hashId(id: string): number {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) >>> 0
+  }
+  return hash
+}
+
+export const MOCK_CATALOGUE: CatalogueEntry[] = RAW_CATALOGUE.map(
+  (entry, index) => {
+    const daysAgo = index * 2 + (hashId(entry.id) % 21)
+    const publishedAt = new Date(
+      Date.now() - daysAgo * 86_400_000
+    ).toISOString()
+    const viewCount =
+      800 + (hashId(entry.id) % 48_000) + (RAW_CATALOGUE.length - index) * 120
+
+    return { ...entry, publishedAt, viewCount }
+  }
+)

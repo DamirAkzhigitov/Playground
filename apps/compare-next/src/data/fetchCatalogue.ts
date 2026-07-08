@@ -1,5 +1,5 @@
 import { MOCK_CATALOGUE } from '@/data/mockCatalogue'
-import type { CatalogueEntry } from '@/types/catalogue'
+import type { CatalogueEntry, CatalogueSort } from '@/types/catalogue'
 
 const PAGE_SIZE = 8
 
@@ -19,19 +19,55 @@ function matchesQuery(
   return haystack.includes(query.toLowerCase())
 }
 
-function filterCatalogue(query: string): CatalogueEntry[] {
-  const trimmed = query.trim()
-  if (!trimmed) return MOCK_CATALOGUE
-  return MOCK_CATALOGUE.filter((entry) =>
-    matchesQuery(trimmed, entry.title, entry.description, entry.badge)
+function hotScore(entry: CatalogueEntry): number {
+  const ageDays = Math.max(
+    1,
+    (Date.now() - new Date(entry.publishedAt).getTime()) / 86_400_000
   )
+  return entry.viewCount / ageDays
+}
+
+function sortCatalogue(
+  entries: CatalogueEntry[],
+  sort: CatalogueSort
+): CatalogueEntry[] {
+  const sorted = [...entries]
+
+  switch (sort) {
+    case 'new':
+      sorted.sort(
+        (a, b) =>
+          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+      )
+      break
+    case 'popular':
+      sorted.sort((a, b) => b.viewCount - a.viewCount)
+      break
+    case 'hot':
+      sorted.sort((a, b) => hotScore(b) - hotScore(a))
+      break
+  }
+
+  return sorted
+}
+
+function filterCatalogue(query: string, sort: CatalogueSort): CatalogueEntry[] {
+  const trimmed = query.trim()
+  const source = trimmed
+    ? MOCK_CATALOGUE.filter((entry) =>
+        matchesQuery(trimmed, entry.title, entry.description, entry.badge)
+      )
+    : MOCK_CATALOGUE
+
+  return sortCatalogue(source, sort)
 }
 
 export function getCataloguePage(
   page: number,
-  query: string
+  query: string,
+  sort: CatalogueSort = 'new'
 ): CataloguePageResult {
-  const source = filterCatalogue(query)
+  const source = filterCatalogue(query, sort)
   const start = page * PAGE_SIZE
   const items = source.slice(start, start + PAGE_SIZE)
   const nextStart = start + PAGE_SIZE
@@ -45,7 +81,8 @@ export function getCataloguePage(
 
 export async function fetchCataloguePage(
   page: number,
-  query: string
+  query: string,
+  sort: CatalogueSort = 'new'
 ): Promise<CataloguePageResult> {
-  return getCataloguePage(page, query)
+  return getCataloguePage(page, query, sort)
 }

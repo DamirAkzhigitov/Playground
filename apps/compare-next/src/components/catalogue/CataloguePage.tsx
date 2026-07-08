@@ -4,6 +4,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { CatalogueCard } from '@/components/catalogue/CatalogueCard'
+import { CatalogueFilters } from '@/components/catalogue/CatalogueFilters'
 import { CatalogueSearch } from '@/components/catalogue/CatalogueSearch'
 import { useI18n } from '@/contexts/I18nContext'
 import {
@@ -11,20 +12,52 @@ import {
   type CataloguePageResult
 } from '@/data/fetchCatalogue'
 import { catalogueSlotClass } from '@/lib/catalogueSlot'
+import type { CatalogueSort } from '@/types/catalogue'
 
 type CataloguePageProps = {
   initialPage: CataloguePageResult
+  sort: CatalogueSort
+  isHome?: boolean
 }
 
-export function CataloguePage({ initialPage }: CataloguePageProps) {
+export function CataloguePage({
+  initialPage,
+  sort,
+  isHome = false
+}: CataloguePageProps) {
   const { t } = useI18n()
   const [query, setQuery] = useState('')
   const sentinelRef = useRef<HTMLDivElement>(null)
 
+  const heading = isHome
+    ? t('catalogue.title')
+    : sort === 'new'
+      ? t('catalogue.titleNew')
+      : sort === 'hot'
+        ? t('catalogue.titleHot')
+        : t('catalogue.titlePopular')
+
+  const subtitle = isHome
+    ? t('catalogue.subtitle')
+    : sort === 'new'
+      ? t('catalogue.subtitleNew')
+      : sort === 'hot'
+        ? t('catalogue.subtitleHot')
+        : t('catalogue.subtitlePopular')
+
+  const filterOptions = useMemo(
+    () => [
+      { value: 'new' as const, label: t('catalogue.filterNew') },
+      { value: 'hot' as const, label: t('catalogue.filterHot') },
+      { value: 'popular' as const, label: t('catalogue.filterPopular') }
+    ],
+    [t]
+  )
+
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useInfiniteQuery({
-      queryKey: ['catalogue', query],
-      queryFn: ({ pageParam }) => fetchCataloguePage(pageParam, query),
+      queryKey: ['catalogue', query, sort],
+      queryFn: ({ pageParam }) => fetchCataloguePage(pageParam, query, sort),
       initialPageParam: 0,
       getNextPageParam: (lastPage) => lastPage.nextPage,
       initialData:
@@ -73,17 +106,25 @@ export function CataloguePage({ initialPage }: CataloguePageProps) {
   return (
     <section className="catalogue">
       <header className="catalogue__header">
-        <h1 className="catalogue__title">{t('catalogue.title')}</h1>
-        <p className="catalogue__subtitle">{t('catalogue.subtitle')}</p>
+        <h1 className="catalogue__title">{heading}</h1>
+        <p className="catalogue__subtitle">{subtitle}</p>
       </header>
 
-      <CatalogueSearch
-        value={query}
-        onChange={setQuery}
-        placeholder={t('catalogue.searchPlaceholder')}
-        ariaLabel={t('catalogue.searchAria')}
-        label={t('catalogue.searchLabel')}
-      />
+      <div className="catalogue__toolbar">
+        <CatalogueSearch
+          value={query}
+          onChange={setQuery}
+          placeholder={t('catalogue.searchPlaceholder')}
+          ariaLabel={t('catalogue.searchAria')}
+          label={t('catalogue.searchLabel')}
+        />
+
+        <CatalogueFilters
+          activeSort={sort}
+          options={filterOptions}
+          ariaLabel={t('catalogue.filtersAria')}
+        />
+      </div>
 
       <p className="catalogue__meta" aria-live="polite">
         {isLoading ? t('catalogue.loading') : metaText}

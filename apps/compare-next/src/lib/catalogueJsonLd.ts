@@ -1,12 +1,33 @@
 import { EN } from '@/i18n/messages'
 import type { CataloguePageResult } from '@/data/fetchCatalogue'
+import type { CatalogueSort } from '@/types/catalogue'
 
-export function catalogueJsonLd(page: CataloguePageResult) {
+const LIST_NAME: Record<CatalogueSort | 'home', string> = {
+  home: EN['catalogue.title'],
+  new: EN['catalogue.titleNew'],
+  hot: EN['catalogue.titleHot'],
+  popular: EN['catalogue.titlePopular']
+}
+
+const LIST_DESCRIPTION: Record<CatalogueSort | 'home', string> = {
+  home: EN['catalogue.subtitle'],
+  new: EN['catalogue.subtitleNew'],
+  hot: EN['catalogue.subtitleHot'],
+  popular: EN['catalogue.subtitlePopular']
+}
+
+export function catalogueJsonLd(
+  page: CataloguePageResult,
+  sort: CatalogueSort,
+  isHome = false
+) {
+  const key = isHome ? 'home' : sort
+
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: EN['catalogue.title'],
-    description: EN['catalogue.subtitle'],
+    name: LIST_NAME[key],
+    description: LIST_DESCRIPTION[key],
     numberOfItems: page.total,
     itemListElement: page.items.map((entry, index) => ({
       '@type': 'ListItem',

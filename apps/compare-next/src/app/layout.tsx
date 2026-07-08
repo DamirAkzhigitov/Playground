@@ -35,9 +35,6 @@ export const metadata: Metadata = {
     title: defaultTitle,
     description: siteDescription
   },
-  alternates: {
-    canonical: '/'
-  },
   robots: {
     index: true,
     follow: true
