@@ -1,7 +1,9 @@
+// TODO: Remove this entire file when the catalogue API is wired up (delete mockCatalogue.ts).
 import type { CatalogueEntry } from '@/types/catalogue'
 
 type RawCatalogueEntry = Omit<CatalogueEntry, 'publishedAt' | 'viewCount'>
 
+// TODO: Remove — mock seed data only; API will return real catalogue entries.
 const RAW_CATALOGUE: RawCatalogueEntry[] = [
   {
     id: 'rtx-4090-vs-4080',
@@ -355,6 +357,7 @@ const RAW_CATALOGUE: RawCatalogueEntry[] = [
   }
 ]
 
+// TODO: Remove — derives fake publishedAt/viewCount for mock entries only.
 function hashId(id: string): number {
   let hash = 0
   for (let i = 0; i < id.length; i++) {
@@ -363,6 +366,7 @@ function hashId(id: string): number {
   return hash
 }
 
+// TODO: Remove — replace with API fetch in fetchCatalogue.ts.
 export const MOCK_CATALOGUE: CatalogueEntry[] = RAW_CATALOGUE.map(
   (entry, index) => {
     const daysAgo = index * 2 + (hashId(entry.id) % 21)

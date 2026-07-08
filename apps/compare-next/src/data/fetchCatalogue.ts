@@ -1,3 +1,4 @@
+// TODO: Remove mock import when catalogue API is wired up.
 import { MOCK_CATALOGUE } from '@/data/mockCatalogue'
 import type { CatalogueEntry, CatalogueSort } from '@/types/catalogue'
 
@@ -9,6 +10,7 @@ export type CataloguePageResult = {
   total: number
 }
 
+// TODO: Remove — client-side search over mock data; API should accept a query param.
 function matchesQuery(
   query: string,
   title: string,
@@ -19,6 +21,7 @@ function matchesQuery(
   return haystack.includes(query.toLowerCase())
 }
 
+// TODO: Remove — hot ranking over mock data; API should sort by hot server-side.
 function hotScore(entry: CatalogueEntry): number {
   const ageDays = Math.max(
     1,
@@ -27,6 +30,7 @@ function hotScore(entry: CatalogueEntry): number {
   return entry.viewCount / ageDays
 }
 
+// TODO: Remove — client-side sort over mock data; API should accept a sort param.
 function sortCatalogue(
   entries: CatalogueEntry[],
   sort: CatalogueSort
@@ -51,6 +55,7 @@ function sortCatalogue(
   return sorted
 }
 
+// TODO: Remove — in-memory filter/sort over MOCK_CATALOGUE; replace with API call.
 function filterCatalogue(query: string, sort: CatalogueSort): CatalogueEntry[] {
   const trimmed = query.trim()
   const source = trimmed
@@ -62,6 +67,7 @@ function filterCatalogue(query: string, sort: CatalogueSort): CatalogueEntry[] {
   return sortCatalogue(source, sort)
 }
 
+// TODO: Replace implementation with API fetch (keep for SSR); remove in-memory slice/pagination.
 export function getCataloguePage(
   page: number,
   query: string,
@@ -79,6 +85,7 @@ export function getCataloguePage(
   }
 }
 
+// TODO: Replace with fetch to catalogue API (e.g. GET /api/catalogue?page=&q=&sort=).
 export async function fetchCataloguePage(
   page: number,
   query: string,
