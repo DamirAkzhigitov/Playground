@@ -21,30 +21,31 @@ INSERT INTO spec_definitions (id, kind_id, key, label, unit, value_type, higher_
   ('gpu-spec-rt',         'kind-gpu', 'ray_tracing',    'Ray Tracing',    NULL,  'boolean', NULL, 'Features',80),
   ('gpu-spec-msrp',       'kind-gpu', 'msrp_usd',       'MSRP',           '$',   'number',  0,    'Price',   90);
 
+-- image_url: TechPowerUp reference front shots (https://tpucdn.com/gpu-specs/images/b/{id}-front.jpg)
 INSERT INTO items (id, kind_id, slug, name, brand, image_url, release_date, view_count, specs_json) VALUES
   ('gpu-rtx-5080', 'kind-gpu', 'rtx-5080', 'GeForce RTX 5080', 'NVIDIA',
-   'https://picsum.photos/seed/gpu-rtx-5080/800/600', '2025-01-30', 48200,
+   'https://tpucdn.com/gpu-specs/images/b/4217-front.jpg', '2025-01-30', 48200,
    '{"vram_gb":16,"memory_type":"GDDR7","memory_bus_bit":256,"boost_clock_mhz":2617,"shader_cores":10752,"tdp_w":360,"length_mm":304,"ray_tracing":true,"msrp_usd":999}'),
   ('gpu-rtx-4090', 'kind-gpu', 'rtx-4090', 'GeForce RTX 4090', 'NVIDIA',
-   'https://picsum.photos/seed/gpu-rtx-4090/800/600', '2022-10-12', 51200,
+   'https://tpucdn.com/gpu-specs/images/b/3889-front.jpg', '2022-10-12', 51200,
    '{"vram_gb":24,"memory_type":"GDDR6X","memory_bus_bit":384,"boost_clock_mhz":2520,"shader_cores":16384,"tdp_w":450,"length_mm":304,"ray_tracing":true,"msrp_usd":1599}'),
   ('gpu-rtx-4080-super', 'kind-gpu', 'rtx-4080-super', 'GeForce RTX 4080 Super', 'NVIDIA',
-   'https://picsum.photos/seed/gpu-rtx-4080s/800/600', '2024-01-31', 39800,
+   'https://tpucdn.com/gpu-specs/images/b/4182-front.jpg', '2024-01-31', 39800,
    '{"vram_gb":16,"memory_type":"GDDR6X","memory_bus_bit":256,"boost_clock_mhz":2550,"shader_cores":10240,"tdp_w":320,"length_mm":310,"ray_tracing":true,"msrp_usd":999}'),
   ('gpu-rtx-3080', 'kind-gpu', 'rtx-3080', 'GeForce RTX 3080', 'NVIDIA',
-   'https://picsum.photos/seed/gpu-rtx-3080/800/600', '2020-09-17', 44100,
+   'https://tpucdn.com/gpu-specs/images/b/3621-front.jpg', '2020-09-17', 44100,
    '{"vram_gb":10,"memory_type":"GDDR6X","memory_bus_bit":320,"boost_clock_mhz":1710,"shader_cores":8704,"tdp_w":320,"length_mm":285,"ray_tracing":true,"msrp_usd":699}'),
   ('gpu-rtx-3070', 'kind-gpu', 'rtx-3070', 'GeForce RTX 3070', 'NVIDIA',
-   'https://picsum.photos/seed/gpu-rtx-3070/800/600', '2020-10-29', 46700,
+   'https://tpucdn.com/gpu-specs/images/b/3674-front.jpg', '2020-10-29', 46700,
    '{"vram_gb":8,"memory_type":"GDDR6","memory_bus_bit":256,"boost_clock_mhz":1725,"shader_cores":5888,"tdp_w":220,"length_mm":242,"ray_tracing":true,"msrp_usd":499}'),
   ('gpu-rx-7900-xtx', 'kind-gpu', 'rx-7900-xtx', 'Radeon RX 7900 XTX', 'AMD',
-   'https://picsum.photos/seed/gpu-rx-7900xtx/800/600', '2022-12-13', 33500,
+   'https://tpucdn.com/gpu-specs/images/b/3941-front.jpg', '2022-12-13', 33500,
    '{"vram_gb":24,"memory_type":"GDDR6","memory_bus_bit":384,"boost_clock_mhz":2500,"shader_cores":6144,"tdp_w":355,"length_mm":287,"ray_tracing":true,"msrp_usd":999}'),
   ('gpu-rx-7700-xt', 'kind-gpu', 'rx-7700-xt', 'Radeon RX 7700 XT', 'AMD',
-   'https://picsum.photos/seed/gpu-rx-7700xt/800/600', '2023-09-06', 28900,
+   'https://tpucdn.com/gpu-specs/images/b/3911-front.jpg', '2023-09-06', 28900,
    '{"vram_gb":12,"memory_type":"GDDR6","memory_bus_bit":192,"boost_clock_mhz":2544,"shader_cores":3456,"tdp_w":245,"length_mm":267,"ray_tracing":true,"msrp_usd":449}'),
   ('gpu-rtx-4060-ti', 'kind-gpu', 'rtx-4060-ti', 'GeForce RTX 4060 Ti', 'NVIDIA',
-   'https://picsum.photos/seed/gpu-rtx-4060ti/800/600', '2023-05-24', 31200,
+   'https://tpucdn.com/gpu-specs/images/b/3890-front.jpg', '2023-05-24', 31200,
    '{"vram_gb":8,"memory_type":"GDDR6","memory_bus_bit":128,"boost_clock_mhz":2535,"shader_cores":4352,"tdp_w":160,"length_mm":240,"ray_tracing":true,"msrp_usd":399}');
 
 -- Curated / popular comparisons (pointers only). item_slugs_json is canonical (alphabetical).
