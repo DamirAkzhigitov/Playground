@@ -30,7 +30,6 @@ const EN = {
   'comparison.pickerHint': 'Add or remove items to build your own comparison.',
   'comparison.addItem': 'Add item',
   'comparison.remove': 'Remove {name}',
-  'comparison.best': 'Best',
   'comparison.viewCount': '{count} views',
   'comparison.specColumn': 'Spec',
   'comparison.peopleAlsoCompare': 'People also compare',

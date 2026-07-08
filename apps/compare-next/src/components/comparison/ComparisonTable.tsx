@@ -101,11 +101,6 @@ export function ComparisonTable({
                           }
                         >
                           {formatSpecValue(item.specs[def.key] ?? null, def)}
-                          {isWinner ? (
-                            <span className="cmp-table__best-badge">
-                              {EN['comparison.best']}
-                            </span>
-                          ) : null}
                         </td>
                       )
                     })}

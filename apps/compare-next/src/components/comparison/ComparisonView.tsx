@@ -34,6 +34,8 @@ export function ComparisonView({ data, related }: ComparisonViewProps) {
         <h1 className="cmp__title">{title}</h1>
       </header>
 
+      <ComparisonTable items={items} specs={specs} kindSlug={kind.slug} />
+
       {verdict ? <ComparisonVerdictBlock verdict={verdict} /> : null}
 
       <ComparisonPicker
@@ -44,8 +46,6 @@ export function ComparisonView({ data, related }: ComparisonViewProps) {
           name: item.name
         }))}
       />
-
-      <ComparisonTable items={items} specs={specs} kindSlug={kind.slug} />
 
       {slugs.length > 2 ? (
         <p className="cmp__note">{EN['comparison.customNote']}</p>
