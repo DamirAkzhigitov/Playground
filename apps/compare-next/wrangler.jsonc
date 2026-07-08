@@ -22,7 +22,7 @@
 		{
 			"binding": "DB",
 			"database_name": "compare-next-db",
-			"database_id": "REPLACE_WITH_D1_DATABASE_ID",
+			"database_id": "9f1f5c25-ee5c-45c6-9f06-2321e3a8507e",
 			"migrations_dir": "migrations"
 		}
 	],
@@ -46,6 +46,9 @@
 	"env": {
 		"dev": {
 			"name": "compare-next-dev",
+			"images": {
+				"binding": "IMAGES"
+			},
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
@@ -56,7 +59,7 @@
 				{
 					"binding": "DB",
 					"database_name": "compare-next-db-dev",
-					"database_id": "REPLACE_WITH_D1_DATABASE_ID_DEV",
+					"database_id": "55d2a1b5-c081-49bd-ab24-d7d6347920cd",
 					"migrations_dir": "migrations"
 				}
 			],
