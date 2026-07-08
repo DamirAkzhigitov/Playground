@@ -1,5 +1,5 @@
 {
-  "name": "compare-next",
+  "name": "@playground/compare-next",
   "version": "0.1.0",
   "private": true,
   "scripts": {
