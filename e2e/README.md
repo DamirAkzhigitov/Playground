@@ -4,7 +4,8 @@ Browser tests for Playground apps using [Playwright](https://playwright.dev/).
 
 ## compare-next
 
-Starts `@playground/compare-next` on port `3010` (override with `COMPARE_NEXT_PORT`) and runs UI/API smoke tests.
+Starts `@playground/compare-next` on port `3010` (override with `COMPARE_NEXT_PORT`),
+runs `db:setup:local` (migrate + GPU seed), then runs UI/API smoke tests.
 
 ```bash
 pnpm install

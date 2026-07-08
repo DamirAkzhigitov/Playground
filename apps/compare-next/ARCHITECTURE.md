@@ -33,23 +33,32 @@ apps/compare-next/
 │   │   ├── new/page.tsx        # /new catalogue
 │   │   ├── hot/page.tsx        # /hot catalogue
 │   │   ├── popular/page.tsx    # /popular catalogue
-│   │   ├── api/                  # Route handlers (mock catalogue API for now)
+│   │   ├── compare/            # Comparison + item pages (SEO)
+│   │   │   └── [kind]/
+│   │   │       ├── page.tsx    # Kind hub
+│   │   │       └── [pair]/
+│   │   │           ├── page.tsx
+│   │   │           └── opengraph-image.tsx
+│   │   ├── api/                # Route handlers (D1-backed catalogue API)
 │   │   │   ├── catalogue/route.ts
 │   │   │   └── health/route.ts
 │   │   ├── robots.ts           # robots.txt
 │   │   └── sitemap.ts          # sitemap.xml
 │   ├── components/
 │   │   ├── catalogue/          # Catalogue feature UI
-│   │   ├── layout/               # App shell (header, footer, nav)
-│   │   └── providers/            # Client providers (React Query, i18n)
-│   ├── contexts/                 # React context definitions + hooks
-│   ├── data/                     # Data access: fetch, filter, paginate
-│   ├── i18n/                     # Locale config + message strings
-│   ├── lib/                      # Pure helpers (SEO, routes, site config)
-│   ├── styles/                   # Global and feature SCSS
-│   └── types/                    # Shared TypeScript types per domain
-├── open-next.config.ts           # OpenNext / Cloudflare adapter config
-├── wrangler.jsonc                # Cloudflare Worker deploy config
+│   │   ├── comparison/         # Comparison tables, pickers, verdict UI
+│   │   ├── layout/             # App shell (header, footer, nav)
+│   │   └── providers/          # Client providers (React Query, i18n)
+│   ├── contexts/               # React context definitions + hooks
+│   ├── data/                   # D1 access, loaders, catalogue pagination
+│   ├── i18n/                   # Locale config + message strings
+│   ├── lib/                    # Pure helpers (SEO, routes, site config)
+│   ├── styles/                 # Global and feature SCSS
+│   └── types/                  # Shared TypeScript types per domain
+├── migrations/                 # D1 SQL migrations
+├── seed/                       # Local/dev SQL seeds (e.g. gpu.sql)
+├── open-next.config.ts         # OpenNext / Cloudflare adapter config
+├── wrangler.jsonc              # Cloudflare Worker deploy config
 └── package.json
 ```
 
@@ -60,7 +69,10 @@ apps/compare-next/
 | A new URL / page | `src/app/<route>/page.tsx` | `components/` |
 | Page metadata (title, OG) | Export from `page.tsx` via `lib/catalogueMetadata` | Inline strings in components |
 | Catalogue UI | `src/components/catalogue/` | `app/` |
+| Comparison UI | `src/components/comparison/` | `app/` |
 | Fetching / filtering / sorting | `src/data/` | Components |
+| D1 queries + row mapping | `src/data/comparisons.ts` | Components |
+| Comparison page loaders | `src/data/comparisonPage.ts` | `app/` |
 | Pure functions (paths, JSON-LD, slots) | `src/lib/` | `data/` or components |
 | Domain types | `src/types/<domain>.ts` | Inline in components |
 | User-visible strings | `src/i18n/messages.ts` | Hardcoded in JSX |
@@ -88,7 +100,9 @@ flowchart TB
 
   subgraph data ["data/ + lib/"]
     Fetch["fetchCatalogue.ts"]
-    Mock["mockCatalogue.ts"]
+    Catalogue["catalogue.ts + catalogueQuery.ts"]
+    Comparisons["comparisons.ts + comparisonPage.ts"]
+    Db["db.ts → D1"]
     Routes["catalogueRoutes.ts"]
     MetaLib["catalogueMetadata.ts"]
     JsonLd["catalogueJsonLd.ts"]
@@ -109,7 +123,9 @@ flowchart TB
   CP --> CF
   CF --> Routes
   CP --> I18n
-  Fetch --> Mock
+  Fetch --> Catalogue
+  Catalogue --> Comparisons
+  Comparisons --> Db
   Fetch --> Types
 ```
 
@@ -131,11 +147,13 @@ flowchart TB
    - Owns search state, infinite scroll, React Query.
    - Receives `initialPage` from the server for hydration without a loading flash.
 
-4. **`data/` — all catalogue data logic**
-   - Sorting, filtering, pagination live here.
-   - `getCataloguePage` — sync, used on server and as query function.
-   - `fetchCataloguePage` — async wrapper for React Query (today delegates to sync; ready for API).
-   - `mockCatalogue.ts` — seed data until a real API exists.
+4. **`data/` — all catalogue and comparison data logic**
+   - D1 access: `db.ts`, `comparisons.ts`.
+   - Catalogue cards from `comparison_stats` + items: `catalogue.ts`.
+   - Pure filter/sort/paginate: `catalogueQuery.ts`.
+   - Comparison loaders (`cache()`): `comparisonPage.ts`.
+   - `getCataloguePage` — server + `/api/catalogue`.
+   - `fetchCataloguePage` — client wrapper for React Query (`/api/catalogue`).
 
 5. **`lib/` — pure, side-effect-free helpers**
    - Route paths (`catalogueRoutes.ts`), metadata builders, JSON-LD, CSS slot classes.
@@ -155,8 +173,13 @@ flowchart TB
 | `/new` | `app/new/page.tsx` | `new` | Same data as home, different canonical URL |
 | `/hot` | `app/hot/page.tsx` | `hot` | Hot score = views / age |
 | `/popular` | `app/popular/page.tsx` | `popular` | Sorted by `viewCount` |
+| `/compare/[kind]` | `app/compare/[kind]/page.tsx` | — | Kind hub (all items + popular pairs) |
+| `/compare/[kind]/[item]` | `app/compare/[kind]/[pair]/page.tsx` | — | Single-item spec page |
+| `/compare/[kind]/a-vs-b` | `app/compare/[kind]/[pair]/page.tsx` | — | Derived comparison (canonical slug order) |
 
-Path constants and helpers live in **`lib/catalogueRoutes.ts`**:
+Comparison path helpers live in **`lib/comparison.ts`** (`comparisonPath`,
+`canonicalComparisonPath`, `buildPairKey`). Catalogue sort paths remain in
+**`lib/catalogueRoutes.ts`**.
 
 - `CATALOGUE_SORT_PATHS` — sort → path map (used by filters and sitemap).
 - `catalogueSortPath(sort)` — build href for `<Link>`.
@@ -165,7 +188,7 @@ Path constants and helpers live in **`lib/catalogueRoutes.ts`**:
 
 1. Add the sort key to `CatalogueSort` in `types/catalogue.ts`.
 2. Add path in `lib/catalogueRoutes.ts`.
-3. Add sort branch in `data/fetchCatalogue.ts` → `sortCatalogue`.
+3. Add sort branch in `data/catalogueQuery.ts` → `sortEntries`.
 4. Add i18n keys in `i18n/messages.ts` (title, subtitle, filter label).
 5. Extend `lib/catalogueMetadata.ts` and `lib/catalogueJsonLd.ts` records.
 6. Create `app/<sort>/page.tsx` following `hot/page.tsx` pattern.
@@ -203,12 +226,12 @@ server for SEO and smaller bundles.
      → useInfiniteQuery({ queryKey: ['catalogue', query, sort], … })
      → initialData from server when query === ''
      → IntersectionObserver → fetchNextPage()
-     → fetchCataloguePage → getCataloguePage (today: mock data)
+     → fetchCataloguePage → GET /api/catalogue → getCataloguePage → D1
 ```
 
-When replacing mocks with an API, change **`fetchCataloguePage`** (and
-optionally `getCataloguePage` for SSR) — do not scatter `fetch` calls in
-components.
+Comparison pages load via `comparisonPage.ts` loaders (`loadComparison`,
+`loadItem`, `loadKindHub`). View counts increment in `recordComparisonView`
+(deferred with Next.js `after()` on pair pages).
 
 ---
 
@@ -218,8 +241,11 @@ components.
 | ------- | -------- |
 | Global defaults | `app/layout.tsx` → `metadata` |
 | Per-route title/description/canonical | `lib/catalogueMetadata.ts` |
+| Comparison metadata + OG images | `lib/comparisonMetadata.ts`, `opengraph-image.tsx` |
+| Tiered comparison indexation | `lib/comparisonIndexing.ts` |
 | JSON-LD `ItemList` | `lib/catalogueJsonLd.ts` |
-| `sitemap.xml` | `app/sitemap.ts` (reads `CATALOGUE_SORT_PATHS`) |
+| JSON-LD comparisons / items | `lib/comparisonJsonLd.ts` |
+| `sitemap.xml` | `app/sitemap.ts` |
 | `robots.txt` | `app/robots.ts` |
 | Site URL | `lib/site.ts` (`NEXT_PUBLIC_SITE_URL` or fallback) |
 
@@ -284,15 +310,21 @@ when `@/` is clearer).
 
 ```bash
 # From repo root
-pnpm --filter @playground/compare-next dev      # Next.js dev server
-pnpm --filter @playground/compare-next build    # Production build
-pnpm --filter @playground/compare-next lint     # ESLint
+pnpm --filter @playground/compare-next db:setup:local  # migrate + seed (first time / E2E)
+pnpm --filter @playground/compare-next dev             # Next.js dev (D1 via OpenNext dev bindings)
+pnpm --filter @playground/compare-next build           # Production build
+pnpm --filter @playground/compare-next test            # Vitest
+pnpm --filter @playground/compare-next lint            # ESLint
 
-# From apps/compare-next
-pnpm preview    # OpenNext build + local Cloudflare runtime
-pnpm --filter @playground/compare-next deploy     # Build + deploy to Cloudflare
-pnpm --filter @playground/compare-next deploy:dev # Dev Worker (dev-compare.da-mr.com)
+# Deploy (migrations run automatically)
+pnpm --filter @playground/compare-next deploy          # prod → compare.da-mr.com
+pnpm --filter @playground/compare-next deploy:dev      # dev → dev-compare.da-mr.com
+pnpm --filter @playground/compare-next preview         # OpenNext build + local Worker runtime
 ```
+
+`next.config.ts` calls `initOpenNextCloudflareForDev()` so `getDb()` works
+during `next dev`. Run `db:setup:local` before first dev session or when the
+local D1 database is empty.
 
 See [`README.md`](./README.md) and [OpenNext Cloudflare docs](https://opennext.js.org/cloudflare)
 for adapter details.

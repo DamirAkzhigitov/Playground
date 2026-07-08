@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
+import { after } from 'next/server'
 
 import { ComparisonView } from '@/components/comparison/ComparisonView'
 import { ItemView } from '@/components/comparison/ItemView'
@@ -9,9 +10,11 @@ import {
   loadItem,
   loadRelatedComparisons
 } from '@/data/comparisonPage'
+import { recordComparisonView } from '@/data/comparisons'
 import {
   buildPairKey,
   canonicalComparisonPath,
+  canonicalOrder,
   isCanonicalOrder,
   isPairSegment,
   parsePairSegment
@@ -85,7 +88,19 @@ export default async function CompareSegmentPage({
   const data = await loadComparison(kind, pair)
   if (!data) notFound()
 
-  const pairKey = buildPairKey(kind, data.slugs)
+  const slugs = canonicalOrder(data.slugs)
+  const pairKey = buildPairKey(kind, slugs)
+
+  after(() => {
+    recordComparisonView(kind, pairKey, slugs).catch((error: unknown) => {
+      console.error('Failed to record comparison view', {
+        kind,
+        pairKey,
+        error
+      })
+    })
+  })
+
   const related = await loadRelatedComparisons(kind, data.slugs, pairKey)
   const jsonLd = comparisonJsonLd(data.kind, data.items, data.specs, data.slugs)
 

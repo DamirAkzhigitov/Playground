@@ -21,9 +21,9 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: `pnpm --filter @playground/compare-next exec next dev --port ${comparePort}`,
+    command: `pnpm --filter @playground/compare-next run db:setup:local && pnpm --filter @playground/compare-next exec next dev --port ${comparePort}`,
     url: compareBaseUrl,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000
+    timeout: 180_000
   }
 })

@@ -1,10 +1,6 @@
-┌───────┬────────────────────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Sever │ Location                               │ Finding                                                                                                                                                          │
-│ ity   │                                        │                                                                                                                                                                  │
-├───────┼────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ High  │ apps/compare-next/wrangler.jsonc:25    │ Production and dev D1 bindings still use REPLACE_WITH_D1_DATABASE_ID placeholders; deploy will fail or bind to an invalid database until real Cloudflare D1 IDs  │
-│       │                                        │ are set.                                                                                                                                                         │
-├───────┼────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Mediu │ apps/compare-next/src/app/compare/[kin │ recordComparisonView exists in @/data/comparisons but nothing calls it on page view, so catalogue “popular” / “hot” sorting stays at seed view_count values.     │
-│ m     │ d]/[pair]/page.tsx                    │                                                                                                                                                                  │
-└───────┴────────────────────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+# Known issues
+
+No open issues tracked here. Resolved in recent work:
+
+- D1 database IDs wired in `wrangler.jsonc` (prod + dev).
+- `recordComparisonView` called on comparison page load via `after()`.
