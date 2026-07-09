@@ -14,15 +14,8 @@ html {
 
 body {
   min-height: 100dvh;
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    sans-serif;
   font-size: 1rem;
   line-height: 1.5;
-  color: var(--color-text);
-  background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -66,7 +59,7 @@ input {
 
 .app-shell {
   min-height: 100dvh;
-  background: var(--color-bg);
+  background: var(--background);
 }
 
 .app-main {

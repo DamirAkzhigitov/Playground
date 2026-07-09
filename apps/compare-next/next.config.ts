@@ -6,6 +6,7 @@ const appRoot = path.dirname(fileURLToPath(import.meta.url))
 const monorepoRoot = path.join(appRoot, '../..')
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ['compare-local.da-mr.com'],
   outputFileTracingRoot: monorepoRoot,
   turbopack: {
     // pnpm monorepo: Turbopack must use the workspace root (not apps/compare-next or

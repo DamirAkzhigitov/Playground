@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { catalogueSortPath } from '@/lib/catalogueRoutes'
 import type { CatalogueSort } from '@/types/catalogue'
 
@@ -20,21 +23,25 @@ export function CatalogueFilters({
   ariaLabel
 }: CatalogueFiltersProps) {
   return (
-    <nav className="catalogue__filters" aria-label={ariaLabel}>
-      {options.map((option) => {
-        const isActive = option.value === activeSort
-
-        return (
-          <Link
+    <nav aria-label={ariaLabel}>
+      <ToggleGroup
+        value={[activeSort]}
+        variant="outline"
+        spacing={2}
+        className="flex-wrap"
+      >
+        {options.map((option) => (
+          <ToggleGroupItem
             key={option.value}
-            href={catalogueSortPath(option.value)}
-            className={`catalogue__filter${isActive ? ' catalogue__filter--active' : ''}`}
-            aria-current={isActive ? 'page' : undefined}
+            value={option.value}
+            nativeButton={false}
+            render={<Link href={catalogueSortPath(option.value)} />}
+            aria-current={option.value === activeSort ? 'page' : undefined}
           >
             {option.label}
-          </Link>
-        )
-      })}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
     </nav>
   )
 }

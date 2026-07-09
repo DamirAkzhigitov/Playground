@@ -6,6 +6,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { CatalogueCard } from '@/components/catalogue/CatalogueCard'
 import { CatalogueFilters } from '@/components/catalogue/CatalogueFilters'
 import { CatalogueSearch } from '@/components/catalogue/CatalogueSearch'
+import { Empty, EmptyDescription, EmptyHeader } from '@/components/ui/empty'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Spinner } from '@/components/ui/spinner'
 import { useI18n } from '@/contexts/I18nContext'
 import {
   fetchCataloguePage,
@@ -20,11 +23,29 @@ import { catalogueSlotClass } from '@/lib/catalogueSlot'
 import type { CatalogueSort } from '@/types/catalogue'
 
 const SEARCH_DEBOUNCE_MS = 350
+const SKELETON_CARD_COUNT = 6
 
 type CataloguePageProps = {
   initialPage: CataloguePageResult
   sort: CatalogueSort
   isHome?: boolean
+}
+
+function CatalogueGridSkeleton({ label }: { label: string }) {
+  return (
+    <div
+      className="catalogue__grid"
+      role="status"
+      aria-label={label}
+      aria-busy="true"
+    >
+      {Array.from({ length: SKELETON_CARD_COUNT }, (_, index) => (
+        <div key={index} className="catalogue__slot">
+          <Skeleton className="h-full min-h-72 w-full" aria-hidden />
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export function CataloguePage({
@@ -109,18 +130,19 @@ export function CataloguePage({
         : t('catalogue.itemCount', { count: total })
 
   return (
-    <section className="catalogue">
-      <header className="catalogue__header">
-        <h1 className="catalogue__title">{heading}</h1>
-        <p className="catalogue__subtitle">{subtitle}</p>
+    <section className="flex flex-col gap-6">
+      <header className="flex flex-col gap-2">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          {heading}
+        </h1>
+        <p className="max-w-xl text-sm text-muted-foreground">{subtitle}</p>
       </header>
 
-      <div className="catalogue__toolbar">
+      <div className="flex flex-col gap-4">
         <CatalogueSearch
           value={searchInput}
           onChange={setSearchInput}
           placeholder={t('catalogue.searchPlaceholder')}
-          ariaLabel={t('catalogue.searchAria')}
           label={t('catalogue.searchLabel')}
         />
 
@@ -131,19 +153,20 @@ export function CataloguePage({
         />
       </div>
 
-      <p className="catalogue__meta" aria-live="polite">
+      <p className="text-sm text-muted-foreground" aria-live="polite">
         {isLoading ? t('catalogue.loading') : metaText}
       </p>
 
       {isLoading ? (
-        <div className="catalogue__loading" role="status">
-          <span className="catalogue__spinner" aria-hidden="true" />
-          <span>{t('catalogue.loading')}</span>
-        </div>
+        <CatalogueGridSkeleton label={t('catalogue.loading')} />
       ) : entries.length === 0 ? (
-        <p className="catalogue__empty">
-          {t('catalogue.empty', { query: debouncedQuery.trim() })}
-        </p>
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyDescription>
+              {t('catalogue.empty', { query: debouncedQuery.trim() })}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <>
           <div className="catalogue__grid">
@@ -158,10 +181,10 @@ export function CataloguePage({
 
           {isFetchingNextPage ? (
             <div
-              className="catalogue__loading catalogue__loading--more"
+              className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground"
               role="status"
             >
-              <span className="catalogue__spinner" aria-hidden="true" />
+              <Spinner />
               <span>{t('catalogue.loadingMore')}</span>
             </div>
           ) : null}

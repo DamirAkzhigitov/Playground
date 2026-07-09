@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { Providers } from '@/components/providers/Providers'
 import { EN } from '@/i18n/messages'
 import { getSiteUrl, SITE_NAME } from '@/lib/site'
+import '@/styles/tailwind.css'
 import '@/styles/index.scss'
 
 const inter = Inter({
