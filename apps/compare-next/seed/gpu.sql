@@ -10,16 +10,16 @@ INSERT INTO kinds (id, slug, name, name_plural, description) VALUES
   ('kind-gpu', 'gpu', 'Graphics Card', 'Graphics Cards',
    'Compare desktop GPUs on memory, clocks, power draw, and price to find the right card for your build.');
 
-INSERT INTO spec_definitions (id, kind_id, key, label, unit, value_type, higher_is_better, group_label, sort_order) VALUES
-  ('gpu-spec-vram',       'kind-gpu', 'vram_gb',        'VRAM',           'GB',  'number',  1,    'Memory',  10),
-  ('gpu-spec-memtype',    'kind-gpu', 'memory_type',    'Memory Type',    NULL,  'text',    NULL, 'Memory',  20),
-  ('gpu-spec-membus',     'kind-gpu', 'memory_bus_bit', 'Memory Bus',     'bit', 'number',  1,    'Memory',  30),
-  ('gpu-spec-boost',      'kind-gpu', 'boost_clock_mhz','Boost Clock',    'MHz', 'number',  1,    'Clocks',  40),
-  ('gpu-spec-cores',      'kind-gpu', 'shader_cores',   'Shader Cores',   NULL,  'number',  1,    'Compute', 50),
-  ('gpu-spec-tdp',        'kind-gpu', 'tdp_w',          'TDP',            'W',   'number',  0,    'Power',   60),
-  ('gpu-spec-length',     'kind-gpu', 'length_mm',      'Length',         'mm',  'number',  0,    'Physical',70),
-  ('gpu-spec-rt',         'kind-gpu', 'ray_tracing',    'Ray Tracing',    NULL,  'boolean', NULL, 'Features',80),
-  ('gpu-spec-msrp',       'kind-gpu', 'msrp_usd',       'MSRP',           '$',   'number',  0,    'Price',   90);
+INSERT INTO spec_definitions (id, kind_id, key, label, unit, value_type, higher_is_better, comparison_role, comparison_weight, minimum_difference_percent, group_label, sort_order) VALUES
+  ('gpu-spec-vram',       'kind-gpu', 'vram_gb',        'VRAM',           'GB',  'number',  1,    'primary',       3, 5, 'Memory',  10),
+  ('gpu-spec-memtype',    'kind-gpu', 'memory_type',    'Memory Type',    NULL,  'text',    NULL, 'informational', 0, 0, 'Memory',  20),
+  ('gpu-spec-membus',     'kind-gpu', 'memory_bus_bit', 'Memory Bus',     'bit', 'number',  1,    'primary',       2, 5, 'Memory',  30),
+  ('gpu-spec-boost',      'kind-gpu', 'boost_clock_mhz','Boost Clock',    'MHz', 'number',  1,    'informational', 0, 0, 'Clocks',  40),
+  ('gpu-spec-cores',      'kind-gpu', 'shader_cores',   'Shader Cores',   NULL,  'number',  1,    'primary',       2, 5, 'Compute', 50),
+  ('gpu-spec-tdp',        'kind-gpu', 'tdp_w',          'TDP',            'W',   'number',  0,    'tradeoff',      0, 0, 'Power',   60),
+  ('gpu-spec-length',     'kind-gpu', 'length_mm',      'Length',         'mm',  'number',  0,    'tradeoff',      0, 0, 'Physical',70),
+  ('gpu-spec-rt',         'kind-gpu', 'ray_tracing',    'Ray Tracing',    NULL,  'boolean', NULL, 'informational', 0, 0, 'Features',80),
+  ('gpu-spec-msrp',       'kind-gpu', 'msrp_usd',       'MSRP',           '$',   'number',  0,    'tradeoff',      0, 0, 'Price',   90);
 
 -- image_url: TechPowerUp reference front shots (https://tpucdn.com/gpu-specs/images/b/{id}-front.jpg)
 INSERT INTO items (id, kind_id, slug, name, brand, image_url, release_date, view_count, specs_json) VALUES

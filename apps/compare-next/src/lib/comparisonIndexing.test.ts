@@ -14,6 +14,9 @@ const specs: SpecDefinition[] = [
     unit: 'GB',
     valueType: 'number',
     higherIsBetter: true,
+    comparisonRole: 'primary',
+    comparisonWeight: 1,
+    minimumDifferencePercent: 0,
     group: null,
     sortOrder: 1
   },
@@ -23,6 +26,9 @@ const specs: SpecDefinition[] = [
     unit: '$',
     valueType: 'number',
     higherIsBetter: false,
+    comparisonRole: 'tradeoff',
+    comparisonWeight: 0,
+    minimumDifferencePercent: 0,
     group: null,
     sortOrder: 2
   }

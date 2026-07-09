@@ -22,6 +22,8 @@ export type SpecValueType = 'number' | 'text' | 'boolean'
 
 export type SpecValue = string | number | boolean | null
 
+export type ComparisonRole = 'primary' | 'tradeoff' | 'informational'
+
 /** A comparable category (GPU, Phone, ...). */
 export type Kind = {
   id: string
@@ -39,6 +41,12 @@ export type SpecDefinition = {
   valueType: SpecValueType
   /** true = higher wins, false = lower wins (price/latency), null = not ranked. */
   higherIsBetter: boolean | null
+  /** Whether this spec determines the overall verdict, a trade-off, or display only. */
+  comparisonRole: ComparisonRole
+  /** Points awarded for a meaningful primary-spec win. */
+  comparisonWeight: number
+  /** Minimum percentage difference required before a numeric comparison is a win. */
+  minimumDifferencePercent: number
   group: string | null
   sortOrder: number
 }

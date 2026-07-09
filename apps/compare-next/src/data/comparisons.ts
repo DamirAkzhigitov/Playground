@@ -1,5 +1,6 @@
 import { getDb } from '@/data/db'
 import type {
+  ComparisonRole,
   ComparisonStat,
   Item,
   Kind,
@@ -34,8 +35,23 @@ type SpecDefinitionRow = {
   unit: string | null
   value_type: string
   higher_is_better: number | null
+  comparison_role: string
+  comparison_weight: number
+  minimum_difference_percent: number
   group_label: string | null
   sort_order: number
+}
+
+function parseComparisonRole(value: string): ComparisonRole {
+  if (
+    value === 'primary' ||
+    value === 'tradeoff' ||
+    value === 'informational'
+  ) {
+    return value
+  }
+
+  throw new Error(`Invalid comparison role: ${value}`)
 }
 
 type ComparisonStatRow = {
@@ -88,6 +104,9 @@ function mapSpecDefinition(row: SpecDefinitionRow): SpecDefinition {
     valueType: (row.value_type as SpecValueType) ?? 'text',
     higherIsBetter:
       row.higher_is_better === null ? null : row.higher_is_better === 1,
+    comparisonRole: parseComparisonRole(row.comparison_role),
+    comparisonWeight: row.comparison_weight,
+    minimumDifferencePercent: row.minimum_difference_percent,
     group: row.group_label,
     sortOrder: row.sort_order
   }

@@ -4,36 +4,54 @@ import type { Item, SpecDefinition } from '@/types/catalogue'
 export type ItemVerdict = {
   slug: string
   name: string
-  winCount: number
+  score: number
+  primaryWinCount: number
   pros: string[]
+  tradeoffs: string[]
   cons: string[]
 }
 
 export type ComparisonVerdict = {
-  rankedSpecCount: number
+  primarySpecCount: number
   items: ItemVerdict[]
   summary: string
   faq: { question: string; answer: string }[]
 }
 
-function isRankedSpec(def: SpecDefinition): boolean {
+function isComparableSpec(def: SpecDefinition): boolean {
   return def.valueType === 'number' && def.higherIsBetter !== null
+}
+
+function isPrimarySpec(def: SpecDefinition): boolean {
+  return (
+    isComparableSpec(def) &&
+    def.comparisonRole === 'primary' &&
+    def.comparisonWeight > 0
+  )
+}
+
+function isTradeoffSpec(def: SpecDefinition): boolean {
+  return isComparableSpec(def) && def.comparisonRole === 'tradeoff'
 }
 
 function formatDiff(
   def: SpecDefinition,
   winnerValue: number,
-  loserValue: number
+  loserValue: number,
+  winnerName: string
 ): string {
-  if (loserValue === 0) return formatSpecValue(winnerValue, def)
+  const winner = formatSpecValue(winnerValue, def)
+  const loser = formatSpecValue(loserValue, def)
+  const comparison = `vs ${winnerName}: ${winner}`
 
-  const pct = Math.round(
-    (Math.abs(winnerValue - loserValue) / Math.abs(loserValue)) * 100
-  )
-  if (pct < 5) return formatSpecValue(winnerValue, def)
+  if (loserValue === 0) return `${loser} (${comparison})`
 
-  const direction = winnerValue > loserValue ? 'more' : 'less'
-  return `${formatSpecValue(winnerValue, def)} (${pct}% ${direction})`
+  const baseline = Math.max(Math.abs(winnerValue), Math.abs(loserValue))
+  const pct = Math.round((Math.abs(winnerValue - loserValue) / baseline) * 100)
+  if (pct < def.minimumDifferencePercent) return `${loser} (${comparison})`
+
+  const direction = loserValue > winnerValue ? 'higher' : 'lower'
+  return `${loser} (${pct}% ${direction}; ${comparison})`
 }
 
 function priceDiffNote(items: Item[]): string | null {
@@ -62,8 +80,8 @@ function buildFaq(
     faq.push({
       question: `Is ${a.name} better than ${b.name}?`,
       answer: winner
-        ? `${winner.name} leads on ${winner.winCount} of the ranked specs we compare, but the best pick depends on your budget and use case.`
-        : `Neither card wins clearly across ranked specs — compare the table above for the workloads you care about.`
+        ? `${winner.name} has the higher weighted primary-spec score, but the best pick still depends on your budget and use case.`
+        : `Neither card wins clearly on the weighted primary specs — compare the table above for the details that matter to your build.`
     })
   }
 
@@ -84,42 +102,63 @@ function buildFaq(
   return faq
 }
 
-/** Derive a per-pair verdict, pros/cons, and FAQ from spec winners. */
+function formatItemNames(items: Item[]): string {
+  const names = items.map((item) => item.name)
+  if (names.length < 3) return names.join(' and ')
+
+  return `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`
+}
+
+/** Derive a per-pair verdict from each kind's configured spec profile. */
 export function buildComparisonVerdict(
   items: Item[],
   specs: SpecDefinition[]
 ): ComparisonVerdict | null {
   if (items.length < 2) return null
 
-  const rankedSpecs = specs.filter(isRankedSpec)
-  if (rankedSpecs.length === 0) return null
+  const primarySpecs = specs.filter(isPrimarySpec)
+  if (primarySpecs.length === 0) return null
+
+  const tradeoffSpecs = specs.filter(isTradeoffSpec)
 
   const verdicts: ItemVerdict[] = items.map((item) => ({
     slug: item.slug,
     name: item.name,
-    winCount: 0,
+    score: 0,
+    primaryWinCount: 0,
     pros: [],
+    tradeoffs: [],
     cons: []
   }))
   const verdictBySlug = new Map(verdicts.map((entry) => [entry.slug, entry]))
 
-  for (const def of rankedSpecs) {
+  for (const def of [...primarySpecs, ...tradeoffSpecs]) {
     const winners = computeWinners(items, def)
     if (winners.size === 0) continue
 
     for (const winnerSlug of winners) {
       const entry = verdictBySlug.get(winnerSlug)
       if (entry) {
-        entry.winCount += 1
-        if (entry.pros.length < 3) {
-          entry.pros.push(
+        if (def.comparisonRole === 'primary') {
+          entry.score += def.comparisonWeight
+          entry.primaryWinCount += 1
+        }
+
+        const advantages =
+          def.comparisonRole === 'primary' ? entry.pros : entry.tradeoffs
+        if (advantages.length < 3) {
+          advantages.push(
             `${def.label}: ${formatSpecValue(items.find((i) => i.slug === winnerSlug)!.specs[def.key], def)}`
           )
         }
       }
     }
 
-    if (winners.size === 1 && items.length === 2) {
+    if (
+      def.comparisonRole === 'primary' &&
+      winners.size === 1 &&
+      items.length === 2
+    ) {
       const winnerSlug = [...winners][0]
       const loser = items.find((item) => item.slug !== winnerSlug)
       const winner = items.find((item) => item.slug === winnerSlug)
@@ -135,32 +174,37 @@ export function buildComparisonVerdict(
         typeof loserValue === 'number'
       ) {
         loserEntry.cons.push(
-          `${def.label}: ${formatDiff(def, winnerValue, loserValue)} (vs ${formatSpecValue(loserValue, def)})`
+          `${def.label}: ${formatDiff(
+            def,
+            winnerValue,
+            loserValue,
+            winner.name
+          )}`
         )
       }
     }
   }
 
-  const sorted = [...verdicts].sort((a, b) => b.winCount - a.winCount)
+  const sorted = [...verdicts].sort((a, b) => b.score - a.score)
   const leader = sorted[0]
   const runnerUp = sorted[1]
   const priceNote = items.length === 2 ? priceDiffNote(items) : null
 
   let summary: string
-  if (!runnerUp || leader.winCount === runnerUp.winCount) {
-    summary = `${items.map((item) => item.name).join(' and ')} trade wins across ${rankedSpecs.length} ranked specs — check the table for the details that matter to your build.`
+  if (!runnerUp || leader.score === runnerUp.score) {
+    summary = `${formatItemNames(items)} are tied on the ${primarySpecs.length} weighted primary specs — compare their trade-offs for the right fit.`
   } else {
-    summary = `${leader.name} wins ${leader.winCount} of ${rankedSpecs.length} ranked specs against ${runnerUp.name}${priceNote ?? ''}.`
+    summary = `${leader.name} leads ${runnerUp.name} ${leader.score}–${runnerUp.score} on the ${primarySpecs.length} weighted primary specs${priceNote ?? ''}.`
   }
 
   return {
-    rankedSpecCount: rankedSpecs.length,
+    primarySpecCount: primarySpecs.length,
     items: verdicts,
     summary,
     faq: buildFaq(
       items,
       specs,
-      leader.winCount > (runnerUp?.winCount ?? 0) ? leader : null
+      leader.score > (runnerUp?.score ?? 0) ? leader : null
     )
   }
 }

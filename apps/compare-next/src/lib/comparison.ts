@@ -77,10 +77,23 @@ function toNumber(value: SpecValue): number | null {
   return null
 }
 
+function hasMeaningfulDifference(
+  best: number,
+  next: number,
+  minimumDifferencePercent: number
+): boolean {
+  if (minimumDifferencePercent <= 0) return best !== next
+
+  const baseline = Math.max(Math.abs(best), Math.abs(next))
+  if (baseline === 0) return false
+
+  return (Math.abs(best - next) / baseline) * 100 >= minimumDifferencePercent
+}
+
 /**
- * For a numeric, ranked spec, return the slugs of the winning item(s). Ties are
- * possible. Returns an empty set when the spec is not ranked or fewer than two
- * items have a comparable value.
+ * For a numeric ranked spec, return the slugs of the winning item(s).
+ * Identical values do not produce winners. Informational specs otherwise display
+ * their raw winner; primary and trade-off specs require a meaningful difference.
  */
 export function computeWinners(
   items: Item[],
@@ -103,9 +116,25 @@ export function computeWinners(
     return Math.min(acc, entry.value)
   }, values[0].value)
 
-  return new Set(
-    values.filter((entry) => entry.value === best).map((entry) => entry.slug)
-  )
+  const winners = values.filter((entry) => entry.value === best)
+  const otherValues = values.filter((entry) => entry.value !== best)
+  if (otherValues.length === 0) {
+    return new Set()
+  }
+
+  if (def.comparisonRole === 'informational') {
+    return new Set(winners.map((entry) => entry.slug))
+  }
+
+  if (
+    !otherValues.some((entry) =>
+      hasMeaningfulDifference(best, entry.value, def.minimumDifferencePercent)
+    )
+  ) {
+    return new Set()
+  }
+
+  return new Set(winners.map((entry) => entry.slug))
 }
 
 /** Human-readable value for a spec cell. */

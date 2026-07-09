@@ -119,7 +119,7 @@ export function ComparisonTable({
                           className={cn(
                             'whitespace-normal',
                             isWinner &&
-                              'bg-primary/10 font-bold text-primary ring-1 ring-inset ring-primary/30'
+                              'bg-primary/10 font-bold ring-1 ring-inset ring-primary/30'
                           )}
                         >
                           {formatSpecValue(item.specs[def.key] ?? null, def)}
