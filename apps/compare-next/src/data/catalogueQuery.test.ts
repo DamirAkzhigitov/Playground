@@ -77,6 +77,22 @@ describe('sortEntries', () => {
     const sorted = sortEntries(FIXTURE, 'popular')
     expect(sorted.map((item) => item.id)).toEqual(['c', 'a', 'b'])
   })
+
+  it('sorts by hot score for the hot sort', () => {
+    const hotFixture = [
+      entry('fresh', {
+        publishedAt: new Date().toISOString(),
+        viewCount: 100
+      }),
+      entry('stale', {
+        publishedAt: '2020-01-01T00:00:00.000Z',
+        viewCount: 100
+      })
+    ]
+
+    const sorted = sortEntries(hotFixture, 'hot')
+    expect(sorted.map((item) => item.id)).toEqual(['fresh', 'stale'])
+  })
 })
 
 describe('filterEntries', () => {

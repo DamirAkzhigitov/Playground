@@ -23,8 +23,10 @@ export default defineConfig({
         'src/i18n/**',
         'src/styles/**'
       ],
+      reporter: ['text', 'json-summary'],
+      reportsDirectory: './coverage',
       thresholds: {
-        lines: 37
+        lines: 60
       }
     }
   }

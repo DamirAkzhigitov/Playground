@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   hasRichItemData,
+  pairKeyForSlugs,
   shouldIndexComparison,
   specCoveragePercent
 } from '@/lib/comparisonIndexing'
@@ -125,5 +126,13 @@ describe('specCoveragePercent', () => {
     expect(
       hasRichItemData(item('a', { vram_gb: 16, msrp_usd: 500 }), specs)
     ).toBe(true)
+  })
+})
+
+describe('pairKeyForSlugs', () => {
+  it('builds a stable pair key from canonical slug order', () => {
+    expect(pairKeyForSlugs('gpu', ['rtx-5080', 'rtx-3070'])).toBe(
+      'gpu:rtx-3070|rtx-5080'
+    )
   })
 })

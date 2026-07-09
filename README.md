@@ -1,5 +1,7 @@
 # Playground
 
+![Coverage](https://img.shields.io/badge/coverage-64%25-yellowgreen)
+
 Monorepo for [da-mr.com](https://da-mr.com) and its subdomain tools.
 
 ## Setup
