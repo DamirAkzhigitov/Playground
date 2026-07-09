@@ -8,7 +8,12 @@ Monorepo for [da-mr.com](https://da-mr.com) and its subdomain tools.
 nvm use            # or ensure Node 22 is active
 corepack enable    # makes pnpm available
 pnpm install
+pnpm --filter @playground/compare-next db:setup:local  # D1 migrate + seed (first run)
 ```
+
+`db:setup:local` creates the local Cloudflare D1 database used by compare-next
+during `pnpm dev`. Re-run it after schema changes or if pages fail with
+`no such table` errors.
 
 ## Common commands
 
@@ -18,9 +23,10 @@ All commands run from the repo root; Turbo fans them out to each app.
 | -------------------- | ------------------------------------------------ |
 | Start dev (all apps) | `pnpm dev`                                       |
 | Stop stuck dev ports | `pnpm stop` (after Ctrl+C if ports stay in use)  |
-| Start dev (one app)  | `pnpm --filter @playground/main dev`             |
+| Start dev (one app)  | `pnpm --filter @playground/compare-next dev`     |
 | Build all apps       | `pnpm build`                                     |
-| Build one app        | `pnpm turbo run build --filter=@playground/main` |
+| Build one app        | `pnpm turbo run build --filter=@playground/compare-next` |
+| D1 setup (local)     | `pnpm --filter @playground/compare-next db:setup:local` |
 | Lint                 | `pnpm lint`                                      |
 | Lint & fix           | `pnpm lint:fix`                                  |
 | Format (write)       | `pnpm format`                                    |

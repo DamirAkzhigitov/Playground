@@ -8,7 +8,9 @@ test.describe('compare-next catalogue', () => {
     await expect(
       page.getByRole('heading', { name: 'Compare catalogue' })
     ).toBeVisible()
-    await expect(page.locator('.catalogue__grid .card').first()).toBeVisible()
+    await expect(
+      page.locator('.catalogue__grid [data-slot="card"]').first()
+    ).toBeVisible()
   })
 
   test('hot route uses a single title suffix', async ({ page }) => {
@@ -54,6 +56,6 @@ test.describe('compare-next comparison pages', () => {
         name: /GeForce RTX 3070 vs GeForce RTX 5080/i
       })
     ).toBeVisible()
-    await expect(page.locator('.cmp-table')).toBeVisible()
+    await expect(page.getByRole('table')).toBeVisible()
   })
 })

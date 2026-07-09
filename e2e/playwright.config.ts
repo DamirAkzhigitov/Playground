@@ -1,10 +1,12 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const comparePort = process.env.COMPARE_NEXT_PORT ?? '3010'
+// Default 3000 so local `pnpm dev` can be reused (Next.js allows one dev per app dir).
+const comparePort = process.env.COMPARE_NEXT_PORT ?? '3000'
 const compareBaseUrl = `http://127.0.0.1:${comparePort}`
 
 export default defineConfig({
   testDir: './tests',
+  globalSetup: './global-setup.ts',
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
@@ -21,7 +23,7 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: `pnpm --filter @playground/compare-next run db:setup:local && pnpm --filter @playground/compare-next exec next dev --port ${comparePort}`,
+    command: `pnpm --filter @playground/compare-next exec next dev --port ${comparePort}`,
     url: compareBaseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000
