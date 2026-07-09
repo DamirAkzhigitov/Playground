@@ -10,15 +10,15 @@ covers **where code goes** and **how layers interact** inside this app.
 
 ## Stack
 
-| Layer | Choice |
-| ----- | ------ |
-| Framework | Next.js 16 (App Router) |
-| UI | React 19 |
-| Data fetching (client) | TanStack React Query (`useInfiniteQuery`) |
-| Styling | SCSS modules via `src/styles/` (BEM-style class names) |
-| i18n | Custom context + typed message IDs (`src/i18n/`) |
-| Deploy | `@opennextjs/cloudflare` → Cloudflare Workers |
-| Package | `@playground/compare-next` |
+| Layer                  | Choice                                                 |
+| ---------------------- | ------------------------------------------------------ |
+| Framework              | Next.js 16 (App Router)                                |
+| UI                     | React 19                                               |
+| Data fetching (client) | TanStack React Query (`useInfiniteQuery`)              |
+| Styling                | SCSS modules via `src/styles/` (BEM-style class names) |
+| i18n                   | Custom context + typed message IDs (`src/i18n/`)       |
+| Deploy                 | `@opennextjs/cloudflare` → Cloudflare Workers          |
+| Package                | `@playground/compare-next`                             |
 
 ---
 
@@ -64,21 +64,21 @@ apps/compare-next/
 
 ### Where to put new code
 
-| You are adding… | Put it in… | Not in… |
-| --------------- | ---------- | ------- |
-| A new URL / page | `src/app/<route>/page.tsx` | `components/` |
-| Page metadata (title, OG) | Export from `page.tsx` via `lib/catalogueMetadata` | Inline strings in components |
-| Catalogue UI | `src/components/catalogue/` | `app/` |
-| Comparison UI | `src/components/comparison/` | `app/` |
-| Fetching / filtering / sorting | `src/data/` | Components |
-| D1 queries + row mapping | `src/data/comparisons.ts` | Components |
-| Comparison page loaders | `src/data/comparisonPage.ts` | `app/` |
-| Pure functions (paths, JSON-LD, slots) | `src/lib/` | `data/` or components |
-| Domain types | `src/types/<domain>.ts` | Inline in components |
-| User-visible strings | `src/i18n/messages.ts` | Hardcoded in JSX |
-| Global providers | `src/components/providers/` | `layout.tsx` logic |
-| Feature styles | `src/styles/<feature>.scss` | Inline styles |
-| Site-wide config (name, URL) | `src/lib/site.ts` | Scattered env reads |
+| You are adding…                        | Put it in…                                         | Not in…                      |
+| -------------------------------------- | -------------------------------------------------- | ---------------------------- |
+| A new URL / page                       | `src/app/<route>/page.tsx`                         | `components/`                |
+| Page metadata (title, OG)              | Export from `page.tsx` via `lib/catalogueMetadata` | Inline strings in components |
+| Catalogue UI                           | `src/components/catalogue/`                        | `app/`                       |
+| Comparison UI                          | `src/components/comparison/`                       | `app/`                       |
+| Fetching / filtering / sorting         | `src/data/`                                        | Components                   |
+| D1 queries + row mapping               | `src/data/comparisons.ts`                          | Components                   |
+| Comparison page loaders                | `src/data/comparisonPage.ts`                       | `app/`                       |
+| Pure functions (paths, JSON-LD, slots) | `src/lib/`                                         | `data/` or components        |
+| Domain types                           | `src/types/<domain>.ts`                            | Inline in components         |
+| User-visible strings                   | `src/i18n/messages.ts`                             | Hardcoded in JSX             |
+| Global providers                       | `src/components/providers/`                        | `layout.tsx` logic           |
+| Feature styles                         | `src/styles/<feature>.scss`                        | Inline styles                |
+| Site-wide config (name, URL)           | `src/lib/site.ts`                                  | Scattered env reads          |
 
 ---
 
@@ -132,22 +132,26 @@ flowchart TB
 ### Responsibility rules
 
 1. **`app/` — routing shell only**
+
    - Export `metadata` (or delegate to `lib/catalogueMetadata`).
    - Default export renders one route-level component (e.g. `CatalogueRoute`).
    - No hooks, no fetch logic, no JSX beyond a single component call.
 
 2. **`CatalogueRoute` — server composition**
+
    - Wraps content in `AppLayout`.
    - Preloads first page via `getCataloguePage` for SSR and JSON-LD.
    - Injects structured data (`catalogueJsonLd`).
    - Stays a Server Component (no `'use client'`).
 
 3. **`CataloguePage` — client interactivity**
+
    - Marked `'use client'`.
    - Owns search state, infinite scroll, React Query.
    - Receives `initialPage` from the server for hydration without a loading flash.
 
 4. **`data/` — all catalogue and comparison data logic**
+
    - D1 access: `db.ts`, `comparisons.ts`.
    - Catalogue cards from `comparison_stats` + items: `catalogue.ts`.
    - Pure filter/sort/paginate: `catalogueQuery.ts`.
@@ -156,6 +160,7 @@ flowchart TB
    - `fetchCataloguePage` — client wrapper for React Query (`/api/catalogue`).
 
 5. **`lib/` — pure, side-effect-free helpers**
+
    - Route paths (`catalogueRoutes.ts`), metadata builders, JSON-LD, CSS slot classes.
    - Safe to import from Server and Client Components.
 
@@ -167,15 +172,15 @@ flowchart TB
 
 ## Routing conventions
 
-| Path | File | Sort | Notes |
-| ---- | ---- | ---- | ----- |
-| `/` | `app/page.tsx` | `new` | `isHome: true` — canonical home, unique metadata |
-| `/new` | `app/new/page.tsx` | `new` | Same data as home, different canonical URL |
-| `/hot` | `app/hot/page.tsx` | `hot` | Hot score = views / age |
-| `/popular` | `app/popular/page.tsx` | `popular` | Sorted by `viewCount` |
-| `/compare/[kind]` | `app/compare/[kind]/page.tsx` | — | Kind hub (all items + popular pairs) |
-| `/compare/[kind]/[item]` | `app/compare/[kind]/[pair]/page.tsx` | — | Single-item spec page |
-| `/compare/[kind]/a-vs-b` | `app/compare/[kind]/[pair]/page.tsx` | — | Derived comparison (canonical slug order) |
+| Path                     | File                                 | Sort      | Notes                                            |
+| ------------------------ | ------------------------------------ | --------- | ------------------------------------------------ |
+| `/`                      | `app/page.tsx`                       | `new`     | `isHome: true` — canonical home, unique metadata |
+| `/new`                   | `app/new/page.tsx`                   | `new`     | Same data as home, different canonical URL       |
+| `/hot`                   | `app/hot/page.tsx`                   | `hot`     | Hot score = views / age                          |
+| `/popular`               | `app/popular/page.tsx`               | `popular` | Sorted by `viewCount`                            |
+| `/compare/[kind]`        | `app/compare/[kind]/page.tsx`        | —         | Kind hub (all items + popular pairs)             |
+| `/compare/[kind]/[item]` | `app/compare/[kind]/[pair]/page.tsx` | —         | Single-item spec page                            |
+| `/compare/[kind]/a-vs-b` | `app/compare/[kind]/[pair]/page.tsx` | —         | Derived comparison (canonical slug order)        |
 
 Comparison path helpers live in **`lib/comparison.ts`** (`comparisonPath`,
 `canonicalComparisonPath`, `buildPairKey`). Catalogue sort paths remain in
@@ -199,13 +204,13 @@ Comparison path helpers live in **`lib/comparison.ts`** (`comparisonPath`,
 
 ## Server vs client components
 
-| Server (default) | Client (`'use client'`) |
-| ---------------- | ----------------------- |
-| `app/**/page.tsx` | `CataloguePage` |
-| `CatalogueRoute` | `Providers` |
-| `CatalogueFilters` (uses `Link` only) | `I18nContext` |
-| `CatalogueCard`, `CatalogueSearch` | Any hook-using UI |
-| `layout.tsx` | |
+| Server (default)                      | Client (`'use client'`) |
+| ------------------------------------- | ----------------------- |
+| `app/**/page.tsx`                     | `CataloguePage`         |
+| `CatalogueRoute`                      | `Providers`             |
+| `CatalogueFilters` (uses `Link` only) | `I18nContext`           |
+| `CatalogueCard`, `CatalogueSearch`    | Any hook-using UI       |
+| `layout.tsx`                          |                         |
 
 **Rule:** Push `'use client'` to the leaves — keep routes and composition on the
 server for SEO and smaller bundles.
@@ -237,17 +242,17 @@ Comparison pages load via `comparisonPage.ts` loaders (`loadComparison`,
 
 ## SEO
 
-| Concern | Location |
-| ------- | -------- |
-| Global defaults | `app/layout.tsx` → `metadata` |
-| Per-route title/description/canonical | `lib/catalogueMetadata.ts` |
-| Comparison metadata + OG images | `lib/comparisonMetadata.ts`, `opengraph-image.tsx` |
-| Tiered comparison indexation | `lib/comparisonIndexing.ts` |
-| JSON-LD `ItemList` | `lib/catalogueJsonLd.ts` |
-| JSON-LD comparisons / items | `lib/comparisonJsonLd.ts` |
-| `sitemap.xml` | `app/sitemap.ts` |
-| `robots.txt` | `app/robots.ts` |
-| Site URL | `lib/site.ts` (`NEXT_PUBLIC_SITE_URL` or fallback) |
+| Concern                               | Location                                           |
+| ------------------------------------- | -------------------------------------------------- |
+| Global defaults                       | `app/layout.tsx` → `metadata`                      |
+| Per-route title/description/canonical | `lib/catalogueMetadata.ts`                         |
+| Comparison metadata + OG images       | `lib/comparisonMetadata.ts`, `opengraph-image.tsx` |
+| Tiered comparison indexation          | `lib/comparisonIndexing.ts`                        |
+| JSON-LD `ItemList`                    | `lib/catalogueJsonLd.ts`                           |
+| JSON-LD comparisons / items           | `lib/comparisonJsonLd.ts`                          |
+| `sitemap.xml`                         | `app/sitemap.ts`                                   |
+| `robots.txt`                          | `app/robots.ts`                                    |
+| Site URL                              | `lib/site.ts` (`NEXT_PUBLIC_SITE_URL` or fallback) |
 
 Metadata strings for crawlers use **`EN`** from `messages.ts` (static). UI
 strings use **`useI18n().t()`** for future locale switching.

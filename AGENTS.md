@@ -236,9 +236,7 @@ an `ARCHITECTURE.md` in the PR.
 ## Part 3 — Repository context (monorepo)
 
 This is a **pnpm + Turborepo monorepo** hosting `da-mr.com` and its
-subdomain tools. Apps live as siblings under `apps/*` (e.g. `main`, `resume`,
-`compare`, `steps`). `apps/main` is a static Vite site (vanilla JS/CSS, no
-React). React tools use Vite + TypeScript.
+subdomain tools. Apps live under `apps/*`; browser E2E tests live in `e2e/`.
 
 ### Quick reference
 
@@ -248,24 +246,20 @@ workspace(s).
 | Task | Command |
 | ----------------- | ------------------------------------------------ |
 | Install deps | `pnpm install` |
-| Dev server (main) | `pnpm --filter @playground/main dev` (port 3000) |
-| Dev server (auth) | `pnpm --filter @playground/auth dev` (port 3004) |
-| Dev server (steps) | `pnpm --filter @playground/steps dev` (port 3003) |
-| Auth Worker (local)| `pnpm --filter @playground/auth-api dev` (8789) |
-| Dev (all apps) | `pnpm dev` |
+| Dev (compare-next) | `pnpm --filter @playground/compare-next dev` |
+| Dev (all workspaces) | `pnpm dev` |
 | Stop stuck dev ports | `pnpm stop` (if restart says port in use after Ctrl+C) |
+| D1 setup (local) | `pnpm --filter @playground/compare-next db:setup:local` |
 | Lint | `pnpm lint` |
 | Format check | `pnpm format:check` |
 | Type check | `pnpm type-check` |
-| Tests | `pnpm test` |
-| Auth E2E | `pnpm test:e2e` (browser; see `e2e/README.md`) |
-| Auth API smoke | `./scripts/smoke-auth.sh` |
+| Unit tests | `pnpm test:unit` |
+| Tests with coverage | `pnpm test:coverage` |
+| E2E | `pnpm test:e2e` (see `e2e/README.md`) |
 | Build (all) | `pnpm build` |
-| Build (main only) | `pnpm turbo run build --filter=@playground/main` |
-| Security audit | `pnpm security:audit` |
+| Security audit | `pnpm security:audit` (also weekly in CI) |
 
-See `README.md` for the full layout, how to add a new tool/subdomain, and
-the Cloudflare deploy flow.
+See `README.md` for layout, CI, and the Cloudflare deploy flow.
 
 ### Notes
 
@@ -275,12 +269,10 @@ the Cloudflare deploy flow.
 - **Node.js 22** is required (`.nvmrc` + `engines.node >=22`).
 - **Turborepo** caches results under `.turbo/`. Outputs for each task are
   declared in `turbo.json`.
-- Pre-commit hook (`.husky/pre-commit`) runs `pnpm exec lint-staged` →
-  Prettier on staged files.
-- **Deploys** are driven by GitHub Actions (`.github/workflows/deploy.yml`)
-  using `cloudflare/wrangler-action@v3` against the `playground` Cloudflare
-  Pages project. Git auto-build on the Cloudflare side must stay
-  **disabled** for this project so deploys don't double-fire.
+- Pre-commit hook (`.husky/pre-commit`) runs lint-staged (Prettier + ESLint
+  on staged files), then `pnpm lint`, `pnpm type-check`, and `pnpm test:unit`.
+  Line-coverage thresholds run in CI (`pnpm test:coverage`).
+- **Deploys** are driven by GitHub Actions (`.github/workflows/deploy.yml`).
 - **`apps/compare-next`** is deployed as a **single Cloudflare Worker** via
   OpenNext (`pnpm --filter @playground/compare-next deploy` from repo root).
   Next.js pages and `/api/*` routes run on the same origin — attach
@@ -288,27 +280,12 @@ the Cloudflare deploy flow.
   Custom domains). PR previews use Worker `compare-next-dev` on
   **`dev-compare.da-mr.com`**. See
   [`apps/compare-next/ARCHITECTURE.md`](apps/compare-next/ARCHITECTURE.md).
-- `apps/main` calls the public TheMealDB API at runtime for random recipes;
-  no API keys needed. No env vars or backend services for local dev.
-- **`apps/steps`** — guided action catalog (search, per-user step progress,
-  notes, contributor editor). Worker + D1 auth via `@playground/auth-core` /
-  `@playground/auth-react` (same pattern as compare). Deploy not wired until
-  Phase 6 in `apps/steps/PLAN.md`.
-- **Central auth:** `auth.da-mr.com` ([`apps/auth`](apps/auth)) hosts login UI and
-  `/api/auth/*`. Tools redirect via `VITE_AUTH_ORIGIN` and `buildAuthLoginUrl` from
-  `@playground/auth-react`. Shared D1 `playground-auth-db`, cookie domain
-  `.da-mr.com`. Migrate: `pnpm --filter @playground/auth-api db:migrate:auth:local`.
-  See `packages/auth-core/SSO.md`.
 - **Stuck ports after dev:** `wrangler` and `workerd` often survive Ctrl+C when
   using Turbo or background terminals. Run `pnpm stop` from the repo root before
-  restarting (`scripts/stop-dev.sh` frees 3000–3004, 8787–8789, and inspector ports).
-- **Local dev SSO:** Auth / steps Workers use
-  `--persist-to .wrangler/local-dev-persist` so the same local `playground-auth-db`
-  backs every port. Compare-next uses Next.js API routes locally (no separate
-  compare Worker in dev).
-- When adding a new tool app, follow the recipe in `README.md` →
-  "Adding a new tool". Each tool = one Cloudflare Pages project + one
-  deploy job + one subdomain.
+  restarting (`scripts/stop-dev.sh` frees common dev and inspector ports).
+- **Agent skills** live under `.agents/skills/` (e.g. shadcn UI guidance).
+- When adding a new tool app, follow the recipe in `README.md` and add an
+  `ARCHITECTURE.md` next to the app.
 
 ---
 

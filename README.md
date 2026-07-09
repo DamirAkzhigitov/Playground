@@ -17,23 +17,23 @@ during `pnpm dev`. Re-run it after schema changes or if pages fail with
 
 ## Common commands
 
-All commands run from the repo root; Turbo fans them out to each app.
+All commands run from the repo root; Turbo fans them out to each workspace.
 
 | Task                 | Command                                          |
 | -------------------- | ------------------------------------------------ |
-| Start dev (all apps) | `pnpm dev`                                       |
+| Start dev            | `pnpm dev`                                       |
 | Stop stuck dev ports | `pnpm stop` (after Ctrl+C if ports stay in use)  |
 | Start dev (one app)  | `pnpm --filter @playground/compare-next dev`     |
-| Build all apps       | `pnpm build`                                     |
-| Build one app        | `pnpm turbo run build --filter=@playground/compare-next` |
+| Build                | `pnpm build`                                     |
 | D1 setup (local)     | `pnpm --filter @playground/compare-next db:setup:local` |
 | Lint                 | `pnpm lint`                                      |
 | Lint & fix           | `pnpm lint:fix`                                  |
 | Format (write)       | `pnpm format`                                    |
 | Format check         | `pnpm format:check`                              |
 | Type check           | `pnpm type-check`                                |
-| Tests                | `pnpm test`                                      |
+| Unit tests           | `pnpm test:unit`                                 |
 | Tests with coverage  | `pnpm test:coverage`                             |
+| E2E tests            | `pnpm test:e2e`                                  |
 | Security audit       | `pnpm security:audit`                            |
 
 Turbo caches results under `.turbo/`; re-runs are near-instant if nothing
@@ -44,134 +44,52 @@ changed.
 ```
 .
 ├── apps/
-│   ├── compare-next/              # compare.da-mr.com (@playground/compare-next)
-├── packages/                 # shared code across apps
+│   └── compare-next/         # compare.da-mr.com (@playground/compare-next)
+├── e2e/                      # Playwright browser tests
+├── .agents/skills/           # Cursor agent skills (e.g. shadcn)
 ├── .github/workflows/
-│   ├── ci.yml                # lint/test/build on PR and push
-│   ├── pr-checks.yml         # PR validation with coverage
-│   └── deploy.yml            # deploy to Cloudflare Pages on push to main
+│   ├── ci.yml                # lint, format, type-check, coverage, build (e2e skipped for now)
+│   ├── deploy.yml            # OpenNext Worker deploy on push / PR preview
+│   └── security-audit.yml    # weekly pnpm audit
 ├── pnpm-workspace.yaml
 ├── turbo.json
-└── package.json              # workspace root
+└── package.json
 ```
 
-## Deployment (Cloudflare Pages)
-
-Deploys are driven by GitHub Actions via direct upload — **not** by
-Cloudflare's Git auto-build. This keeps the monorepo deploy logic in code
-and makes adding new tools trivial.
-
-### One-time setup (before the first deploy from this repo layout)
-
-> [!IMPORTANT]
-> Before merging the first deploy from the monorepo layout, **turn off Git
-> auto-deploys** on the existing `playground` Cloudflare Pages project
-> (Dashboard → Workers & Pages → playground → Settings → Builds &
-> deployments → Build configuration → Disable builds). Otherwise Cloudflare
-> will keep trying to build from the old root layout and fail, while the
-> GitHub Actions deploy succeeds in parallel — leading to confusing state.
->
-> The Pages project itself is kept; only its Git auto-build is disabled.
-> The GitHub Action becomes the single source of deploys.
-
-Required GitHub secrets (already configured for the existing project, reused
-as-is):
-
-- `CLOUDFLARE_API_TOKEN` — token with **Pages : Edit** permission for the
-  account.
-- `CLOUDFLARE_ACCOUNT_ID` — your Cloudflare account ID.
-
-### How a push to `main` deploys
-
-1. `.github/workflows/deploy.yml` checks out, sets up pnpm + Node 22.
-2. `pnpm install --frozen-lockfile`.
-3. `pnpm turbo run build --filter=@playground/main` → `apps/main/dist/`.
-4. `cloudflare/wrangler-action@v3` runs `wrangler pages deploy
-apps/main/dist --project-name=playground --branch=main`.
-
-### Manual / local deploy
-
-```bash
-pnpm turbo run build --filter=@playground/main
-pnpm dlx wrangler pages deploy apps/main/dist --project-name=playground --branch=preview
-```
-
-### Compare (`apps/compare-next`)
+## Deployment (compare-next)
 
 Production ships as **one Cloudflare Worker** via
-[`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare): the Next.js app
-and API routes (`/api/health`, `/api/catalogue`) share the same origin. Attach
-**`compare.da-mr.com`** to the `compare-next` Worker (Workers & Pages → Custom
-domains). The catalogue API currently serves mock data; a real D1 backend will
-replace it later.
+[`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare): Next.js pages
+and `/api/*` routes share the same origin.
 
-```bash
-pnpm --filter @playground/compare-next deploy
-```
+| Environment | URL | Command |
+| ----------- | --- | ------- |
+| Production | `compare.da-mr.com` | `pnpm --filter @playground/compare-next deploy` |
+| PR preview | `dev-compare.da-mr.com` | `pnpm --filter @playground/compare-next deploy:dev` |
 
-Dev PR previews deploy to **`dev-compare.da-mr.com`** via `deploy:dev` (Worker
-`compare-next-dev`).
+Deploys run from `.github/workflows/deploy.yml` when `apps/compare-next/**`
+changes. Required GitHub secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
 
-## Adding a new tool (subdomain)
-
-Each tool gets its own subdomain (`<tool>.da-mr.com`), its own Cloudflare
-Pages project, and its own app folder. End-to-end recipe:
-
-1. **Scaffold the app folder** (React 19 + Vite 8 + TS recommended):
-
-   ```bash
-   mkdir -p apps/<tool>
-   # add index.html, src/, package.json (name: "@playground/<tool>"),
-   # vite.config.ts, tsconfig.json, eslint.config.js
-   ```
-
-   Set `"name": "@playground/<tool>"` and the standard scripts (`dev`,
-   `build`, `lint`, `test`, `type-check`). Run `pnpm install` from the repo
-   root — pnpm workspaces will pick it up automatically.
-
-2. **Create the Cloudflare Pages project** in the Cloudflare dashboard:
-
-   - Name: `<tool>` (matches `--project-name`).
-   - Production branch: `main`.
-   - **Disable** Git auto-build (deploys come from GitHub Actions).
-   - Add custom domain `<tool>.da-mr.com` in the project settings.
-
-3. **Add a deploy job** to `.github/workflows/deploy.yml`:
-
-   ```yaml
-   deploy-<tool>:
-     name: Deploy apps/<tool> to Cloudflare Pages
-     runs-on: ubuntu-latest
-     environment:
-       name: production
-       url: https://<tool>.da-mr.com
-     steps:
-       # ... same setup steps as deploy-main ...
-       - run: pnpm turbo run build --filter=@playground/<tool>
-       - uses: cloudflare/wrangler-action@v3
-         with:
-           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-           command: pages deploy apps/<tool>/dist --project-name=<tool> --branch=main
-   ```
-
-4. **Link from the dashboard.** Add a card to the tool grid in
-   `apps/main/index.html` pointing to `https://<tool>.da-mr.com`.
+See [`apps/compare-next/ARCHITECTURE.md`](apps/compare-next/ARCHITECTURE.md) for
+local preview, D1 migrations, and app layout.
 
 ## CI
 
-- `ci.yml` — runs lint / format / type-check / test / build on every PR
-  and every push to `main`.
-- `pr-checks.yml` — additionally runs test coverage on PRs.
-- `deploy.yml` — runs only on push to `main` (or `workflow_dispatch`).
-
-Type-check and `security:audit` are non-blocking (`continue-on-error: true`)
-to match the previous setup.
+- **`ci.yml`** — on every PR and push to `main`: lint, Prettier, type-check,
+  unit tests with line-coverage thresholds, and build. Playwright E2E is
+  temporarily disabled in CI (`e2e` job `if: false`).
+- **`deploy.yml`** — production deploy on push to `main`; dev preview on PRs
+  when compare-next changes.
+- **`security-audit.yml`** — weekly `pnpm audit` (moderate+); also
+  `workflow_dispatch`.
 
 ## Contributing
 
 1. Branch off `main`.
-2. Make changes; run `pnpm lint test type-check build` locally.
-3. `pnpm format` before committing (the pre-commit hook auto-runs Prettier
-   on staged files via lint-staged).
-4. Open a PR. CI will validate everything.
+2. Run `pnpm lint`, `pnpm type-check`, `pnpm test:unit`, and `pnpm build`
+   locally before opening a PR.
+3. The pre-commit hook runs Prettier and ESLint on staged files, then
+   `pnpm lint`, `pnpm type-check`, and `pnpm test:unit`.
+4. Open a PR. CI enforces format, types, coverage, and build.
+
+Coding guidelines: [`AGENTS.md`](AGENTS.md).

@@ -1,47 +1,27 @@
-# OpenNext Starter
+# compare-next
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Next.js app for [compare.da-mr.com](https://compare.da-mr.com) — product
+comparison catalogue with SEO routes, D1-backed API, and Cloudflare Worker
+deploy via OpenNext.
 
-## Getting Started
+Architecture, folder layout, and data flow:
+[`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
-Read the documentation at https://opennext.js.org/cloudflare.
+## Commands
 
-## Develop
-
-Run the Next.js development server:
-
-```bash
-npm run dev
-# or similar package manager command
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-## Preview
-
-Preview the application locally on the Cloudflare runtime:
+Run from the repo root unless noted.
 
 ```bash
-npm run preview
-# or similar package manager command
+pnpm --filter @playground/compare-next dev              # local Next.js dev server
+pnpm --filter @playground/compare-next db:setup:local   # D1 migrate + seed (first run)
+pnpm --filter @playground/compare-next test             # unit tests (Vitest)
+pnpm --filter @playground/compare-next test:coverage    # unit tests + coverage gate
+pnpm --filter @playground/compare-next lint             # ESLint
+pnpm --filter @playground/compare-next type-check       # tsc --noEmit
+pnpm --filter @playground/compare-next build            # next build
+pnpm --filter @playground/compare-next deploy           # prod → compare.da-mr.com
+pnpm --filter @playground/compare-next deploy:dev       # dev → dev-compare.da-mr.com
 ```
 
-## Deploy
-
-Deploy the application to Cloudflare:
-
-```bash
-npm run deploy
-# or similar package manager command
-```
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Coverage thresholds and CI gates are enforced in
+[`.github/workflows/ci.yml`](../../.github/workflows/ci.yml).

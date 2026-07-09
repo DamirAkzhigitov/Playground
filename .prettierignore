@@ -7,4 +7,5 @@ yarn.lock
 pnpm-lock.yaml
 .wrangler
 **/.wrangler/**
+e2e/test-results
 *.md
