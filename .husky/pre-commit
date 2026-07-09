@@ -1,13 +1,17 @@
 #!/usr/bin/env sh
 
-if command -v pnpm >/dev/null 2>&1; then
-  pnpm exec lint-staged
-  pnpm lint
-elif command -v corepack >/dev/null 2>&1; then
-  corepack pnpm exec lint-staged
-  corepack pnpm lint
-else
-  npx --no-install lint-staged
-  echo "pnpm is required to run lint checks."
-  exit 1
-fi
+run_pnpm() {
+  if command -v pnpm >/dev/null 2>&1; then
+    pnpm "$@"
+  elif command -v corepack >/dev/null 2>&1; then
+    corepack pnpm "$@"
+  else
+    echo "pnpm is required to run pre-commit checks."
+    exit 1
+  fi
+}
+
+run_pnpm exec lint-staged
+run_pnpm lint
+run_pnpm type-check
+run_pnpm test:unit

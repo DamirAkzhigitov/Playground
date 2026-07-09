@@ -13,11 +13,15 @@
     "lint:fix": "turbo run lint:fix",
     "lint:staged": "lint-staged",
     "test": "turbo run test",
-    "test:coverage": "turbo run test:coverage",
+    "test:unit": "turbo run test --filter=!@playground/e2e",
+    "test:e2e": "pnpm --filter @playground/e2e test",
+    "test:coverage": "turbo run test:coverage && node scripts/update-coverage-badge.mjs",
+    "coverage:badge": "node scripts/update-coverage-badge.mjs",
     "type-check": "turbo run type-check",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "security:audit": "pnpm audit --audit-level=moderate",
+    "stop": "bash scripts/stop-dev.sh",
     "prepare": "husky"
   },
   "keywords": [],
@@ -34,6 +38,7 @@
     "pnpm": ">=10.0.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,css,md,html}": "pnpm exec prettier --write"
+    "*.{js,jsx,ts,tsx,json,css,md,html}": "pnpm exec prettier --write",
+    "apps/compare-next/**/*.{js,jsx,ts,tsx,mjs}": "pnpm --filter @playground/compare-next exec eslint --fix"
   }
 }

@@ -4,8 +4,14 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"],
-      "env": ["VITE_MAIN_ORIGIN", "VITE_RESUME_ORIGIN", "VITE_COMPARE_ORIGIN"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": [
+        "VITE_MAIN_ORIGIN",
+        "VITE_RESUME_ORIGIN",
+        "VITE_COMPARE_ORIGIN",
+        "VITE_STEPS_ORIGIN",
+        "VITE_AUTH_ORIGIN"
+      ]
     },
     "dev": {
       "cache": false,
@@ -25,6 +31,9 @@
     "format:check": {},
     "type-check": {},
     "test": {},
+    "test:e2e": {
+      "cache": false
+    },
     "test:coverage": {
       "outputs": ["coverage/**"]
     }

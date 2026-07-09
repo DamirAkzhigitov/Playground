@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  lint-and-test:
-    name: Lint, Test, and Build
+  quality:
+    name: Lint, type-check, test, and build
     runs-on: ubuntu-latest
 
     steps:
@@ -37,22 +37,46 @@ jobs:
 
       - name: Type check
         run: pnpm turbo run type-check
-        continue-on-error: true
 
-      - name: Test
-        run: pnpm turbo run test
-
-      - name: Security audit
-        run: pnpm run security:audit
-        continue-on-error: true
+      - name: Unit tests with coverage
+        run: pnpm test:coverage
 
       - name: Build
         run: pnpm turbo run build
 
       - name: Verify build output
         run: |
-          if [ ! -d "apps/main/dist" ]; then
-            echo "Error: apps/main/dist not found after build"
+          if [ ! -d "apps/compare-next/.next" ]; then
+            echo "Error: apps/compare-next/.next not found after build"
             exit 1
           fi
-          echo "Build output verified at apps/main/dist/"
+          echo "Build output verified at apps/compare-next/.next/"
+
+  e2e:
+    name: E2E (compare-next)
+    if: false # Temporarily skipped — re-enable when E2E is stable in CI
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.1-noble
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
+      - name: compare-next E2E
+        run: pnpm test:e2e
+        env:
+          CI: true

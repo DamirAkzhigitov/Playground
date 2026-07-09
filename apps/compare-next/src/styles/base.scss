@@ -1,0 +1,59 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+:root {
+  --color-surface: #ffffff;
+  --color-border: #dde0ee;
+
+  --radius-lg: 1.25rem;
+
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  --max-width: 72rem;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  background: var(--background);
+}
+
+.app-main {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding: var(--space-lg) var(--space-md);
+
+  @media (min-width: 640px) {
+    padding: var(--space-xl) var(--space-lg);
+  }
+}

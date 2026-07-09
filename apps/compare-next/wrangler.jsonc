@@ -1,0 +1,72 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "compare-next",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-07",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets"
+  },
+  "images": {
+    "binding": "IMAGES"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "compare-next-db",
+      "database_id": "9f1f5c25-ee5c-45c6-9f06-2321e3a8507e",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "compare-next"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "compare.da-mr.com",
+      "zone_name": "da-mr.com",
+      "custom_domain": true
+    }
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+  "env": {
+    "dev": {
+      "name": "compare-next-dev",
+      "images": {
+        "binding": "IMAGES"
+      },
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "compare-next-dev"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "compare-next-db-dev",
+          "database_id": "55d2a1b5-c081-49bd-ab24-d7d6347920cd",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "routes": [
+        {
+          "pattern": "dev-compare.da-mr.com",
+          "zone_name": "da-mr.com",
+          "custom_domain": true
+        }
+      ]
+    }
+  }
+}

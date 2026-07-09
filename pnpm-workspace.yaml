@@ -1,9 +1,10 @@
 packages:
   - apps/*
-  - apps/compare/worker
-  - packages/*
+  - e2e
 
 onlyBuiltDependencies:
+  - '@parcel/watcher'
   - esbuild
   - sharp
+  - unrs-resolver
   - workerd
