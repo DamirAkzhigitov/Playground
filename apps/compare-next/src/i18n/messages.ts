@@ -37,6 +37,10 @@ const EN = {
   'comparison.peopleAlsoCompare': 'People also compare',
   'comparison.customNote':
     'Showing a custom multi-item comparison. Only canonical two-way pages are indexed.',
+  'comparison.allItemsHeading': 'All items in this comparison',
+  'comparison.scrollHint': 'Scroll horizontally to see all items',
+  'hub.manyItemsHint':
+    'Comparing many items works best on a wide screen. You can still add more.',
   'item.specsHeading': 'Specifications',
   'item.compareWithHeading': 'Compare with',
   'hub.title': 'Compare {kind}',

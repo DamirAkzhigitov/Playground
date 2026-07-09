@@ -72,9 +72,9 @@ export function ComparisonPicker({
         </p>
       </div>
 
-      <ul className="flex flex-wrap gap-2">
+      <ul className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {currentSlugs.map((slug) => (
-          <li key={slug}>
+          <li key={slug} className="shrink-0">
             <Badge
               variant="secondary"
               className="h-7 gap-1 rounded-full pr-1 text-sm"

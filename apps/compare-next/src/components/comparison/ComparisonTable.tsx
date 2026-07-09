@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import { Fragment } from 'react'
 
+import { ComparisonTableScroller } from '@/components/comparison/ComparisonTableScroller'
 import { Badge } from '@/components/ui/badge'
 import {
   Table,
@@ -39,6 +42,11 @@ const PLACE_LABEL: Record<ColumnPlace, string> = {
   1: EN['comparison.winner'],
   2: EN['comparison.runnerUp']
 }
+
+const STICKY_SPEC_CELL =
+  'sticky left-0 z-10 bg-background shadow-[4px_0_8px_-4px_rgba(0,0,0,0.08)]'
+const STICKY_HEADER_CELL = 'sticky top-0 z-20 bg-background'
+const STICKY_CORNER_CELL = 'sticky left-0 top-0 z-30 bg-background'
 
 function groupSpecs(specs: SpecDefinition[]): SpecGroup[] {
   const groups: SpecGroup[] = []
@@ -122,106 +130,143 @@ export function ComparisonTable({
   )
   const places = computeColumnPlaces(items, specs)
   const lastSpecKey = specs.at(-1)?.key
+  const isCompact = items.length >= 3
+  const isDense = items.length >= 5
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead scope="col" className="w-48 whitespace-normal">
-              {EN['comparison.specColumn']}
-            </TableHead>
-            {items.map((item) => {
-              const place = places.get(item.slug)
-              return (
+    <ComparisonTableScroller itemCount={items.length}>
+      {(scrollRef) => (
+        <div className="overflow-hidden rounded-lg border border-border">
+          <Table
+            containerRef={scrollRef}
+            containerClassName="snap-x snap-mandatory scroll-px-3"
+          >
+            <TableHeader>
+              <TableRow>
                 <TableHead
                   scope="col"
-                  key={item.slug}
                   className={cn(
-                    'whitespace-normal',
-                    columnFrameClasses(place, 'head')
+                    'w-36 whitespace-normal sm:w-44',
+                    STICKY_SPEC_CELL,
+                    STICKY_CORNER_CELL
                   )}
                 >
-                  {place ? (
-                    <Badge
-                      variant={PLACE_BADGE_VARIANT[place]}
-                      className="mb-2"
-                    >
-                      {PLACE_LABEL[place]}
-                    </Badge>
-                  ) : null}
-                  {item.imageUrl ? (
-                    <img
-                      className="mb-1 h-18 w-32 max-w-32 rounded-sm object-cover"
-                      src={item.imageUrl}
-                      alt={item.name}
-                      loading="lazy"
-                    />
-                  ) : null}
-                  <span className="block font-bold text-foreground">
-                    <Link href={itemPath(kindSlug, item.slug)}>
-                      {item.name}
-                    </Link>
-                  </span>
-                  {item.brand ? (
-                    <span className="block text-xs font-medium text-muted-foreground">
-                      {item.brand}
-                    </span>
-                  ) : null}
+                  {EN['comparison.specColumn']}
                 </TableHead>
-              )
-            })}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {groups.map((group, groupIndex) => (
-            <Fragment key={group.label ?? `group-${groupIndex}`}>
-              {group.label ? (
-                <TableRow className="hover:bg-transparent">
-                  <TableHead
-                    scope="colgroup"
-                    colSpan={items.length + 1}
-                    className="bg-muted text-xs font-bold tracking-wide text-muted-foreground uppercase"
-                  >
-                    {group.label}
-                  </TableHead>
-                </TableRow>
-              ) : null}
-              {group.defs.map((def) => {
-                const winners = winnersByKey.get(def.key) ?? new Set<string>()
-                const rowPosition = def.key === lastSpecKey ? 'bodyEnd' : 'body'
-                return (
-                  <TableRow key={def.key}>
+                {items.map((item) => {
+                  const place = places.get(item.slug)
+                  return (
                     <TableHead
-                      scope="row"
-                      className="font-medium text-muted-foreground"
+                      scope="col"
+                      key={item.slug}
+                      className={cn(
+                        'min-w-28 snap-start whitespace-normal',
+                        isDense && 'px-2',
+                        STICKY_HEADER_CELL,
+                        columnFrameClasses(place, 'head')
+                      )}
                     >
-                      {def.label}
-                    </TableHead>
-                    {items.map((item) => {
-                      const isWinner = winners.has(item.slug)
-                      const place = places.get(item.slug)
-                      return (
-                        <TableCell
-                          key={item.slug}
+                      {place ? (
+                        <Badge
+                          variant={PLACE_BADGE_VARIANT[place]}
+                          className="mb-2"
+                        >
+                          {PLACE_LABEL[place]}
+                        </Badge>
+                      ) : null}
+                      {item.imageUrl ? (
+                        <img
                           className={cn(
-                            'whitespace-normal',
-                            isWinner &&
-                              'bg-primary/10 font-bold ring-1 ring-inset ring-primary/30',
-                            columnFrameClasses(place, rowPosition)
+                            'mb-1 rounded-sm object-cover',
+                            isCompact
+                              ? 'h-12 w-20 max-w-20'
+                              : 'h-18 w-32 max-w-32'
+                          )}
+                          src={item.imageUrl}
+                          alt={item.name}
+                          loading="lazy"
+                        />
+                      ) : null}
+                      <span className="block font-bold text-foreground">
+                        <Link href={itemPath(kindSlug, item.slug)}>
+                          {item.name}
+                        </Link>
+                      </span>
+                      {item.brand ? (
+                        <span
+                          className={cn(
+                            'block text-xs font-medium text-muted-foreground',
+                            items.length >= 4 && 'hidden sm:block'
                           )}
                         >
-                          {formatSpecValue(item.specs[def.key] ?? null, def)}
-                        </TableCell>
-                      )
-                    })}
-                  </TableRow>
-                )
-              })}
-            </Fragment>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+                          {item.brand}
+                        </span>
+                      ) : null}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {groups.map((group, groupIndex) => (
+                <Fragment key={group.label ?? `group-${groupIndex}`}>
+                  {group.label ? (
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead
+                        scope="colgroup"
+                        colSpan={items.length + 1}
+                        className="bg-muted text-xs font-bold tracking-wide text-muted-foreground uppercase"
+                      >
+                        {group.label}
+                      </TableHead>
+                    </TableRow>
+                  ) : null}
+                  {group.defs.map((def) => {
+                    const winners =
+                      winnersByKey.get(def.key) ?? new Set<string>()
+                    const rowPosition =
+                      def.key === lastSpecKey ? 'bodyEnd' : 'body'
+                    return (
+                      <TableRow key={def.key}>
+                        <TableHead
+                          scope="row"
+                          className={cn(
+                            'font-medium text-muted-foreground',
+                            STICKY_SPEC_CELL
+                          )}
+                        >
+                          {def.label}
+                        </TableHead>
+                        {items.map((item) => {
+                          const isWinner = winners.has(item.slug)
+                          const place = places.get(item.slug)
+                          return (
+                            <TableCell
+                              key={item.slug}
+                              className={cn(
+                                'snap-start whitespace-normal',
+                                isDense && 'px-2',
+                                isWinner &&
+                                  'bg-primary/10 font-bold ring-1 ring-inset ring-primary/30',
+                                columnFrameClasses(place, rowPosition)
+                              )}
+                            >
+                              {formatSpecValue(
+                                item.specs[def.key] ?? null,
+                                def
+                              )}
+                            </TableCell>
+                          )
+                        })}
+                      </TableRow>
+                    )
+                  })}
+                </Fragment>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </ComparisonTableScroller>
   )
 }

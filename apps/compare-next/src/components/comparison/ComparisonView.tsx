@@ -14,7 +14,13 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import { EN } from '@/i18n/messages'
-import { comparisonTitleFromNames, kindHubPath } from '@/lib/comparison'
+import {
+  comparisonBreadcrumbLabel,
+  comparisonPageHeading,
+  comparisonTitleFromNames,
+  FULL_HEADING_MAX_ITEMS,
+  kindHubPath
+} from '@/lib/comparison'
 import { buildComparisonVerdict } from '@/lib/comparisonVerdict'
 import type { LoadedComparison, RelatedComparison } from '@/data/comparisonPage'
 
@@ -25,7 +31,11 @@ type ComparisonViewProps = {
 
 export function ComparisonView({ data, related }: ComparisonViewProps) {
   const { kind, items, specs, slugs } = data
-  const title = comparisonTitleFromNames(items.map((item) => item.name))
+  const names = items.map((item) => item.name)
+  const fullTitle = comparisonTitleFromNames(names)
+  const heading = comparisonPageHeading(names)
+  const breadcrumbLabel = comparisonBreadcrumbLabel(names)
+  const showFullTitleDetails = names.length > FULL_HEADING_MAX_ITEMS
   const verdict = buildComparisonVerdict(items, specs)
 
   return (
@@ -45,7 +55,7 @@ export function ComparisonView({ data, related }: ComparisonViewProps) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{title}</BreadcrumbPage>
+            <BreadcrumbPage>{breadcrumbLabel}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -54,14 +64,21 @@ export function ComparisonView({ data, related }: ComparisonViewProps) {
         <Badge variant="secondary" className="self-start">
           {kind.name}
         </Badge>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          {title}
+        <h1
+          className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
+          title={showFullTitleDetails ? fullTitle : undefined}
+        >
+          {heading}
         </h1>
+        {showFullTitleDetails ? (
+          <details className="text-sm text-muted-foreground">
+            <summary className="cursor-pointer font-medium text-foreground">
+              {EN['comparison.allItemsHeading']}
+            </summary>
+            <p className="mt-2 leading-relaxed">{fullTitle}</p>
+          </details>
+        ) : null}
       </header>
-
-      <ComparisonTable items={items} specs={specs} kindSlug={kind.slug} />
-
-      {verdict ? <ComparisonVerdictBlock verdict={verdict} /> : null}
 
       <ComparisonPicker
         kindSlug={kind.slug}
@@ -71,6 +88,10 @@ export function ComparisonView({ data, related }: ComparisonViewProps) {
           name: item.name
         }))}
       />
+
+      <ComparisonTable items={items} specs={specs} kindSlug={kind.slug} />
+
+      {verdict ? <ComparisonVerdictBlock verdict={verdict} /> : null}
 
       {slugs.length > 2 ? (
         <p className="text-sm text-muted-foreground">

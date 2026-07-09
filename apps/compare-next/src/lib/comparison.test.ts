@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import {
   computeWinners,
+  comparisonBreadcrumbLabel,
+  comparisonPageHeading,
+  comparisonTitleFromNames,
   formatSpecValue,
   isPairSegment,
   isValidItemSlug,
@@ -55,6 +58,36 @@ describe('comparison routing helpers', () => {
 
   it('builds item paths', () => {
     expect(itemPath('gpu', 'rtx-5080')).toBe('/compare/gpu/rtx-5080')
+  })
+})
+
+describe('comparison display titles', () => {
+  const eightGpus = [
+    'GeForce RTX 3070',
+    'GeForce RTX 3080',
+    'GeForce RTX 4060 Ti',
+    'GeForce RTX 4080 Super',
+    'GeForce RTX 4090',
+    'GeForce RTX 5080',
+    'Radeon RX 7700 XT',
+    'Radeon RX 7900 XTX'
+  ]
+
+  it('keeps the full vs chain for two- and three-way comparisons', () => {
+    expect(comparisonTitleFromNames(['A', 'B'])).toBe('A vs B')
+    expect(comparisonPageHeading(['A', 'B'])).toBe('A vs B')
+    expect(comparisonBreadcrumbLabel(['A', 'B'])).toBe('A vs B')
+
+    expect(comparisonPageHeading(['A', 'B', 'C'])).toBe('A vs B vs C')
+    expect(comparisonBreadcrumbLabel(['A', 'B', 'C'])).toBe('A vs B vs C')
+  })
+
+  it('collapses long headings and breadcrumbs without dropping metadata title', () => {
+    expect(comparisonPageHeading(eightGpus)).toBe(
+      'GeForce RTX 3070 vs GeForce RTX 3080 & 6 more'
+    )
+    expect(comparisonBreadcrumbLabel(eightGpus)).toBe('8-item comparison')
+    expect(comparisonTitleFromNames(eightGpus)).toBe(eightGpus.join(' vs '))
   })
 })
 

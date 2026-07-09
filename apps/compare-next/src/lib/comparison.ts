@@ -241,3 +241,30 @@ export function formatSpecValue(value: SpecValue, def: SpecDefinition): string {
 export function comparisonTitleFromNames(names: string[]): string {
   return names.join(' vs ')
 }
+
+/** Show every name in the page heading for up to this many items. */
+export const FULL_HEADING_MAX_ITEMS = 3
+
+/**
+ * Page heading for comparison views. Two- and three-way comparisons keep the
+ * full "A vs B vs C" chain; four or more collapse to "A vs B & N more".
+ */
+export function comparisonPageHeading(names: string[]): string {
+  if (names.length <= FULL_HEADING_MAX_ITEMS) {
+    return comparisonTitleFromNames(names)
+  }
+
+  const rest = names.length - 2
+  return `${names[0]} vs ${names[1]} & ${rest} more`
+}
+
+/**
+ * Short breadcrumb label for long comparisons so the trail does not overflow.
+ */
+export function comparisonBreadcrumbLabel(names: string[]): string {
+  if (names.length <= FULL_HEADING_MAX_ITEMS) {
+    return comparisonTitleFromNames(names)
+  }
+
+  return `${names.length}-item comparison`
+}

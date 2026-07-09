@@ -55,9 +55,13 @@ export function HubPicker({ kindSlug, items }: HubPickerProps) {
         ))}
       </ToggleGroup>
 
-      <div className="sticky bottom-4 flex items-center justify-between gap-4 rounded-lg border border-border bg-background p-4 shadow-md">
+      <div className="sticky bottom-4 flex flex-col gap-2 rounded-lg border border-border bg-background p-4 shadow-md sm:flex-row sm:items-center sm:justify-between">
         <span className="text-sm text-muted-foreground">
-          {selected.length < 2 ? t('hub.selectAtLeastTwo') : t('hub.pickHint')}
+          {selected.length < 2
+            ? t('hub.selectAtLeastTwo')
+            : selected.length >= 5
+              ? t('hub.manyItemsHint')
+              : t('hub.pickHint')}
         </span>
         <Button onClick={compare} disabled={selected.length < 2}>
           {t('hub.compareSelected', { count: selected.length })}
