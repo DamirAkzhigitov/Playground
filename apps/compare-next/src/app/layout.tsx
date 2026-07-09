@@ -6,6 +6,10 @@ import { getSiteUrl, SITE_NAME } from '@/lib/site'
 import '@/styles/tailwind.css'
 import '@/styles/index.scss'
 
+// Catalogue, comparison, and sitemap routes read D1. OpenNext builds spawn
+// workers with empty local D1, so skip prerender and render on the Worker at request time.
+export const dynamic = 'force-dynamic'
+
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap'

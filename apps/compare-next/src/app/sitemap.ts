@@ -15,6 +15,8 @@ import {
 import { shouldIndexComparison } from '@/lib/comparisonIndexing'
 import { getSiteUrl } from '@/lib/site'
 
+export const dynamic = 'force-dynamic'
+
 const MAX_SITEMAP_PAIRS = 100
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
