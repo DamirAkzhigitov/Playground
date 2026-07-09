@@ -32,6 +32,8 @@ const EN = {
   'comparison.remove': 'Remove {name}',
   'comparison.viewCount': '{count} views',
   'comparison.specColumn': 'Spec',
+  'comparison.winner': 'Winner',
+  'comparison.runnerUp': 'Runner-up',
   'comparison.peopleAlsoCompare': 'People also compare',
   'comparison.customNote':
     'Showing a custom multi-item comparison. Only canonical two-way pages are indexed.',

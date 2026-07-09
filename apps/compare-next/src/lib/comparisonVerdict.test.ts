@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { computeWinners } from '@/lib/comparison'
+import {
+  assertValidOrdinalSpecs,
+  computeWinners,
+  formatSpecValue
+} from '@/lib/comparison'
 import { buildComparisonVerdict } from '@/lib/comparisonVerdict'
 import type { Item, SpecDefinition } from '@/types/catalogue'
 
@@ -11,11 +15,13 @@ function spec(overrides: Partial<SpecDefinition>): SpecDefinition {
     unit: null,
     valueType: 'number',
     higherIsBetter: true,
+    comparisonMode: 'numeric',
     comparisonRole: 'primary',
     comparisonWeight: 1,
     minimumDifferencePercent: 0,
     group: null,
     sortOrder: 0,
+    options: [],
     ...overrides
   }
 }
@@ -182,6 +188,113 @@ describe('buildComparisonVerdict', () => {
     expect(computeWinners([rtx3080, rtx3070], boostClock)).toEqual(
       new Set(['rtx-3070'])
     )
+  })
+
+  it('ranks configured ordinal categories and displays their labels', () => {
+    const memoryType = spec({
+      key: 'memory_type',
+      label: 'Memory Type',
+      valueType: 'text',
+      higherIsBetter: null,
+      comparisonMode: 'ordinal',
+      comparisonRole: 'informational',
+      comparisonWeight: 0,
+      options: [
+        { key: 'gddr6', label: 'GDDR6', rank: 1, sortOrder: 10 },
+        { key: 'gddr6x', label: 'GDDR6X', rank: 2, sortOrder: 20 },
+        { key: 'gddr7', label: 'GDDR7', rank: 3, sortOrder: 30 }
+      ]
+    })
+    const gddr6 = {
+      ...rtx3070,
+      specs: { ...rtx3070.specs, memory_type: 'gddr6' }
+    }
+    const gddr7 = {
+      ...rtx3080,
+      specs: { ...rtx3080.specs, memory_type: 'gddr7' }
+    }
+
+    expect(computeWinners([gddr6, gddr7], memoryType)).toEqual(
+      new Set(['rtx-3080'])
+    )
+    expect(formatSpecValue('gddr7', memoryType)).toBe('GDDR7')
+  })
+
+  it('awards configured primary weight for an ordinal category', () => {
+    const memoryType = spec({
+      key: 'memory_type',
+      label: 'Memory Type',
+      valueType: 'text',
+      higherIsBetter: null,
+      comparisonMode: 'ordinal',
+      comparisonWeight: 2,
+      options: [
+        { key: 'gddr6', label: 'GDDR6', rank: 1, sortOrder: 10 },
+        { key: 'gddr7', label: 'GDDR7', rank: 3, sortOrder: 30 }
+      ]
+    })
+    const verdict = buildComparisonVerdict(
+      [
+        { ...rtx3070, specs: { memory_type: 'gddr6' } },
+        { ...rtx3080, specs: { memory_type: 'gddr7' } }
+      ],
+      [memoryType]
+    )
+
+    expect(verdict?.items.find((item) => item.slug === 'rtx-3080')?.score).toBe(
+      2
+    )
+    expect(
+      verdict?.items.find((item) => item.slug === 'rtx-3070')?.cons
+    ).toContain('Memory Type: GDDR6 (vs RTX 3080: GDDR7)')
+  })
+
+  it('does not mark tied, missing, or unknown ordinal values as winners', () => {
+    const memoryType = spec({
+      key: 'memory_type',
+      label: 'Memory Type',
+      valueType: 'text',
+      higherIsBetter: null,
+      comparisonMode: 'ordinal',
+      options: [{ key: 'gddr6', label: 'GDDR6', rank: 1, sortOrder: 10 }]
+    })
+
+    expect(
+      computeWinners(
+        [
+          { ...rtx3070, specs: { memory_type: 'gddr6' } },
+          { ...rtx3080, specs: { memory_type: 'gddr6' } }
+        ],
+        memoryType
+      )
+    ).toEqual(new Set())
+    expect(
+      computeWinners(
+        [
+          { ...rtx3070, specs: { memory_type: 'gddr6' } },
+          { ...rtx3080, specs: { memory_type: 'unknown' } }
+        ],
+        memoryType
+      )
+    ).toEqual(new Set())
+  })
+
+  it('rejects populated ordinal values without a configured ranked option', () => {
+    const memoryType = spec({
+      key: 'memory_type',
+      label: 'Memory Type',
+      valueType: 'text',
+      higherIsBetter: null,
+      comparisonMode: 'ordinal',
+      options: [{ key: 'gddr6', label: 'GDDR6', rank: 1, sortOrder: 10 }]
+    })
+
+    expect(() =>
+      assertValidOrdinalSpecs(
+        [{ ...rtx3070, specs: { memory_type: 'unknown' } }],
+        [memoryType]
+      )
+    ).toThrow('Invalid ordinal option')
   })
 
   it('keeps a clear leader in multi-item comparisons', () => {

@@ -24,6 +24,15 @@ export type SpecValue = string | number | boolean | null
 
 export type ComparisonRole = 'primary' | 'tradeoff' | 'informational'
 
+export type ComparisonMode = 'numeric' | 'ordinal' | 'none'
+
+export type SpecOption = {
+  key: string
+  label: string
+  rank: number | null
+  sortOrder: number
+}
+
 /** A comparable category (GPU, Phone, ...). */
 export type Kind = {
   id: string
@@ -41,6 +50,8 @@ export type SpecDefinition = {
   valueType: SpecValueType
   /** true = higher wins, false = lower wins (price/latency), null = not ranked. */
   higherIsBetter: boolean | null
+  /** Determines whether values are compared numerically, by explicit rank, or not at all. */
+  comparisonMode: ComparisonMode
   /** Whether this spec determines the overall verdict, a trade-off, or display only. */
   comparisonRole: ComparisonRole
   /** Points awarded for a meaningful primary-spec win. */
@@ -49,6 +60,8 @@ export type SpecDefinition = {
   minimumDifferencePercent: number
   group: string | null
   sortOrder: number
+  /** Allowed categorical values and their optional explicit comparison ranks. */
+  options: SpecOption[]
 }
 
 /** A single product within a kind. Specs are a flat key/value map. */

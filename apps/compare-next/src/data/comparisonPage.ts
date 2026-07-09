@@ -12,6 +12,7 @@ import {
 import {
   buildPairKey,
   comparisonPath,
+  assertValidOrdinalSpecs,
   isPairSegment,
   isValidItemSlug,
   parsePairSegment
@@ -60,6 +61,8 @@ export const loadComparison = cache(
 
     if (items.length < 2) return null
 
+    assertValidOrdinalSpecs(items, specs)
+
     const slugs = items.map((item) => item.slug)
     const pairKey = buildPairKey(kindSlug, slugs)
     const stat = await getComparisonStat(kindSlug, pairKey)
@@ -99,6 +102,8 @@ export const loadItem = cache(
 
     if (!item) return null
 
+    assertValidOrdinalSpecs([item], specs)
+
     const related = buildRelatedComparisons(stats, allItems, item.slug, null)
 
     return { kind, item, specs, allItems, related }
@@ -124,10 +129,13 @@ export const loadKindHub = cache(
     const kind = await getKindBySlug(kindSlug)
     if (!kind) return null
 
-    const [items, stats] = await Promise.all([
+    const [items, specs, stats] = await Promise.all([
       getItemsByKind(kindSlug),
+      getSpecDefinitions(kindSlug),
       listComparisonStats({ kindSlug, limit: 24 })
     ])
+
+    assertValidOrdinalSpecs(items, specs)
 
     const itemBySlug = new Map(items.map((item) => [item.slug, item]))
 

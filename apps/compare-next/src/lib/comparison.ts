@@ -72,6 +72,40 @@ export function isIndexableComparison(slugs: string[]): boolean {
   return slugs.length === 2
 }
 
+/**
+ * Ensure populated ordinal values use configured, ranked option keys.
+ * Data loaders call this before rendering comparison content.
+ */
+export function assertValidOrdinalSpecs(
+  items: Item[],
+  specs: SpecDefinition[]
+): void {
+  for (const def of specs) {
+    if (def.comparisonMode !== 'ordinal') continue
+
+    const optionsByKey = new Map(
+      def.options.map((option) => [option.key, option])
+    )
+    for (const item of items) {
+      const value = item.specs[def.key]
+      if (value === null || value === undefined || value === '') continue
+
+      if (typeof value !== 'string') {
+        throw new Error(
+          `Invalid ordinal value for ${item.slug}.${def.key}: expected a string`
+        )
+      }
+
+      const option = optionsByKey.get(value)
+      if (!option || option.rank === null) {
+        throw new Error(
+          `Invalid ordinal option for ${item.slug}.${def.key}: ${value}`
+        )
+      }
+    }
+  }
+}
+
 function toNumber(value: SpecValue): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value
   return null
@@ -90,18 +124,11 @@ function hasMeaningfulDifference(
   return (Math.abs(best - next) / baseline) * 100 >= minimumDifferencePercent
 }
 
-/**
- * For a numeric ranked spec, return the slugs of the winning item(s).
- * Identical values do not produce winners. Informational specs otherwise display
- * their raw winner; primary and trade-off specs require a meaningful difference.
- */
-export function computeWinners(
+function computeNumericWinners(
   items: Item[],
   def: SpecDefinition
 ): Set<string> {
-  if (def.valueType !== 'number' || def.higherIsBetter === null) {
-    return new Set()
-  }
+  if (def.higherIsBetter === null) return new Set()
 
   const values = items
     .map((item) => ({ slug: item.slug, value: toNumber(item.specs[def.key]) }))
@@ -118,9 +145,7 @@ export function computeWinners(
 
   const winners = values.filter((entry) => entry.value === best)
   const otherValues = values.filter((entry) => entry.value !== best)
-  if (otherValues.length === 0) {
-    return new Set()
-  }
+  if (otherValues.length === 0) return new Set()
 
   if (def.comparisonRole === 'informational') {
     return new Set(winners.map((entry) => entry.slug))
@@ -137,6 +162,59 @@ export function computeWinners(
   return new Set(winners.map((entry) => entry.slug))
 }
 
+function computeOrdinalWinners(
+  items: Item[],
+  def: SpecDefinition
+): Set<string> {
+  const ranksByKey = new Map(
+    def.options
+      .filter(
+        (option): option is typeof option & { rank: number } =>
+          option.rank !== null
+      )
+      .map((option) => [option.key, option.rank])
+  )
+  const values = items
+    .map((item) => {
+      const value = item.specs[def.key]
+      return {
+        slug: item.slug,
+        rank: typeof value === 'string' ? (ranksByKey.get(value) ?? null) : null
+      }
+    })
+    .filter(
+      (entry): entry is { slug: string; rank: number } => entry.rank !== null
+    )
+
+  if (values.length < 2) return new Set()
+
+  const best = Math.max(...values.map((entry) => entry.rank))
+  const winners = values.filter((entry) => entry.rank === best)
+  if (winners.length === values.length) return new Set()
+
+  return new Set(winners.map((entry) => entry.slug))
+}
+
+/**
+ * Return the slugs of the winning item(s) for an explicitly configured strategy.
+ * Identical values, missing values, and unranked specs never produce winners.
+ * Informational specs are highlighted too, but do not affect verdict scores.
+ */
+export function computeWinners(
+  items: Item[],
+  def: SpecDefinition
+): Set<string> {
+  if (def.comparisonMode === 'numeric' && def.valueType === 'number') {
+    return computeNumericWinners(items, def)
+  }
+
+  if (def.comparisonMode === 'ordinal') {
+    return computeOrdinalWinners(items, def)
+  }
+
+  return new Set()
+}
+
 /** Human-readable value for a spec cell. */
 export function formatSpecValue(value: SpecValue, def: SpecDefinition): string {
   if (value === null || value === undefined || value === '') return '—'
@@ -150,6 +228,10 @@ export function formatSpecValue(value: SpecValue, def: SpecDefinition): string {
     if (!def.unit) return formatted
     if (def.unit === '$') return `$${formatted}`
     return `${formatted} ${def.unit}`
+  }
+
+  if (def.comparisonMode === 'ordinal' && typeof value === 'string') {
+    return def.options.find((option) => option.key === value)?.label ?? value
   }
 
   return String(value)

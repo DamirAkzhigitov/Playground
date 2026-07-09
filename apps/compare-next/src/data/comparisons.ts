@@ -1,10 +1,12 @@
 import { getDb } from '@/data/db'
 import type {
+  ComparisonMode,
   ComparisonRole,
   ComparisonStat,
   Item,
   Kind,
   SpecDefinition,
+  SpecOption,
   SpecValue,
   SpecValueType
 } from '@/types/catalogue'
@@ -30,15 +32,25 @@ type ItemRow = {
 }
 
 type SpecDefinitionRow = {
+  id: string
   key: string
   label: string
   unit: string | null
   value_type: string
   higher_is_better: number | null
+  comparison_mode: string
   comparison_role: string
   comparison_weight: number
   minimum_difference_percent: number
   group_label: string | null
+  sort_order: number
+}
+
+type SpecOptionRow = {
+  spec_definition_id: string
+  key: string
+  label: string
+  rank: number | null
   sort_order: number
 }
 
@@ -52,6 +64,14 @@ function parseComparisonRole(value: string): ComparisonRole {
   }
 
   throw new Error(`Invalid comparison role: ${value}`)
+}
+
+function parseComparisonMode(value: string): ComparisonMode {
+  if (value === 'numeric' || value === 'ordinal' || value === 'none') {
+    return value
+  }
+
+  throw new Error(`Invalid comparison mode: ${value}`)
 }
 
 type ComparisonStatRow = {
@@ -96,7 +116,19 @@ function mapItem(row: ItemRow): Item {
   }
 }
 
-function mapSpecDefinition(row: SpecDefinitionRow): SpecDefinition {
+function mapSpecOption(row: SpecOptionRow): SpecOption {
+  return {
+    key: row.key,
+    label: row.label,
+    rank: row.rank,
+    sortOrder: row.sort_order
+  }
+}
+
+function mapSpecDefinition(
+  row: SpecDefinitionRow,
+  options: SpecOption[]
+): SpecDefinition {
   return {
     key: row.key,
     label: row.label,
@@ -104,11 +136,13 @@ function mapSpecDefinition(row: SpecDefinitionRow): SpecDefinition {
     valueType: (row.value_type as SpecValueType) ?? 'text',
     higherIsBetter:
       row.higher_is_better === null ? null : row.higher_is_better === 1,
+    comparisonMode: parseComparisonMode(row.comparison_mode),
     comparisonRole: parseComparisonRole(row.comparison_role),
     comparisonWeight: row.comparison_weight,
     minimumDifferencePercent: row.minimum_difference_percent,
     group: row.group_label,
-    sortOrder: row.sort_order
+    sortOrder: row.sort_order,
+    options
   }
 }
 
@@ -153,7 +187,7 @@ export async function getSpecDefinitions(
   kindSlug: string
 ): Promise<SpecDefinition[]> {
   const db = await getDb()
-  const { results } = await db
+  const { results: definitionRows } = await db
     .prepare(
       `SELECT sd.* FROM spec_definitions sd
        JOIN kinds k ON k.id = sd.kind_id
@@ -162,7 +196,31 @@ export async function getSpecDefinitions(
     )
     .bind(kindSlug)
     .all<SpecDefinitionRow>()
-  return results.map(mapSpecDefinition)
+
+  if (definitionRows.length === 0) return []
+
+  const definitionIds = definitionRows.map((row) => row.id)
+  const placeholders = definitionIds.map(() => '?').join(', ')
+  const { results: optionRows } = await db
+    .prepare(
+      `SELECT spec_definition_id, key, label, rank, sort_order
+       FROM spec_options
+       WHERE spec_definition_id IN (${placeholders})
+       ORDER BY sort_order, label`
+    )
+    .bind(...definitionIds)
+    .all<SpecOptionRow>()
+  const optionsByDefinitionId = new Map<string, SpecOption[]>()
+
+  for (const row of optionRows) {
+    const options = optionsByDefinitionId.get(row.spec_definition_id) ?? []
+    options.push(mapSpecOption(row))
+    optionsByDefinitionId.set(row.spec_definition_id, options)
+  }
+
+  return definitionRows.map((row) =>
+    mapSpecDefinition(row, optionsByDefinitionId.get(row.id) ?? [])
+  )
 }
 
 export async function getItemBySlug(

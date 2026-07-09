@@ -14,11 +14,13 @@ const specs: SpecDefinition[] = [
     unit: 'GB',
     valueType: 'number',
     higherIsBetter: true,
+    comparisonMode: 'numeric',
     comparisonRole: 'primary',
     comparisonWeight: 1,
     minimumDifferencePercent: 0,
     group: null,
-    sortOrder: 1
+    sortOrder: 1,
+    options: []
   },
   {
     key: 'msrp_usd',
@@ -26,11 +28,13 @@ const specs: SpecDefinition[] = [
     unit: '$',
     valueType: 'number',
     higherIsBetter: false,
+    comparisonMode: 'numeric',
     comparisonRole: 'tradeoff',
     comparisonWeight: 0,
     minimumDifferencePercent: 0,
     group: null,
-    sortOrder: 2
+    sortOrder: 2,
+    options: []
   }
 ]
 

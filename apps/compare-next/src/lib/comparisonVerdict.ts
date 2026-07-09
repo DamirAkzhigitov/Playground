@@ -19,7 +19,12 @@ export type ComparisonVerdict = {
 }
 
 function isComparableSpec(def: SpecDefinition): boolean {
-  return def.valueType === 'number' && def.higherIsBetter !== null
+  return (
+    (def.comparisonMode === 'numeric' &&
+      def.valueType === 'number' &&
+      def.higherIsBetter !== null) ||
+    def.comparisonMode === 'ordinal'
+  )
 }
 
 function isPrimarySpec(def: SpecDefinition): boolean {
@@ -52,6 +57,24 @@ function formatDiff(
 
   const direction = loserValue > winnerValue ? 'higher' : 'lower'
   return `${loser} (${pct}% ${direction}; ${comparison})`
+}
+
+function formatDisadvantage(
+  def: SpecDefinition,
+  winnerValue: Item['specs'][string],
+  loserValue: Item['specs'][string],
+  winnerName: string
+): string {
+  if (typeof winnerValue === 'number' && typeof loserValue === 'number') {
+    return `${def.label}: ${formatDiff(
+      def,
+      winnerValue,
+      loserValue,
+      winnerName
+    )}`
+  }
+
+  return `${def.label}: ${formatSpecValue(loserValue, def)} (vs ${winnerName}: ${formatSpecValue(winnerValue, def)})`
 }
 
 function priceDiffNote(items: Item[]): string | null {
@@ -167,19 +190,9 @@ export function buildComparisonVerdict(
       const loserEntry = verdictBySlug.get(loser.slug)
       const winnerValue = winner.specs[def.key]
       const loserValue = loser.specs[def.key]
-      if (
-        loserEntry &&
-        loserEntry.cons.length < 3 &&
-        typeof winnerValue === 'number' &&
-        typeof loserValue === 'number'
-      ) {
+      if (loserEntry && loserEntry.cons.length < 3) {
         loserEntry.cons.push(
-          `${def.label}: ${formatDiff(
-            def,
-            winnerValue,
-            loserValue,
-            winner.name
-          )}`
+          formatDisadvantage(def, winnerValue, loserValue, winner.name)
         )
       }
     }
