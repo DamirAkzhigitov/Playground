@@ -48,8 +48,8 @@ jobs:
       - name: Build verification
         run: |
           pnpm turbo run build
-          if [ ! -d "apps/main/dist" ]; then
-            echo "Error: build failed — apps/main/dist not created"
+          if [ ! -d "apps/compare-next/.next" ]; then
+            echo "Error: build failed — apps/compare-next/.next not created"
             exit 1
           fi
-          echo "Build successful — apps/main/dist created"
+          echo "Build successful — apps/compare-next/.next created"
