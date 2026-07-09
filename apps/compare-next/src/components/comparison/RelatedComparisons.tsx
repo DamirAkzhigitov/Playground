@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { Badge } from '@/components/ui/badge'
 import { EN } from '@/i18n/messages'
 import type { RelatedComparison } from '@/data/comparisonPage'
 
@@ -15,20 +16,23 @@ export function RelatedComparisons({
   if (comparisons.length === 0) return null
 
   return (
-    <section className="cmp-related">
-      <h2 className="cmp-related__title">{heading}</h2>
-      <ul className="cmp-related__list">
+    <section>
+      <h2 className="mb-4 text-lg font-semibold">{heading}</h2>
+      <ul className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-3">
         {comparisons.map((entry) => (
-          <li key={entry.pairKey}>
-            <Link href={entry.href} className="cmp-related__link">
+          <li key={entry.pairKey} className="flex flex-col gap-1">
+            <Link
+              href={entry.href}
+              className="font-semibold text-foreground hover:text-primary"
+            >
               {entry.title}
             </Link>
-            <span className="cmp-related__views">
+            <Badge variant="secondary" className="self-start">
               {EN['comparison.viewCount'].replace(
                 '{count}',
                 entry.viewCount.toLocaleString('en-US')
               )}
-            </span>
+            </Badge>
           </li>
         ))}
       </ul>

@@ -1,5 +1,12 @@
 import { Fragment } from 'react'
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
+} from '@/components/ui/table'
 import { formatSpecValue } from '@/lib/comparison'
 import type { Item, SpecDefinition } from '@/types/catalogue'
 
@@ -30,26 +37,38 @@ export function ItemSpecTable({ item, specs }: ItemSpecTableProps) {
   const groups = groupSpecs(specs)
 
   return (
-    <div className="item-specs__scroll">
-      <table className="item-specs">
-        <tbody>
+    <div className="overflow-hidden rounded-lg border border-border">
+      <Table>
+        <TableBody>
           {groups.map((group, groupIndex) => (
             <Fragment key={group.label ?? `group-${groupIndex}`}>
               {group.label ? (
-                <tr className="item-specs__group">
-                  <th colSpan={2}>{group.label}</th>
-                </tr>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead
+                    colSpan={2}
+                    className="bg-muted text-xs font-bold tracking-wide text-muted-foreground uppercase"
+                  >
+                    {group.label}
+                  </TableHead>
+                </TableRow>
               ) : null}
               {group.defs.map((def) => (
-                <tr key={def.key}>
-                  <th scope="row">{def.label}</th>
-                  <td>{formatSpecValue(item.specs[def.key] ?? null, def)}</td>
-                </tr>
+                <TableRow key={def.key}>
+                  <TableHead
+                    scope="row"
+                    className="w-2/5 font-normal text-muted-foreground"
+                  >
+                    {def.label}
+                  </TableHead>
+                  <TableCell className="whitespace-normal">
+                    {formatSpecValue(item.specs[def.key] ?? null, def)}
+                  </TableCell>
+                </TableRow>
               ))}
             </Fragment>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

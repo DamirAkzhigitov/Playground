@@ -1,8 +1,17 @@
 import Link from 'next/link'
 import { Fragment } from 'react'
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 import { computeWinners, formatSpecValue, itemPath } from '@/lib/comparison'
 import { EN } from '@/i18n/messages'
+import { cn } from '@/lib/utils'
 import type { Item, SpecDefinition } from '@/types/catalogue'
 
 type ComparisonTableProps = {
@@ -45,72 +54,85 @@ export function ComparisonTable({
   )
 
   return (
-    <div className="cmp-table__scroll">
-      <table className="cmp-table">
-        <thead>
-          <tr>
-            <th scope="col" className="cmp-table__corner">
+    <div className="overflow-hidden rounded-lg border border-border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col" className="w-48 whitespace-normal">
               {EN['comparison.specColumn']}
-            </th>
+            </TableHead>
             {items.map((item) => (
-              <th scope="col" key={item.slug} className="cmp-table__item">
+              <TableHead
+                scope="col"
+                key={item.slug}
+                className="whitespace-normal"
+              >
                 {item.imageUrl ? (
                   <img
-                    className="cmp-table__item-img"
+                    className="mb-1 h-18 w-32 max-w-32 rounded-sm object-cover"
                     src={item.imageUrl}
                     alt={item.name}
                     loading="lazy"
                   />
                 ) : null}
-                <span className="cmp-table__item-name">
+                <span className="block font-bold text-foreground">
                   <Link href={itemPath(kindSlug, item.slug)}>{item.name}</Link>
                 </span>
                 {item.brand ? (
-                  <span className="cmp-table__item-brand">{item.brand}</span>
+                  <span className="block text-xs font-medium text-muted-foreground">
+                    {item.brand}
+                  </span>
                 ) : null}
-              </th>
+              </TableHead>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {groups.map((group, groupIndex) => (
             <Fragment key={group.label ?? `group-${groupIndex}`}>
               {group.label ? (
-                <tr className="cmp-table__group">
-                  <th scope="colgroup" colSpan={items.length + 1}>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead
+                    scope="colgroup"
+                    colSpan={items.length + 1}
+                    className="bg-muted text-xs font-bold tracking-wide text-muted-foreground uppercase"
+                  >
                     {group.label}
-                  </th>
-                </tr>
+                  </TableHead>
+                </TableRow>
               ) : null}
               {group.defs.map((def) => {
                 const winners = winnersByKey.get(def.key) ?? new Set<string>()
                 return (
-                  <tr key={def.key}>
-                    <th scope="row" className="cmp-table__spec">
+                  <TableRow key={def.key}>
+                    <TableHead
+                      scope="row"
+                      className="font-medium text-muted-foreground"
+                    >
                       {def.label}
-                    </th>
+                    </TableHead>
                     {items.map((item) => {
                       const isWinner = winners.has(item.slug)
                       return (
-                        <td
+                        <TableCell
                           key={item.slug}
-                          className={
-                            isWinner
-                              ? 'cmp-table__value cmp-table__value--best'
-                              : 'cmp-table__value'
-                          }
+                          className={cn(
+                            'whitespace-normal',
+                            isWinner &&
+                              'bg-primary/10 font-bold text-primary ring-1 ring-inset ring-primary/30'
+                          )}
                         >
                           {formatSpecValue(item.specs[def.key] ?? null, def)}
-                        </td>
+                        </TableCell>
                       )
                     })}
-                  </tr>
+                  </TableRow>
                 )
               })}
             </Fragment>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

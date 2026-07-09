@@ -30,29 +30,14 @@ input {
 }
 
 :root {
-  --color-bg: #f4f5fb;
   --color-surface: #ffffff;
-  --color-text: #1e2138;
-  --color-text-muted: #5c6178;
   --color-border: #dde0ee;
-  --color-primary: #5d5fef;
-  --color-primary-hover: #4b4de0;
-  --color-badge-bg: #eef0ff;
-  --color-badge-text: #4b4de0;
-  --color-accent: #ff725e;
 
-  --radius-sm: 0.5rem;
-  --radius-md: 0.875rem;
   --radius-lg: 1.25rem;
 
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
-
-  --shadow-card: 0 4px 16px rgb(30 33 56 / 8%);
-  --shadow-card-hover: 0 8px 24px rgb(30 33 56 / 12%);
 
   --max-width: 72rem;
 }
@@ -71,16 +56,4 @@ input {
   @media (min-width: 640px) {
     padding: var(--space-xl) var(--space-lg);
   }
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }

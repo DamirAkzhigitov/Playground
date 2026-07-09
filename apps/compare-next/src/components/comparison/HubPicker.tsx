@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useI18n } from '@/contexts/I18nContext'
 import { comparisonPath } from '@/lib/comparison'
 
@@ -22,59 +24,44 @@ export function HubPicker({ kindSlug, items }: HubPickerProps) {
   const { t } = useI18n()
   const [selected, setSelected] = useState<string[]>([])
 
-  function toggle(slug: string) {
-    setSelected((current) =>
-      current.includes(slug)
-        ? current.filter((s) => s !== slug)
-        : [...current, slug]
-    )
-  }
-
   function compare() {
     if (selected.length < 2) return
     router.push(comparisonPath(kindSlug, selected))
   }
 
   return (
-    <div className="hub-picker">
-      <div className="hub-picker__grid">
-        {items.map((item) => {
-          const isSelected = selected.includes(item.slug)
-          return (
-            <button
-              type="button"
-              key={item.slug}
-              className={
-                isSelected
-                  ? 'hub-picker__item hub-picker__item--selected'
-                  : 'hub-picker__item'
-              }
-              aria-pressed={isSelected}
-              onClick={() => toggle(item.slug)}
-            >
-              <span>
-                <span className="hub-picker__item-name">{item.name}</span>
-                {item.brand ? (
-                  <span className="hub-picker__item-brand">{item.brand}</span>
-                ) : null}
+    <div className="flex flex-col gap-4">
+      <ToggleGroup
+        multiple
+        value={selected}
+        onValueChange={setSelected}
+        variant="outline"
+        spacing={2}
+        className="grid w-full grid-cols-[repeat(auto-fill,minmax(14rem,1fr))]"
+      >
+        {items.map((item) => (
+          <ToggleGroupItem
+            key={item.slug}
+            value={item.slug}
+            className="h-auto flex-col items-start gap-0.5 rounded-md px-3 py-3 text-left"
+          >
+            <span className="font-semibold">{item.name}</span>
+            {item.brand ? (
+              <span className="text-xs text-muted-foreground">
+                {item.brand}
               </span>
-            </button>
-          )
-        })}
-      </div>
+            ) : null}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
 
-      <div className="hub-picker__bar">
-        <span className="hub-picker__bar-hint">
+      <div className="sticky bottom-4 flex items-center justify-between gap-4 rounded-lg border border-border bg-background p-4 shadow-md">
+        <span className="text-sm text-muted-foreground">
           {selected.length < 2 ? t('hub.selectAtLeastTwo') : t('hub.pickHint')}
         </span>
-        <button
-          type="button"
-          className="hub-picker__compare"
-          onClick={compare}
-          disabled={selected.length < 2}
-        >
+        <Button onClick={compare} disabled={selected.length < 2}>
           {t('hub.compareSelected', { count: selected.length })}
-        </button>
+        </Button>
       </div>
     </div>
   )

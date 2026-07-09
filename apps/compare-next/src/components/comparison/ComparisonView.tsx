@@ -4,6 +4,15 @@ import { ComparisonPicker } from '@/components/comparison/ComparisonPicker'
 import { ComparisonTable } from '@/components/comparison/ComparisonTable'
 import { ComparisonVerdictBlock } from '@/components/comparison/ComparisonVerdict'
 import { RelatedComparisons } from '@/components/comparison/RelatedComparisons'
+import { Badge } from '@/components/ui/badge'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from '@/components/ui/breadcrumb'
 import { EN } from '@/i18n/messages'
 import { comparisonTitleFromNames, kindHubPath } from '@/lib/comparison'
 import { buildComparisonVerdict } from '@/lib/comparisonVerdict'
@@ -20,18 +29,34 @@ export function ComparisonView({ data, related }: ComparisonViewProps) {
   const verdict = buildComparisonVerdict(items, specs)
 
   return (
-    <section className="cmp">
-      <nav className="cmp__breadcrumb" aria-label="Breadcrumb">
-        <Link href="/">{EN['comparison.breadcrumbHome']}</Link>
-        <span aria-hidden="true">/</span>
-        <Link href={kindHubPath(kind.slug)}>{kind.namePlural}</Link>
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">{title}</span>
-      </nav>
+    <section className="flex flex-col gap-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink render={<Link href="/" />}>
+              {EN['comparison.breadcrumbHome']}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink render={<Link href={kindHubPath(kind.slug)} />}>
+              {kind.namePlural}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-      <header className="cmp__header">
-        <span className="badge">{kind.name}</span>
-        <h1 className="cmp__title">{title}</h1>
+      <header className="flex flex-col gap-2">
+        <Badge variant="secondary" className="self-start">
+          {kind.name}
+        </Badge>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {title}
+        </h1>
       </header>
 
       <ComparisonTable items={items} specs={specs} kindSlug={kind.slug} />
@@ -48,7 +73,9 @@ export function ComparisonView({ data, related }: ComparisonViewProps) {
       />
 
       {slugs.length > 2 ? (
-        <p className="cmp__note">{EN['comparison.customNote']}</p>
+        <p className="text-sm text-muted-foreground">
+          {EN['comparison.customNote']}
+        </p>
       ) : null}
 
       <RelatedComparisons
