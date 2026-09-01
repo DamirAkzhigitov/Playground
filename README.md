@@ -81,7 +81,8 @@ local preview, D1 migrations, and app layout.
   unit tests with line-coverage thresholds, and build. Playwright E2E is
   temporarily disabled in CI (`e2e` job `if: false`).
 - **`deploy.yml`** — production deploy on push to `main`; dev preview on PRs
-  when compare-next changes.
+  when compare-next changes; `workflow_dispatch` deploys a pushed SHA or
+  branch to `dev-compare.da-mr.com`.
 - **`security-audit.yml`** — weekly `pnpm audit` (moderate+); also
   `workflow_dispatch`.
 
